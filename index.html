@@ -92,6 +92,28 @@
       border-color: #cbd5e1;
     }
     
+    /* Заголовок с кнопкой карты */
+    .header-with-map {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .map-button {
+      background: none;
+      border: none;
+      color: #f5b042;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 40px;
+      transition: background 0.2s;
+    }
+    .map-button:hover {
+      background: #fef3c7;
+    }
+    
     /* Выбор даты */
     .date-options {
       display: flex;
@@ -202,7 +224,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     
-    /* Подвал — элементы друг под другом */
+    /* Подвал */
     .footer {
       background: transparent;
       padding: 20px 0;
@@ -253,6 +275,12 @@
       text-align: center;
       max-height: 80vh;
       overflow-y: auto;
+    }
+    .modal-content.map-modal {
+      max-width: 90%;
+      width: 800px;
+      padding: 0;
+      overflow: hidden;
     }
     .modal-title { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
     .modal-text { color: #5a6e7c; margin-bottom: 20px; font-size: 14px; text-align: left; line-height: 1.5; }
@@ -361,6 +389,40 @@
       flex-wrap: wrap;
     }
     hr { margin: 16px 0; border: none; height: 1px; background: #eef2f5; }
+    
+    /* Заголовок модального окна карты */
+    .map-modal-header {
+      padding: 16px 20px;
+      background: white;
+      border-bottom: 1px solid #eef2f5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .map-modal-header .modal-title {
+      margin-bottom: 0;
+      font-size: 18px;
+    }
+    .close-map-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #8b9eb0;
+      padding: 0 8px;
+    }
+    .close-map-btn:hover {
+      color: #1a2a3a;
+    }
+    iframe {
+      display: block;
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+    @media (max-width: 600px) {
+      iframe { height: 400px; }
+    }
   </style>
 </head>
 <body>
@@ -378,9 +440,13 @@
 
   <div id="statusContainer" style="display: none;"></div>
 
-  <!-- Блок 1: Куда приехать -->
+  <!-- Блок 1: Куда приехать (с кнопкой карты) -->
   <div class="form-card" id="orderForm">
-    <div class="section-title">Куда приехать?</div>
+    <div class="header-with-map">
+      <div class="section-title" style="margin-bottom: 0;">Куда приехать?</div>
+      <button class="map-button" id="mapButton">🗺️ Зона обслуживания</button>
+    </div>
+    
     <div class="input-group">
       <label>Улица</label>
       <select id="streetSelect" required>
@@ -447,7 +513,7 @@
     </div>
   </div>
   
-  <!-- Подвал с реквизитами (элементы друг под другом) -->
+  <!-- Подвал -->
   <div class="footer">
     <div class="footer-links">
       <a href="#" id="offerLink">Публичная оферта</a>
@@ -521,6 +587,17 @@
   </div>
 </div>
 
+<!-- Модальное окно с картой 2ГИС -->
+<div id="mapModal" class="modal">
+  <div class="modal-content map-modal">
+    <div class="map-modal-header">
+      <div class="modal-title">Наша зона обслуживания</div>
+      <button class="close-map-btn" id="closeMapBtn">✕</button>
+    </div>
+    <iframe id="map_942516914" frameborder="0" width="100%" height="500px" src="https://makemap.2gis.ru/widget?data=eJy1VMFuEzEQ_RdzZFXZY3s8jtRDlEKJlJaUgiqocghZk27ZxtFmS0mj_DtO1nZEDyBFcNy34_Gb955nw3xTusaV584_uLap3Ir1bjesXS8d67G3bto-No4VbNn4pWva_f8NK91q1lTLtvKLUDV-13998fHTfHTdX18Mzq4WlwPFR_LD3J4PxgP7NJ6fnoYWq7bx393A174Jh16p8qsBnfGbqmzvWA_S9_vldFa1a9YTBftW1XU-V-LMSMs6NFfxE12w5-GidD_DkW3B5t1A6x3dOM3Y1-t5YFywmQ9jV4tpux_39hbFCRgUkgqtT4BbofSk6FArje1QI9FG1HKdao3klFEEFTugSA0MCLEHBVdKJvTFZZNJoFyVgbqValscY8B9f2fA8_83QFqkEv9oABxjQJDPmiSqUFlUI5LUWpkDaiDqpygaILkhEzuQ0jajSNEWFAQJVVzqDtWkRUKlSh2QMN9mrcTIAQwklDTKiCLlEBil0hRG5cCgociXIN0GVulIgeShVJpEwSDKQ7Z-EycHBhDMUYG5vO63w7M3T8PLwYyP7q9-lOdn_POQRrL_-t-FBXWJf3mt8qjXGl4jxGelucr2gRJRUZI5AFJG6XbaZk8VdO4JUIA5FYZHVKFWB0tEZxQAcUyokNESEMRzKoK9XYddYCNIVkBkayHvi8AQKKIqEyNhdRdXQUaltsR5onsADaW0Cszrxti4bsJUufCFWjk9UiJtJwV7mC7HflV18diwetqy3r5ckCQIi08A2oLVu997ncJIyLlRGNQLVnr_ELwPm4uFmPm6vrlzrv6yR9vm0W1_AfUbvFM" sandbox="allow-modals allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
+  </div>
+</div>
+
 <!-- Модальное окно после заказа -->
 <div id="successModal" class="modal">
   <div class="modal-content">
@@ -538,7 +615,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-  // ========== FIREBASE КОНФИГУРАЦИЯ (обновлена) ==========
+  // ========== FIREBASE КОНФИГУРАЦИЯ ==========
   const firebaseConfig = {
     apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
     authDomain: "musor-go.firebaseapp.com",
@@ -780,6 +857,19 @@
     document.getElementById('closeModalBtn').onclick = () => { modal.style.display = "none"; };
     modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
   }
+
+  // Кнопка карты
+  document.getElementById('mapButton').addEventListener('click', () => {
+    document.getElementById('mapModal').style.display = 'flex';
+  });
+  document.getElementById('closeMapBtn').addEventListener('click', () => {
+    document.getElementById('mapModal').style.display = 'none';
+  });
+  document.getElementById('mapModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('mapModal')) {
+      document.getElementById('mapModal').style.display = 'none';
+    }
+  });
 
   document.getElementById('telegramBtn').addEventListener('click', () => {
     window.open('https://t.me/musor_go', '_blank');
