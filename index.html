@@ -92,26 +92,31 @@
       border-color: #cbd5e1;
     }
     
-    /* Заголовок с кнопкой карты */
-    .header-with-map {
+    /* Заголовок с кнопкой в одной строке */
+    .header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
     }
-    .map-button {
-      background: none;
-      border: none;
-      color: #f5b042;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 40px;
-      transition: background 0.2s;
+    .header-row .section-title {
+      margin-bottom: 0;
     }
-    .map-button:hover {
-      background: #fef3c7;
+    
+    /* Кнопка "Зона обслуживания" в стиле delivery-option */
+    .zone-btn {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #1a2a3a;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 44px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .zone-btn:hover {
+      background: #f1f5f9;
     }
     
     /* Выбор даты */
@@ -170,6 +175,7 @@
       font-weight: 500;
       font-size: 14px;
       border: 1px solid #e2e8f0;
+      transition: all 0.2s;
     }
     .delivery-option.selected {
       background: #1a2a3a;
@@ -440,11 +446,11 @@
 
   <div id="statusContainer" style="display: none;"></div>
 
-  <!-- Блок 1: Куда приехать (с кнопкой карты) -->
+  <!-- Блок 1: Куда приехать -->
   <div class="form-card" id="orderForm">
-    <div class="header-with-map">
-      <div class="section-title" style="margin-bottom: 0;">Куда приехать?</div>
-      <button class="map-button" id="mapButton">🗺️ Зона обслуживания</button>
+    <div class="header-row">
+      <div class="section-title">Куда приехать?</div>
+      <button id="mapButton" class="zone-btn">Зона обслуживания</button>
     </div>
     
     <div class="input-group">
