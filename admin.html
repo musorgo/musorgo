@@ -9,23 +9,14 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
       background: #f5f7fa;
       padding: 20px;
       color: #1a2a3a;
     }
-    
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
+    .container { max-width: 800px; margin: 0 auto; }
     
     /* Шапка */
     .header {
@@ -40,35 +31,20 @@
       gap: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
-    
     .logo {
       display: flex;
       align-items: baseline;
       gap: 6px;
     }
-    
-    .logo-text {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1a2a3a;
-      letter-spacing: -0.3px;
-    }
-    
+    .logo-text { font-size: 22px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
     .logo-box {
       background: #1a2a3a;
       border-radius: 10px;
       padding: 3px 10px;
       display: inline-block;
     }
+    .logo-box span { font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.2px; }
     
-    .logo-box span {
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: -0.2px;
-    }
-    
-    /* Инфо-панель курьера */
     .courier-panel {
       display: flex;
       align-items: center;
@@ -77,13 +53,7 @@
       padding: 6px 16px;
       border-radius: 40px;
     }
-    
-    .courier-name {
-      font-weight: 600;
-      font-size: 14px;
-      color: #1a2a3a;
-    }
-    
+    .courier-name { font-weight: 600; font-size: 14px; color: #1a2a3a; }
     .courier-stats {
       background: #eef2f5;
       padding: 4px 12px;
@@ -92,7 +62,6 @@
       font-weight: 500;
       color: #2c5f2d;
     }
-    
     .sound-toggle {
       background: none;
       border: none;
@@ -100,13 +69,8 @@
       cursor: pointer;
       padding: 6px;
       border-radius: 30px;
-      transition: background 0.2s;
     }
-    
-    .sound-toggle:hover {
-      background: #eef2f5;
-    }
-    
+    .sound-toggle:hover { background: #eef2f5; }
     .logout-btn {
       background: #eef2f5;
       color: #4a5b6b;
@@ -116,21 +80,50 @@
       cursor: pointer;
       font-weight: 500;
       font-size: 13px;
-      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: #e2e8f0; }
+    
+    /* Вход */
+    .login-box {
+      background: white;
+      border-radius: 28px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 400px;
+      margin: 80px auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+    .login-box h3 { font-size: 22px; font-weight: 600; margin-bottom: 24px; color: #1a2a3a; }
+    .login-box select, .login-box input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      margin: 12px 0;
+      font-size: 16px;
+      background: white;
+      font-family: inherit;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: #1a2a3a;
+      color: white;
+      border: none;
+      border-radius: 44px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
     }
     
-    .logout-btn:hover {
-      background: #e2e8f0;
-    }
-    
-    /* Статистика (кликабельные карточки) */
+    /* Статистика */
     .stats {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
-    
     .stat-card {
       background: white;
       border-radius: 16px;
@@ -143,27 +136,31 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       border: 1px solid transparent;
     }
-    
     .stat-card.active {
       border-color: #1a2a3a;
       background: #f8fafc;
     }
+    .stat-card:hover { background: #f8fafc; transform: translateY(-2px); }
+    .stat-number { font-size: 24px; font-weight: 700; color: #1a2a3a; }
+    .stat-label { font-size: 11px; color: #8b9eb0; margin-top: 4px; }
     
-    .stat-card:hover {
-      background: #f8fafc;
-      transform: translateY(-2px);
+    /* Поиск */
+    .search-bar {
+      margin-bottom: 20px;
     }
-    
-    .stat-number {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1a2a3a;
+    .search-input {
+      width: 100%;
+      padding: 12px 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 44px;
+      font-size: 14px;
+      background: white;
+      outline: none;
+      transition: all 0.2s;
     }
-    
-    .stat-label {
-      font-size: 11px;
-      color: #8b9eb0;
-      margin-top: 4px;
+    .search-input:focus {
+      border-color: #1a2a3a;
+      box-shadow: 0 0 0 2px rgba(26,42,58,0.1);
     }
     
     /* Секции заказов */
@@ -174,7 +171,6 @@
       margin-bottom: 20px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
-    
     .section-title {
       font-size: 16px;
       font-weight: 600;
@@ -187,7 +183,6 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    
     .section-count {
       background: #eef2f5;
       padding: 3px 10px;
@@ -197,7 +192,6 @@
       color: #4a5b6b;
     }
     
-    /* Карточка заказа */
     .order-card {
       background: #f8fafc;
       border-radius: 16px;
@@ -206,16 +200,11 @@
       border-left: 4px solid;
       transition: all 0.2s;
     }
-    
     .order-card.waiting { border-left-color: #f5b042; }
     .order-card.new { border-left-color: #f59e0b; }
     .order-card.work { border-left-color: #3b82f6; }
     .order-card.done { border-left-color: #10b981; }
-    
-    .order-card:hover {
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
+    .order-card:hover { background: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     
     .order-header {
       display: flex;
@@ -225,44 +214,21 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    
-    .order-id {
-      font-weight: 600;
-      font-size: 13px;
-      color: #6b7280;
-    }
-    
+    .order-id { font-weight: 600; font-size: 13px; color: #6b7280; }
     .order-status {
       padding: 4px 12px;
       border-radius: 30px;
       font-size: 11px;
       font-weight: 500;
     }
-    
     .status-waiting { background: #fef3c7; color: #b45309; }
     .status-new { background: #fed7aa; color: #9b4a00; }
     .status-work { background: #e0e7ff; color: #1e40af; }
     .status-done { background: #dcfce7; color: #166534; }
     
-    .order-details {
-      font-size: 13px;
-      color: #4a5b6b;
-      margin-bottom: 12px;
-    }
-    
-    .order-details p {
-      margin: 6px 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    
-    .order-details strong {
-      color: #1a2a3a;
-      font-weight: 500;
-      min-width: 85px;
-    }
-    
+    .order-details { font-size: 13px; color: #4a5b6b; margin-bottom: 12px; }
+    .order-details p { margin: 6px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .order-details strong { color: #1a2a3a; font-weight: 500; min-width: 85px; }
     .courier-badge {
       background: #eef2f5;
       padding: 4px 10px;
@@ -270,14 +236,12 @@
       font-size: 11px;
       display: inline-block;
     }
-    
     .order-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-top: 12px;
     }
-    
     .btn {
       padding: 8px 16px;
       border: none;
@@ -287,33 +251,16 @@
       font-size: 13px;
       transition: opacity 0.2s;
     }
-    
-    .btn:active {
-      opacity: 0.8;
-    }
-    
-    .btn-primary {
-      background: #1a2a3a;
-      color: white;
-    }
-    
-    .btn-success {
-      background: #10b981;
-      color: white;
-    }
-    
-    .btn-warning {
-      background: #f5b042;
-      color: #1a2a3a;
-    }
-    
+    .btn:active { opacity: 0.8; }
+    .btn-primary { background: #1a2a3a; color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-warning { background: #f5b042; color: #1a2a3a; }
     .time-input {
       display: flex;
       gap: 8px;
       align-items: center;
       flex-wrap: wrap;
     }
-    
     .time-input input {
       padding: 8px 12px;
       border: 1px solid #e2e8f0;
@@ -322,7 +269,6 @@
       width: 100px;
     }
     
-    /* Уведомление */
     .notification {
       position: fixed;
       top: 20px;
@@ -334,54 +280,11 @@
       z-index: 1000;
       font-size: 14px;
       animation: slideIn 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
-    }
-    
-    /* Вход */
-    .login-box {
-      background: white;
-      border-radius: 28px;
-      padding: 40px 32px;
-      text-align: center;
-      max-width: 400px;
-      margin: 80px auto;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-    }
-    
-    .login-box h3 {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 24px;
-      color: #1a2a3a;
-    }
-    
-    .login-box select, .login-box input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      margin: 12px 0;
-      font-size: 16px;
-      background: white;
-      font-family: inherit;
-    }
-    
-    .login-btn {
-      width: 100%;
-      padding: 14px;
-      background: #1a2a3a;
-      color: white;
-      border: none;
-      border-radius: 44px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 12px;
     }
   </style>
 </head>
@@ -403,14 +306,11 @@
       </select>
       <input type="password" id="passwordInput" placeholder="Пароль">
       <button class="login-btn" onclick="login()">Войти</button>
-      <p style="font-size: 12px; color: #8b9eb0; margin-top: 16px;">
-        Пароли: Егор: egor123 | Сергей: sergey123 | Иван: ivan123
-      </p>
+      <!-- подсказка с паролями удалена -->
     </div>
   </div>
   
   <div id="adminSection" style="display: none;">
-    <!-- Шапка -->
     <div class="header">
       <div class="logo">
         <span class="logo-text">Мусор</span>
@@ -424,7 +324,6 @@
       </div>
     </div>
     
-    <!-- Кликабельная статистика -->
     <div class="stats" id="statsContainer">
       <div class="stat-card" data-filter="waiting">
         <div class="stat-number" id="statWaiting">0</div>
@@ -444,6 +343,10 @@
       </div>
     </div>
     
+    <div class="search-bar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ID заказа, телефону или адресу">
+    </div>
+    
     <div id="ordersContainer"></div>
   </div>
 </div>
@@ -451,20 +354,20 @@
 <script>
   // ========== FIREBASE ==========
   const firebaseConfig = {
-  apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
-  authDomain: "musor-go.firebaseapp.com",
-  projectId: "musor-go",
-  storageBucket: "musor-go.firebasestorage.app",
-  messagingSenderId: "249921799089",
-  appId: "1:249921799089:web:1a740b067f4869a0a83390"
+    apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
+    authDomain: "musor-go.firebaseapp.com",
+    projectId: "musor-go",
+    storageBucket: "musor-go.firebasestorage.app",
+    messagingSenderId: "249921799089",
+    appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   
   const COURIER_PASSWORDS = {
-    "Егор": "idshfdj385309f",
-    "Сергей": "kjfdvhiush89e3",
+    "Егор": "egor123",
+    "Сергей": "sergey123",
     "Иван": "ivan123"
   };
   
@@ -473,6 +376,7 @@
   let ordersUnsubscribe = null;
   let allOrders = [];
   let activeFilter = "all";
+  let searchQuery = "";
   let lastWaitingCount = 0;
   let lastNewCount = 0;
   let soundEnabled = true;
@@ -558,6 +462,7 @@
     await updateCourierStats();
     loadOrders();
     initStatsClick();
+    initSearch();
   }
   
   async function updateCourierStats() {
@@ -590,18 +495,42 @@
     });
   }
   
+  function initSearch() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      renderFilteredOrders();
+    });
+  }
+  
+  function filterOrdersBySearch(orders) {
+    if (!searchQuery) return orders;
+    return orders.filter(order => {
+      const idMatch = order.id.toLowerCase().includes(searchQuery);
+      const phoneMatch = order.phone && order.phone.includes(searchQuery);
+      const streetMatch = order.street && order.street.toLowerCase().includes(searchQuery);
+      const houseMatch = order.house && order.house.toLowerCase().includes(searchQuery);
+      const flatMatch = order.flat && order.flat.toString().includes(searchQuery);
+      return idMatch || phoneMatch || streetMatch || houseMatch || flatMatch;
+    });
+  }
+  
   function renderFilteredOrders() {
     let filteredOrders = [...allOrders];
     
+    // Применяем фильтр по статусу
     if (activeFilter === "waiting") {
-      filteredOrders = allOrders.filter(o => o.status === "ожидает оплаты");
+      filteredOrders = filteredOrders.filter(o => o.status === "ожидает оплаты");
     } else if (activeFilter === "new") {
-      filteredOrders = allOrders.filter(o => o.status === "новый");
+      filteredOrders = filteredOrders.filter(o => o.status === "новый");
     } else if (activeFilter === "work") {
-      filteredOrders = allOrders.filter(o => o.status === "в работе");
+      filteredOrders = filteredOrders.filter(o => o.status === "в работе");
     } else if (activeFilter === "my") {
-      filteredOrders = allOrders.filter(o => o.courier === currentCourier);
+      filteredOrders = filteredOrders.filter(o => o.courier === currentCourier);
     }
+    
+    // Применяем поиск
+    filteredOrders = filterOrdersBySearch(filteredOrders);
     
     renderOrdersByList(filteredOrders);
   }
