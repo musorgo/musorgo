@@ -128,6 +128,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
+  // Конфигурация Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
     authDomain: "musor-go.firebaseapp.com",
@@ -136,21 +137,67 @@
     messagingSenderId: "249921799089",
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
+  
+  // Инициализация
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      if (!user.emailVerified) {
-        showVerifyEmailPage(user);
-      } else {
-        showAccountPage(user);
-      }
-    } else {
-      showAuthForms();
+  // Состояние готовности
+  let isReady = false;
+
+  // Функции
+  function login() {
+    const email = document.getElementById('loginEmail')?.value;
+    const password = document.getElementById('loginPassword')?.value;
+    const errorDiv = document.getElementById('loginError');
+    
+    if (!email || !password) {
+      if (errorDiv) errorDiv.innerText = 'Заполните email и пароль';
+      return;
     }
-  });
+    
+    if (errorDiv) errorDiv.innerText = '';
+    
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        // Успешно — onAuthStateChanged сам обновит интерфейс
+      })
+      .catch((err) => {
+        if (errorDiv) errorDiv.innerText = err.message;
+      });
+  }
+
+  function register() {
+    const email = document.getElementById('regEmail')?.value;
+    const password = document.getElementById('regPassword')?.value;
+    const confirm = document.getElementById('regPasswordConfirm')?.value;
+    const errorDiv = document.getElementById('registerError');
+    
+    if (!email || !password) {
+      if (errorDiv) errorDiv.innerText = 'Заполните все поля';
+      return;
+    }
+    
+    if (password !== confirm) {
+      if (errorDiv) errorDiv.innerText = 'Пароли не совпадают';
+      return;
+    }
+    
+    if (errorDiv) errorDiv.innerText = '';
+    
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        return userCredential.user.sendEmailVerification();
+      })
+      .then(() => {
+        alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
+        auth.signOut();
+      })
+      .catch((err) => {
+        if (errorDiv) errorDiv.innerText = err.message;
+      });
+  }
 
   function showAuthForms() {
     document.getElementById('app').innerHTML = `
@@ -171,7 +218,8 @@
         </div>
       </div>
     `;
-    document.getElementById('loginBtn').onclick = () => login();
+    
+    document.getElementById('loginBtn').onclick = login;
     document.getElementById('showRegisterLink').onclick = (e) => {
       e.preventDefault();
       showRegisterForm();
@@ -201,44 +249,12 @@
         </div>
       </div>
     `;
-    document.getElementById('registerBtn').onclick = () => register();
+    
+    document.getElementById('registerBtn').onclick = register;
     document.getElementById('showLoginLink').onclick = (e) => {
       e.preventDefault();
       showAuthForms();
     };
-  }
-
-  async function login() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const errorDiv = document.getElementById('loginError');
-    errorDiv.innerText = '';
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-    } catch (err) {
-      errorDiv.innerText = err.message;
-    }
-  }
-
-  async function register() {
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
-    const confirm = document.getElementById('regPasswordConfirm').value;
-    const errorDiv = document.getElementById('registerError');
-    errorDiv.innerText = '';
-    if (password !== confirm) {
-      errorDiv.innerText = 'Пароли не совпадают';
-      return;
-    }
-    try {
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      await userCredential.user.sendEmailVerification();
-      await auth.signOut();
-      showAuthForms();
-      alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
-    } catch (err) {
-      errorDiv.innerText = err.message;
-    }
   }
 
   function showVerifyEmailPage(user) {
@@ -250,62 +266,93 @@
         <button class="btn btn-secondary" id="logoutBtn">Выйти</button>
       </div>
     `;
-    document.getElementById('resendBtn').onclick = async () => {
-      await user.sendEmailVerification();
-      alert('Письмо отправлено повторно');
+    
+    document.getElementById('resendBtn').onclick = () => {
+      user.sendEmailVerification()
+        .then(() => alert('Письмо отправлено повторно'))
+        .catch(err => alert('Ошибка: ' + err.message));
     };
     document.getElementById('logoutBtn').onclick = () => auth.signOut();
   }
 
   async function showAccountPage(user) {
-    const ordersSnapshot = await db.collection('orders').where('userEmail', '==', user.email).orderBy('createdAt', 'desc').get();
-    const orders = [];
-    ordersSnapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+    try {
+      const ordersSnapshot = await db.collection('orders')
+        .where('userEmail', '==', user.email)
+        .orderBy('createdAt', 'desc')
+        .get();
+      
+      const orders = [];
+      ordersSnapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
 
-    let ordersHtml = '';
-    if (orders.length === 0) {
-      ordersHtml = '<p>У вас пока нет заказов.</p>';
-    } else {
-      ordersHtml = '<div class="order-list">';
-      orders.forEach(order => {
-        let statusText = order.status;
-        if (statusText === 'ожидает оплаты') statusText = 'Ожидает оплаты';
-        else if (statusText === 'новый') statusText = 'Новый (оплачен)';
-        else if (statusText === 'в работе') statusText = 'В работе';
-        else if (statusText === 'выполнен') statusText = 'Выполнен';
-        ordersHtml += `
-          <div class="order-item">
-            <div class="order-header">
-              <span>Заказ #${order.id.slice(0,6)}</span>
-              <span class="order-status">${statusText}</span>
+      let ordersHtml = '';
+      if (orders.length === 0) {
+        ordersHtml = '<p>У вас пока нет заказов.</p>';
+      } else {
+        ordersHtml = '<div class="order-list">';
+        orders.forEach(order => {
+          let statusText = order.status;
+          if (statusText === 'ожидает оплаты') statusText = 'Ожидает оплаты';
+          else if (statusText === 'новый') statusText = 'Новый (оплачен)';
+          else if (statusText === 'в работе') statusText = 'В работе';
+          else if (statusText === 'выполнен') statusText = 'Выполнен';
+          ordersHtml += `
+            <div class="order-item">
+              <div class="order-header">
+                <span>Заказ #${order.id.slice(0,6)}</span>
+                <span class="order-status">${statusText}</span>
+              </div>
+              <div class="order-details">
+                ${order.street}, ${order.house}, кв.${order.flat}<br>
+                ${order.preferredDateTime || ''}<br>
+                ${order.deliveryType || ''}
+              </div>
+              <div class="order-details" style="margin-top: 8px;">
+                <a href="${window.location.origin}?order=${order.id}" target="_blank">Отследить</a>
+              </div>
             </div>
-            <div class="order-details">
-              ${order.street}, ${order.house}, кв.${order.flat}<br>
-              ${order.preferredDateTime || ''}<br>
-              ${order.deliveryType || ''}
-            </div>
-            <div class="order-details" style="margin-top: 8px;">
-              <a href="${window.location.origin}?order=${order.id}" target="_blank">Отследить</a>
-            </div>
+          `;
+        });
+        ordersHtml += '</div>';
+      }
+
+      document.getElementById('app').innerHTML = `
+        <div class="form-card">
+          <div class="header">
+            <div class="section-title" style="margin-bottom: 0;">Личный кабинет</div>
+            <button class="logout-btn" id="logoutBtn">Выйти</button>
           </div>
-        `;
-      });
-      ordersHtml += '</div>';
-    }
-
-    document.getElementById('app').innerHTML = `
-      <div class="form-card">
-        <div class="header">
-          <div class="section-title" style="margin-bottom: 0;">Личный кабинет</div>
-          <button class="logout-btn" id="logoutBtn">Выйти</button>
+          <p><strong>${user.email}</strong> (подтверждён)</p>
+          <div class="section-title" style="margin-top: 20px; font-size: 18px;">Мои заказы</div>
+          ${ordersHtml}
         </div>
-        <p><strong>${user.email}</strong> (подтверждён)</p>
-        <div class="section-title" style="margin-top: 20px; font-size: 18px;">Мои заказы</div>
-        ${ordersHtml}
-      </div>
-    `;
-    document.getElementById('logoutBtn').onclick = () => auth.signOut();
+      `;
+      
+      document.getElementById('logoutBtn').onclick = () => auth.signOut();
+    } catch (err) {
+      console.error('Ошибка загрузки заказов:', err);
+      document.getElementById('app').innerHTML = `
+        <div class="form-card">
+          <div class="section-title">Ошибка</div>
+          <p>Не удалось загрузить заказы. Попробуйте обновить страницу.</p>
+          <button class="btn" onclick="location.reload()">Обновить</button>
+        </div>
+      `;
+    }
   }
+
+  // Слушатель состояния авторизации
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      if (!user.emailVerified) {
+        showVerifyEmailPage(user);
+      } else {
+        showAccountPage(user);
+      }
+    } else {
+      showAuthForms();
+    }
+  });
 </script>
 </body>
 </html>
