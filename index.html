@@ -46,34 +46,38 @@
     .logo-box span { font-size: 32px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
     .tagline { color: #5a6e7c; font-size: 15px; font-weight: 400; margin-top: 6px; }
     
-    .top-bar {
+    /* Кнопки по центру */
+    .center-buttons {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      margin-top: 12px;
-      flex-wrap: wrap;
       gap: 12px;
+      margin-top: 16px;
     }
     .zone-btn-top {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       color: #1a2a3a;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
-      padding: 6px 20px;
+      padding: 8px 24px;
       border-radius: 44px;
       cursor: pointer;
+      width: auto;
+      min-width: 180px;
     }
     .user-link {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 44px;
-      padding: 6px 16px;
-      font-size: 13px;
+      padding: 8px 24px;
+      font-size: 14px;
       text-decoration: none;
       color: #1a2a3a;
       font-weight: 500;
       display: inline-block;
+      cursor: pointer;
+      min-width: 180px;
     }
     
     /* Карточки */
@@ -110,7 +114,6 @@
     }
     select:focus, input:focus, textarea:focus { outline: none; border-color: #cbd5e1; }
     
-    /* Выбор даты */
     .date-options {
       display: flex;
       gap: 12px;
@@ -133,7 +136,6 @@
       border-color: #1a2a3a;
     }
     
-    /* Кнопка выбора времени */
     .time-select-btn {
       width: 100%;
       background: #f8fafc;
@@ -149,7 +151,6 @@
     .time-select-btn span { color: #8b9eb0; }
     .time-select-btn .selected-time { color: #2c5f2d; font-weight: 500; }
     
-    /* Способ передачи */
     .delivery-options {
       display: flex;
       gap: 12px;
@@ -219,7 +220,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     
-    /* Подвал */
     .footer {
       background: transparent;
       padding: 20px 0;
@@ -248,7 +248,7 @@
       color: #8b9eb0;
     }
     
-    /* Модальные окна (оставлены из предыдущей версии) */
+    /* Модальные окна */
     .modal {
       display: none;
       position: fixed;
@@ -265,7 +265,7 @@
       background: white;
       border-radius: 28px;
       padding: 28px;
-      max-width: 480px;
+      max-width: 400px;
       width: 90%;
       text-align: center;
       max-height: 80vh;
@@ -277,7 +277,7 @@
       padding: 0;
       overflow: hidden;
     }
-    .modal-title { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
+    .modal-title { font-size: 22px; font-weight: 600; margin-bottom: 20px; }
     .modal-text { color: #5a6e7c; margin-bottom: 20px; font-size: 14px; text-align: left; line-height: 1.5; }
     .modal-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
     .modal-btn {
@@ -408,6 +408,39 @@
       border: none;
     }
     @media (max-width: 600px) { iframe { height: 400px; } }
+    
+    /* Стили для форм входа */
+    .auth-input {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .auth-input label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4a5b6b;
+      margin-bottom: 6px;
+    }
+    .auth-input input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      font-size: 16px;
+    }
+    .auth-error {
+      color: #ff3b30;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .auth-link {
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    .auth-link a {
+      color: #007aff;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -420,9 +453,9 @@
       <div class="logo-box"><span>GO</span></div>
     </div>
     <div class="tagline">Вынесем мусор за вас — быстро и без лишних хлопот</div>
-    <div class="top-bar">
+    <div class="center-buttons">
       <button id="mapButton" class="zone-btn-top">Зона обслуживания</button>
-      <a href="account.html" id="userLink" class="user-link">Войти</a>
+      <button id="authButton" class="user-link">Войти</button>
     </div>
   </div>
 
@@ -513,6 +546,13 @@
   </div>
 </div>
 
+<!-- Модальное окно авторизации -->
+<div id="authModal" class="modal">
+  <div class="modal-content" id="authModalContent">
+    <!-- Контент будет динамически меняться -->
+  </div>
+</div>
+
 <!-- Модальное окно выбора времени -->
 <div id="timeModal" class="time-modal">
   <div class="time-modal-content">
@@ -532,7 +572,7 @@
 <div id="offerModal" class="modal">
   <div class="modal-content">
     <div class="modal-title">Публичная оферта</div>
-    <div class="modal-text">...</div> <!-- текст оферты как в предыдущих версиях -->
+    <div class="modal-text">...</div>
     <button class="modal-btn" id="closeOfferBtn">Закрыть</button>
   </div>
 </div>
@@ -578,17 +618,135 @@
   const db = firebase.firestore();
   const auth = firebase.auth();
 
-  // Обновление ссылки на личный кабинет
-  auth.onAuthStateChanged(user => {
-    const userLink = document.getElementById('userLink');
+  // Элементы DOM
+  const authButton = document.getElementById('authButton');
+  const authModal = document.getElementById('authModal');
+  let currentUserName = '';
+
+  // Функция обновления кнопки входа
+  async function updateAuthButton() {
+    const user = auth.currentUser;
     if (user && user.emailVerified) {
-      userLink.textContent = user.email;
-      userLink.href = 'account.html';
+      // Получаем имя пользователя из Firestore
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const name = userDoc.exists ? userDoc.data().name : user.email.split('@')[0];
+      currentUserName = name;
+      authButton.textContent = currentUserName;
     } else {
-      userLink.textContent = 'Войти';
-      userLink.href = 'account.html';
+      authButton.textContent = 'Войти';
     }
-  });
+  }
+
+  // Отображение формы входа
+  function showLoginForm() {
+    const modalContent = document.getElementById('authModalContent');
+    modalContent.innerHTML = `
+      <div class="modal-title">Вход</div>
+      <div class="auth-input">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="example@mail.ru">
+      </div>
+      <div class="auth-input">
+        <label>Пароль</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <div id="authError" class="auth-error"></div>
+      <button class="btn" id="doLoginBtn" style="margin-top: 8px;">Войти</button>
+      <div class="auth-link">
+        Нет аккаунта? <a href="#" id="showRegisterLink">Зарегистрироваться</a>
+      </div>
+    `;
+    
+    document.getElementById('doLoginBtn').onclick = async () => {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const errorDiv = document.getElementById('authError');
+      errorDiv.innerText = '';
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        authModal.style.display = 'none';
+        updateAuthButton();
+      } catch (err) {
+        errorDiv.innerText = err.message;
+      }
+    };
+    
+    document.getElementById('showRegisterLink').onclick = (e) => {
+      e.preventDefault();
+      showRegisterForm();
+    };
+  }
+
+  // Отображение формы регистрации
+  function showRegisterForm() {
+    const modalContent = document.getElementById('authModalContent');
+    modalContent.innerHTML = `
+      <div class="modal-title">Регистрация</div>
+      <div class="auth-input">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="example@mail.ru">
+      </div>
+      <div class="auth-input">
+        <label>Пароль</label>
+        <input type="password" id="regPassword" placeholder="••••••••">
+      </div>
+      <div class="auth-input">
+        <label>Повторите пароль</label>
+        <input type="password" id="regPasswordConfirm" placeholder="••••••••">
+      </div>
+      <div id="authError" class="auth-error"></div>
+      <button class="btn" id="doRegisterBtn" style="margin-top: 8px;">Зарегистрироваться</button>
+      <div class="auth-link">
+        Уже есть аккаунт? <a href="#" id="showLoginLink">Войти</a>
+      </div>
+    `;
+    
+    document.getElementById('doRegisterBtn').onclick = async () => {
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regPasswordConfirm').value;
+      const errorDiv = document.getElementById('authError');
+      errorDiv.innerText = '';
+      if (password !== confirm) {
+        errorDiv.innerText = 'Пароли не совпадают';
+        return;
+      }
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        await userCredential.user.sendEmailVerification();
+        await auth.signOut();
+        authModal.style.display = 'none';
+        alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
+        updateAuthButton();
+      } catch (err) {
+        errorDiv.innerText = err.message;
+      }
+    };
+    
+    document.getElementById('showLoginLink').onclick = (e) => {
+      e.preventDefault();
+      showLoginForm();
+    };
+  }
+
+  // Кнопка входа
+  authButton.onclick = () => {
+    if (auth.currentUser && auth.currentUser.emailVerified) {
+      // Если уже авторизован — выход
+      auth.signOut().then(() => updateAuthButton());
+    } else {
+      showLoginForm();
+      authModal.style.display = 'flex';
+    }
+  };
+
+  // Закрытие модального окна по клику вне
+  authModal.onclick = (e) => {
+    if (e.target === authModal) authModal.style.display = 'none';
+  };
+
+  // Обновляем кнопку при изменении состояния
+  auth.onAuthStateChanged(() => updateAuthButton());
 
   // Данные домов
   const housesData = {
@@ -763,7 +921,6 @@
       createdAt: new Date().toISOString()
     };
     
-    // Добавляем email пользователя, если он авторизован
     if (auth.currentUser && auth.currentUser.emailVerified) {
       orderData.userEmail = auth.currentUser.email;
     }
