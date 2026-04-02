@@ -2,32 +2,27 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>МусорGO — вынос мусора</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  
+  <title>МусорGO — Личный кабинет</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
-      background: #f5f7fa;
-      padding: 20px;
-      color: #1a2a3a;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .container { max-width: 560px; margin: 0 auto; }
-    
-    /* Шапка */
-    .hero {
-      background: white;
-      border-radius: 32px;
-      padding: 28px 24px;
-      margin-bottom: 16px;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f5f7;
+      color: #1d1c1f;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .header {
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-bottom: 32px;
     }
     .logo {
       display: flex;
@@ -36,219 +31,157 @@
       gap: 6px;
       margin-bottom: 12px;
     }
-    .logo-text { font-size: 36px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
+    .logo-text {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a2a3a;
+      letter-spacing: -0.3px;
+    }
     .logo-box {
       background: #f5b042;
       border-radius: 12px;
-      padding: 4px 12px;
+      padding: 2px 10px;
       display: inline-block;
     }
-    .logo-box span { font-size: 32px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
-    .tagline { color: #5a6e7c; font-size: 15px; font-weight: 400; margin-top: 6px; }
-    
-    .top-bar {
+    .logo-box span {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a2a3a;
+    }
+    .user-name {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .user-email {
+      font-size: 14px;
+      color: #6c6c70;
+      margin-bottom: 16px;
+    }
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .action-btn {
+      background: none;
+      border: 1px solid #007aff;
+      color: #007aff;
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background: #e9f2ff;
+    }
+    .logout-btn {
+      border-color: #ff3b30;
+      color: #ff3b30;
+    }
+    .logout-btn:hover {
+      background: #fee2e2;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      border-bottom: 1px solid #e6e6e8;
+      margin-bottom: 24px;
+    }
+    .tab {
+      padding: 8px 0;
+      font-size: 17px;
+      font-weight: 500;
+      color: #6c6c70;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      color: #007aff;
+      border-bottom-color: #007aff;
+    }
+    .new-order-wrapper {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .new-order-btn {
+      background: #007aff;
+      color: white;
+      border: none;
+      padding: 10px 28px;
+      border-radius: 44px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .order-item {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #e6e6e8;
+    }
+    .order-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 12px;
+      margin-bottom: 8px;
       flex-wrap: wrap;
-      gap: 12px;
-    }
-    .zone-btn-top {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      color: #1a2a3a;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 6px 20px;
-      border-radius: 44px;
-      cursor: pointer;
-    }
-    .user-link {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 44px;
-      padding: 6px 16px;
-      font-size: 13px;
-      text-decoration: none;
-      color: #1a2a3a;
-      font-weight: 500;
-      display: inline-block;
-    }
-    
-    /* Карточки */
-    .form-card {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .section-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: #1a2a3a;
-      margin-bottom: 16px;
-      letter-spacing: -0.2px;
-    }
-    .input-group { margin-bottom: 18px; }
-    .input-group label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #4a5b6b;
-      margin-bottom: 6px;
-    }
-    select, input, textarea {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      font-size: 16px;
-      background: #ffffff;
-      font-family: inherit;
-    }
-    select:focus, input:focus, textarea:focus { outline: none; border-color: #cbd5e1; }
-    
-    /* Выбор даты */
-    .date-options {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .date-option {
-      flex: 1;
-      background: #f8fafc;
-      text-align: center;
-      padding: 12px;
-      border-radius: 44px;
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 15px;
-      border: 1px solid #e2e8f0;
-    }
-    .date-option.selected {
-      background: #1a2a3a;
-      color: white;
-      border-color: #1a2a3a;
-    }
-    
-    /* Кнопка выбора времени */
-    .time-select-btn {
-      width: 100%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 16px;
-      text-align: left;
-      color: #1a2a3a;
-      cursor: pointer;
-      margin-bottom: 16px;
-    }
-    .time-select-btn span { color: #8b9eb0; }
-    .time-select-btn .selected-time { color: #2c5f2d; font-weight: 500; }
-    
-    /* Способ передачи */
-    .delivery-options {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .delivery-option {
-      flex: 1;
-      background: #f8fafc;
-      text-align: center;
-      padding: 12px 8px;
-      border-radius: 44px;
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 14px;
-      border: 1px solid #e2e8f0;
-    }
-    .delivery-option.selected {
-      background: #1a2a3a;
-      color: white;
-      border-color: #1a2a3a;
-    }
-    
-    .btn {
-      width: 100%;
-      padding: 16px;
-      background: #1a2a3a;
-      color: white;
-      border: none;
-      border-radius: 44px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-    .btn:active { opacity: 0.85; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    .telegram-btn {
-      width: 100%;
-      padding: 14px;
-      background: transparent;
-      color: #1a2a3a;
-      border: 1px solid #e2e8f0;
-      border-radius: 44px;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-    .help-text {
-      text-align: center;
-      margin-top: 16px;
-      font-size: 13px;
-      color: #8b9eb0;
-    }
-    .help-text a { color: #5a6e7c; text-decoration: none; }
-    .help-text a:hover { text-decoration: underline; }
-    
-    .loading {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    /* Подвал */
-    .footer {
-      background: transparent;
-      padding: 20px 0;
-      text-align: center;
-      font-size: 12px;
-      color: #8b9eb0;
-    }
-    .footer-links {
-      display: flex;
-      flex-direction: column;
       gap: 8px;
-      align-items: center;
+    }
+    .order-id {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .order-status {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: #f5f5f7;
+    }
+    .order-status.active {
+      background: #d4f0ff;
+      color: #007aff;
+    }
+    .order-status.completed {
+      background: #e5f5e5;
+      color: #2c6e2c;
+    }
+    .order-details {
+      font-size: 14px;
+      color: #6c6c70;
       margin-bottom: 12px;
     }
-    .footer-links a {
-      color: #5a6e7c;
-      text-decoration: none;
-      font-size: 12px;
+    .order-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .footer-links a:hover { text-decoration: underline; }
-    .requisites {
-      font-size: 10px;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #e2e8f0;
-      color: #8b9eb0;
+    .order-btn {
+      background: none;
+      border: 1px solid #007aff;
+      color: #007aff;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
     }
-    
-    /* Модальные окна (оставлены из предыдущей версии) */
+    .empty-message {
+      text-align: center;
+      color: #8e8e93;
+      padding: 32px 0;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -256,7 +189,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
       justify-content: center;
       align-items: center;
       z-index: 1000;
@@ -265,307 +199,83 @@
       background: white;
       border-radius: 28px;
       padding: 28px;
-      max-width: 480px;
+      max-width: 320px;
       width: 90%;
       text-align: center;
-      max-height: 80vh;
-      overflow-y: auto;
     }
-    .modal-content.map-modal {
-      max-width: 90%;
-      width: 800px;
-      padding: 0;
-      overflow: hidden;
-    }
-    .modal-title { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
-    .modal-text { color: #5a6e7c; margin-bottom: 20px; font-size: 14px; text-align: left; line-height: 1.5; }
-    .modal-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-    .modal-btn {
-      background: #1a2a3a;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 44px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .modal-btn-copy { background: #f1f5f9; color: #1a2a3a; }
-    .modal-btn-track { background: #f5b042; color: #1a2a3a; }
-    .qr-code { margin: 16px auto; display: inline-block; border-radius: 16px; }
-    .track-link {
-      background: #f8fafc;
+    .modal-content input {
+      width: 100%;
       padding: 12px;
-      border-radius: 12px;
-      font-size: 11px;
-      word-break: break-all;
+      border: 1px solid #e6e6e8;
+      border-radius: 14px;
+      font-size: 16px;
       margin: 16px 0;
     }
-    .info-banner {
-      background: #f8fafc;
-      padding: 12px 16px;
-      border-radius: 14px;
-      font-size: 13px;
-      color: #5a6e7c;
-      margin-top: 12px;
-    }
-    .time-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
       justify-content: center;
-      align-items: center;
-      z-index: 1001;
     }
-    .time-modal-content {
-      background: white;
-      border-radius: 28px;
-      padding: 24px;
-      width: 90%;
-      max-width: 320px;
-      text-align: center;
-    }
-    .time-picker-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
-    .time-scroll {
-      height: 160px;
-      overflow-y: auto;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      padding: 8px 0;
-    }
-    .time-item {
-      padding: 12px 16px;
-      text-align: center;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .time-item.selected {
-      background: #1a2a3a;
-      color: white;
+    .modal-btn {
+      padding: 10px 20px;
       border-radius: 40px;
-      margin: 0 8px;
-    }
-    .time-modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
-    .time-modal-btn {
-      flex: 1;
-      padding: 12px;
-      border-radius: 44px;
+      border: none;
       font-weight: 500;
       cursor: pointer;
-      border: none;
     }
-    .time-modal-btn-cancel { background: #f1f5f9; color: #4a5b6b; }
-    .time-modal-btn-save { background: #1a2a3a; color: white; }
-    .order-status {
-      background: #f8fafc;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 20px;
+    .save-btn {
+      background: #007aff;
+      color: white;
     }
-    .status-badge {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 500;
+    .cancel-btn {
+      background: #e5e5ea;
+      color: #1d1c1f;
     }
-    .status-new { background: #fef3c7; color: #b45309; }
-    .status-work { background: #e0e7ff; color: #1e40af; }
-    .status-done { background: #dcfce7; color: #166534; }
-    .order-info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eef2f5;
-      font-size: 14px;
-      flex-wrap: wrap;
-    }
-    hr { margin: 16px 0; border: none; height: 1px; background: #eef2f5; }
-    .map-modal-header {
-      padding: 16px 20px;
-      background: white;
-      border-bottom: 1px solid #eef2f5;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .map-modal-header .modal-title { margin-bottom: 0; font-size: 18px; }
-    .close-map-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #8b9eb0;
-      padding: 0 8px;
-    }
-    iframe {
-      display: block;
-      width: 100%;
-      height: 500px;
-      border: none;
-    }
-    @media (max-width: 600px) { iframe { height: 400px; } }
   </style>
 </head>
 <body>
-
 <div class="container">
-  
-  <div class="hero">
+  <div class="header">
     <div class="logo">
       <span class="logo-text">Мусор</span>
       <div class="logo-box"><span>GO</span></div>
     </div>
-    <div class="tagline">Вынесем мусор за вас — быстро и без лишних хлопот</div>
-    <div class="top-bar">
-      <button id="mapButton" class="zone-btn-top">Зона обслуживания</button>
-      <a href="account.html" id="userLink" class="user-link">Войти</a>
+    <div class="user-name" id="userNameDisplay">Загрузка...</div>
+    <div class="user-email" id="userEmailDisplay"></div>
+    <div class="action-buttons">
+      <button class="action-btn" id="editProfileBtn">Редактировать</button>
+      <button class="action-btn logout-btn" id="logoutBtn">Выйти</button>
     </div>
   </div>
 
-  <div id="statusContainer" style="display: none;"></div>
-
-  <!-- Блок 1: Куда приехать -->
-  <div class="form-card" id="orderForm">
-    <div class="section-title">Куда приехать?</div>
-    <div class="input-group">
-      <label>Улица</label>
-      <select id="streetSelect" required>
-        <option value="">Выберите улицу</option>
-        <option value="Александра Шмакова">Александра Шмакова</option>
-        <option value="Бейвеля">Бейвеля</option>
-        <option value="Габдуллы Тукая">Габдуллы Тукая</option>
-        <option value="Генерала Брусилова">Генерала Брусилова</option>
-        <option value="Краснопольский Проспект">Краснопольский Проспект</option>
-        <option value="Маршала Чуйкова">Маршала Чуйкова</option>
-        <option value="Скульптора Головницкого">Скульптора Головницкого</option>
-        <option value="Хариса Юсупова">Хариса Юсупова</option>
-        <option value="Профессора Благих">Профессора Благих</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>Дом</label>
-      <select id="houseSelect" required><option value="">Сначала выберите улицу</option></select>
-    </div>
-    <div class="input-group">
-      <label>Квартира</label>
-      <input type="number" id="flatInput" placeholder="Введите номер квартиры" required>
-    </div>
-    <div class="input-group">
-      <label>Код домофона</label>
-      <input type="text" id="doorCode" placeholder="Например, 1234">
-    </div>
+  <div class="tabs">
+    <div class="tab active" data-order-tab="active">Активные заказы</div>
+    <div class="tab" data-order-tab="completed">Завершённые</div>
   </div>
 
-  <!-- Блок 2: Как передадите мусор + когда забрать -->
-  <div class="form-card">
-    <div class="section-title">Как передадите мусор?</div>
-    <div class="delivery-options" id="deliveryOptions">
-      <div class="delivery-option" data-type="Из рук в руки">Из рук в руки</div>
-      <div class="delivery-option" data-type="Оставлю у двери">Оставлю у двери</div>
-    </div>
-    <div class="section-title">Когда забрать?</div>
-    <div class="date-options" id="dateOptions">
-      <div class="date-option" data-date="today">Сегодня</div>
-      <div class="date-option" data-date="tomorrow">Завтра</div>
-    </div>
-    <button class="time-select-btn" id="timeSelectBtn">
-      <span>Выбрать время</span>
-      <span id="selectedTimeDisplay" class="selected-time"></span>
-    </button>
-    <div class="info-banner">Выберите удобное время. Мы приедем в этот интервал.</div>
+  <div class="new-order-wrapper">
+    <a href="index.html" class="new-order-btn">+ Новый заказ</a>
   </div>
 
-  <!-- Блок 3: Детали заказа + кнопки -->
-  <div class="form-card">
-    <div class="section-title">Детали заказа</div>
-    <div class="input-group">
-      <label>Комментарий</label>
-      <textarea id="comment" rows="2" placeholder="Этаж, ориентиры, сколько пакетов..."></textarea>
-    </div>
-    <div class="input-group">
-      <label>Номер телефона</label>
-      <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" value="+7">
-    </div>
-    <button class="btn" id="submitBtn">Оплатить 100 ₽</button>
-    <button class="telegram-btn" id="telegramBtn">Связаться с нами</button>
-    <div class="help-text">
-      <a href="#" id="helpLink">Что-то пошло не так? Свяжитесь с нами</a>
-    </div>
-  </div>
-  
-  <!-- Подвал -->
-  <div class="footer">
-    <div class="footer-links">
-      <a href="#" id="offerLink">Публичная оферта</a>
-      <a href="mailto:musor-go@outlook.com">musor-go@outlook.com</a>
-      <a href="tel:+79935485020">+7 993 548-50-20</a>
-      <a href="https://t.me/musor_go" target="_blank">Telegram: @musor_go</a>
-    </div>
-    <div class="requisites">
-      Самозанятый: Жумангулов Сергей Александрович<br>
-      ИНН: 740107903031<br>
-      Оплата через Robokassa
-    </div>
-  </div>
+  <div id="activeOrders" class="orders-list"></div>
+  <div id="completedOrders" class="orders-list" style="display: none;"></div>
 </div>
 
-<!-- Модальное окно выбора времени -->
-<div id="timeModal" class="time-modal">
-  <div class="time-modal-content">
-    <div class="time-modal-title">Выберите время</div>
-    <div class="time-picker-container">
-      <div class="time-column"><label>Часы</label><div class="time-scroll" id="hoursScroll"></div></div>
-      <div class="time-column"><label>Минуты</label><div class="time-scroll" id="minutesScroll"></div></div>
-    </div>
-    <div class="time-modal-buttons">
-      <button class="time-modal-btn time-modal-btn-cancel" id="cancelTimeBtn">Отмена</button>
-      <button class="time-modal-btn time-modal-btn-save" id="saveTimeBtn">Сохранить</button>
-    </div>
-  </div>
-</div>
-
-<!-- Модальное окно оферты -->
-<div id="offerModal" class="modal">
+<div id="editModal" class="modal">
   <div class="modal-content">
-    <div class="modal-title">Публичная оферта</div>
-    <div class="modal-text">...</div> <!-- текст оферты как в предыдущих версиях -->
-    <button class="modal-btn" id="closeOfferBtn">Закрыть</button>
-  </div>
-</div>
-
-<!-- Модальное окно с картой -->
-<div id="mapModal" class="modal">
-  <div class="modal-content map-modal">
-    <div class="map-modal-header">
-      <div class="modal-title">Наша зона обслуживания</div>
-      <button class="close-map-btn" id="closeMapBtn">✕</button>
-    </div>
-    <iframe id="map_942516914" frameborder="0" width="100%" height="500px" src="https://makemap.2gis.ru/widget?data=eJy1VMFuEzEQ_RdzZFXZY3s8jtRDlEKJlJaUgiqocghZk27ZxtFmS0mj_DtO1nZEDyBFcNy34_Gb955nw3xTusaV584_uLap3Ir1bjesXS8d67G3bto-No4VbNn4pWva_f8NK91q1lTLtvKLUDV-13998fHTfHTdX18Mzq4WlwPFR_LD3J4PxgP7NJ6fnoYWq7bx393A174Jh16p8qsBnfGbqmzvWA_S9_vldFa1a9YTBftW1XU-V-LMSMs6NFfxE12w5-GidD_DkW3B5t1A6x3dOM3Y1-t5YFywmQ9jV4tpux_39hbFCRgUkgqtT4BbofSk6FArje1QI9FG1HKdao3klFEEFTugSA0MCLEHBVdKJvTFZZNJoFyVgbqValscY8B9f2fA8_83QFqkEv9oABxjQJDPmiSqUFlUI5LUWpkDaiDqpygaILkhEzuQ0jajSNEWFAQJVVzqDtWkRUKlSh2QMN9mrcTIAQwklDTKiCLlEBil0hRG5cCgociXIN0GVulIgeShVJpEwSDKQ7Z-EycHBhDMUYG5vO63w7M3T8PLwYyP7q9-lOdn_POQRrL_-t-FBXWJf3mt8qjXGl4jxGelucr2gRJRUZI5AFJG6XbaZk8VdO4JUIA5FYZHVKFWB0tEZxQAcUyokNESEMRzKoK9XYddYCNIVkBkayHvi8AQKKIqEyNhdRdXQUaltsR5onsADaW0Cszrxti4bsJUufCFWjk9UiJtJwV7mC7HflV18diwetqy3r5ckCQIi08A2oLVu997ncJIyLlRGNQLVnr_ELwPm4uFmPm6vrlzrv6yR9vm0W1_AfUbvFM" sandbox="allow-modals allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
-  </div>
-</div>
-
-<!-- Модальное окно после заказа -->
-<div id="successModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-title">Заказ создан</div>
-    <div class="modal-text" id="modalText"></div>
-    <div id="qrContainer" class="qr-code"></div>
-    <div class="track-link" id="trackLink"></div>
+    <h3>Редактировать профиль</h3>
+    <input type="text" id="editNameInput" placeholder="Ваше имя">
     <div class="modal-buttons">
-      <button class="modal-btn modal-btn-copy" id="copyLinkBtn">Копировать ссылку</button>
-      <button class="modal-btn modal-btn-track" id="trackBtn">Отследить</button>
-      <button class="modal-btn" id="closeModalBtn">Закрыть</button>
+      <button class="modal-btn save-btn" id="saveNameBtn">Сохранить</button>
+      <button class="modal-btn cancel-btn" id="cancelModalBtn">Отмена</button>
     </div>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script>
-  // ========== FIREBASE ==========
   const firebaseConfig = {
     apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
     authDomain: "musor-go.firebaseapp.com",
@@ -575,337 +285,167 @@
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
   const auth = firebase.auth();
+  const db = firebase.firestore();
 
-  // Обновление ссылки на личный кабинет
-  auth.onAuthStateChanged(user => {
-    const userLink = document.getElementById('userLink');
+  let currentUser = null;
+  let userName = "";
+
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
     if (user && user.emailVerified) {
-      userLink.textContent = user.email;
-      userLink.href = 'account.html';
+      await loadUserProfile(user);
+      await loadOrders(user.email);
+    } else if (user && !user.emailVerified) {
+      document.getElementById('userEmailDisplay').innerText = user.email + ' (не подтверждён)';
     } else {
-      userLink.textContent = 'Войти';
-      userLink.href = 'account.html';
+      window.location.href = 'index.html';
     }
   });
 
-  // Данные домов
-  const housesData = {
-    "Александра Шмакова": ["6","10","12","13","14","15","16","17","17А","18","19","21","23","24","25","25А","26","27","28А","29","31","33","35","36","37","38","39","39А","40","42","44","46"],
-    "Бейвеля": ["1","3","6","6/1","7А","8","9","10","14","18","20","22","22/1","27","29","29А","31","33","33А","35","37","37А","38","39","40","41","42","43","44","46","46А","46Б","48","49","50","51","52","54","54А","55","56","58","59","61","63","65","65А","67","67А","67Ас2","69","72","73","75","77","79","112","112А","114","116","118"],
-    "Габдуллы Тукая": ["2Б","15А","20А","5","17","21","7","8","17А","22","9","11","13","13А","15","175","18","18А","20"],
-    "Генерала Брусилова": ["6","6А","7","20","24","26","30"],
-    "Краснопольский Проспект": ["1","1/1","1Б/1","1В","1Д","1Ж","5Б","7Б","11Б","14","17А","25","36","1А","1Б","1Г","3","ЗА","ЗБ","3В","ЗГ","ЗД","5","5В","5Г","5Д","5Е","5И","5К","7","7A","8","9","9А","9Б","10","11","12","12А","13","13А","13Б","13Г","14А","15","15А","15Б","16","16А","17Б","19","19А","19Б","21","22","27","27/1","27/2","28","29","30","46","48","48А","5А","7А","11А","17","23","34"],
-    "Маршала Чуйкова": ["1","3","5","15","15А","25А","25Б","36","7","16","29","9","11","13","17","19","21","31","32","33","13А","14","21А","25","34","35"],
-    "Скульптора Головницкого": ["2","2А","12А","13","20","20А","32А","3","4","14","20Б","5","14А","24","6","8","16","26","10","16А","28","10А","16Б","28А","12","18","32"],
-    "Хариса Юсупова": ["8","12","14","16","24","26","32","44А","46","46А","48А","52","54","58","58А","62","62А","64","66","70А","72","76","78","85","101","101А","101Б","103","105","113","40","42","54А","56","68","70","101/1","115","117"],
-    "Профессора Благих": ["53","59","61","63","63А","79","81","83","71","85","55","77","51","67","65"]
-  };
-
-  let selectedDeliveryType = "Из рук в руки";
-  let selectedDate = "today";
-  let selectedHour = "12";
-  let selectedMinute = "00";
-  let selectedTime = "";
-  let currentOrderId = null;
-  let currentTrackUrl = "";
-
-  function updateHouses() {
-    const street = document.getElementById('streetSelect').value;
-    const houseSelect = document.getElementById('houseSelect');
-    if (!street || !housesData[street]) {
-      houseSelect.innerHTML = '<option value="">Сначала выберите улицу</option>';
-      return;
-    }
-    houseSelect.innerHTML = '<option value="">Выберите дом</option>';
-    housesData[street].forEach(house => {
-      const option = document.createElement('option');
-      option.value = house;
-      option.textContent = house;
-      houseSelect.appendChild(option);
-    });
-  }
-
-  function initDateOptions() {
-    const options = document.querySelectorAll('.date-option');
-    options.forEach(opt => {
-      opt.addEventListener('click', () => {
-        options.forEach(o => o.classList.remove('selected'));
-        opt.classList.add('selected');
-        selectedDate = opt.dataset.date;
-      });
-    });
-    if (options.length) options[0].classList.add('selected');
-  }
-
-  function initTimePicker() {
-    const hoursScroll = document.getElementById('hoursScroll');
-    const minutesScroll = document.getElementById('minutesScroll');
-    for (let i = 0; i <= 23; i++) {
-      const hour = i.toString().padStart(2, '0');
-      const div = document.createElement('div');
-      div.className = 'time-item';
-      div.textContent = hour;
-      div.dataset.value = hour;
-      div.onclick = () => {
-        document.querySelectorAll('#hoursScroll .time-item').forEach(el => el.classList.remove('selected'));
-        div.classList.add('selected');
-        selectedHour = hour;
-      };
-      hoursScroll.appendChild(div);
-    }
-    const minutes = ['00', '15', '30', '45'];
-    minutes.forEach(min => {
-      const div = document.createElement('div');
-      div.className = 'time-item';
-      div.textContent = min;
-      div.dataset.value = min;
-      div.onclick = () => {
-        document.querySelectorAll('#minutesScroll .time-item').forEach(el => el.classList.remove('selected'));
-        div.classList.add('selected');
-        selectedMinute = min;
-      };
-      minutesScroll.appendChild(div);
-    });
-    const defaultHour = document.querySelector('#hoursScroll .time-item');
-    const defaultMinute = document.querySelector('#minutesScroll .time-item');
-    if (defaultHour) defaultHour.classList.add('selected');
-    if (defaultMinute) defaultMinute.classList.add('selected');
-    updateTimeDisplay();
-  }
-  
-  function updateTimeDisplay() {
-    selectedTime = `${selectedHour}:${selectedMinute}`;
-    const displaySpan = document.getElementById('selectedTimeDisplay');
-    const timeBtn = document.getElementById('timeSelectBtn');
-    if (selectedTime) {
-      displaySpan.textContent = ` ${selectedTime}`;
-      timeBtn.querySelector('span:first-child').textContent = 'Выбрано:';
+  async function loadUserProfile(user) {
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    if (userDoc.exists) {
+      userName = userDoc.data().name || user.email.split('@')[0];
     } else {
-      displaySpan.textContent = '';
-      timeBtn.querySelector('span:first-child').textContent = 'Выбрать время';
+      userName = user.email.split('@')[0];
+      await db.collection('users').doc(user.uid).set({ name: userName, email: user.email });
     }
+    document.getElementById('userNameDisplay').innerText = userName;
+    document.getElementById('userEmailDisplay').innerText = user.email;
   }
-  
-  function showTimeModal() {
-    const modal = document.getElementById('timeModal');
-    modal.style.display = 'flex';
-    const hoursItems = document.querySelectorAll('#hoursScroll .time-item');
-    hoursItems.forEach(item => {
-      if (item.dataset.value === selectedHour) {
-        item.classList.add('selected');
-        item.scrollIntoView({ block: 'center' });
-      } else item.classList.remove('selected');
-    });
-    const minutesItems = document.querySelectorAll('#minutesScroll .time-item');
-    minutesItems.forEach(item => {
-      if (item.dataset.value === selectedMinute) {
-        item.classList.add('selected');
-        item.scrollIntoView({ block: 'center' });
-      } else item.classList.remove('selected');
-    });
-  }
-  
-  function hideTimeModal() { document.getElementById('timeModal').style.display = 'none'; }
-  function saveTime() { updateTimeDisplay(); hideTimeModal(); }
 
-  document.querySelectorAll('.delivery-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      document.querySelectorAll('.delivery-option').forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-      selectedDeliveryType = opt.dataset.type;
-    });
-  });
-  if (document.querySelector('.delivery-option')) document.querySelector('.delivery-option').classList.add('selected');
-
-  const phoneInput = document.getElementById('phone');
-  phoneInput.addEventListener('input', function(e) {
-    let value = this.value.replace(/\D/g, '');
-    if (value === '7' && this.value === '+7') return;
-    if (!value.startsWith('7')) value = '7' + value;
-    if (value.length > 11) value = value.slice(0, 11);
-    let formatted = '+7';
-    if (value.length > 1) formatted += ' (' + value.slice(1, 4);
-    if (value.length > 4) formatted += ') ' + value.slice(4, 7);
-    if (value.length > 7) formatted += '-' + value.slice(7, 9);
-    if (value.length > 9) formatted += '-' + value.slice(9, 11);
-    this.value = formatted;
-  });
-
-  document.getElementById('submitBtn').addEventListener('click', async function() {
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loading"></span> Создаем заказ...';
-    
-    const street = document.getElementById('streetSelect').value;
-    const house = document.getElementById('houseSelect').value;
-    const flat = document.getElementById('flatInput').value;
-    let phone = document.getElementById('phone').value;
-    const doorCode = document.getElementById('doorCode').value;
-    const comment = document.getElementById('comment').value;
-    
-    if(!street) { alert("Выберите улицу"); reset(); return; }
-    if(!house) { alert("Выберите дом"); reset(); return; }
-    if(!flat) { alert("Введите квартиру"); reset(); return; }
-    if(!phone || phone === "+7" || phone === "+7 (___) ___-__-__") { alert("Введите номер телефона"); reset(); return; }
-    if(!selectedTime) { alert("Выберите время"); reset(); return; }
-    
-    const dateText = selectedDate === "today" ? "Сегодня" : "Завтра";
-    const fullDateTime = `${dateText} в ${selectedTime}`;
-    
-    const orderData = {
-      street, house, flat, phone, doorCode, comment,
-      deliveryType: selectedDeliveryType,
-      preferredDateTime: fullDateTime,
-      tariffPrice: 100,
-      status: "ожидает оплаты",
-      createdAt: new Date().toISOString()
-    };
-    
-    // Добавляем email пользователя, если он авторизован
-    if (auth.currentUser && auth.currentUser.emailVerified) {
-      orderData.userEmail = auth.currentUser.email;
-    }
-    
+  async function loadOrders(email) {
     try {
-      const docRef = await db.collection("orders").add(orderData);
-      currentOrderId = docRef.id;
-      currentTrackUrl = window.location.href.split('?')[0] + '?order=' + currentOrderId;
-      showSuccessModal(currentOrderId, currentTrackUrl);
-      
-      btn.innerHTML = 'Оплатить 100 ₽';
-      btn.disabled = false;
-      
-      document.getElementById('streetSelect').value = "";
-      document.getElementById('houseSelect').innerHTML = '<option value="">Сначала выберите улицу</option>';
-      document.getElementById('flatInput').value = "";
-      document.getElementById('doorCode').value = "";
-      document.getElementById('comment').value = "";
-      document.getElementById('phone').value = "+7";
-      
-    } catch(e) {
-      console.error(e);
-      alert("Ошибка: " + e.message);
-      reset();
-    }
-    
-    function reset() {
-      btn.disabled = false;
-      btn.innerHTML = 'Оплатить 100 ₽';
-    }
-  });
+      const snapshot = await db.collection('orders')
+        .where('userEmail', '==', email)
+        .orderBy('createdAt', 'desc')
+        .get();
 
-  function showSuccessModal(orderId, trackUrl) {
-    const modal = document.getElementById('successModal');
-    const modalText = document.getElementById('modalText');
-    const trackLinkDiv = document.getElementById('trackLink');
-    const qrContainer = document.getElementById('qrContainer');
-    
-    modalText.innerHTML = `Ваш заказ <strong>#${orderId.slice(0, 6)}</strong> создан. Сохраните ссылку для отслеживания:`;
-    trackLinkDiv.innerHTML = trackUrl;
-    
-    qrContainer.innerHTML = "";
-    new QRCode(qrContainer, {
-      text: trackUrl,
-      width: 140,
-      height: 140,
-      colorDark: "#1a2a3a",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.M
-    });
-    
-    modal.style.display = "flex";
-    
-    document.getElementById('copyLinkBtn').onclick = () => {
-      navigator.clipboard.writeText(trackUrl);
-      alert("Ссылка скопирована");
-    };
-    document.getElementById('trackBtn').onclick = () => { window.location.href = trackUrl; };
-    document.getElementById('closeModalBtn').onclick = () => { modal.style.display = "none"; };
-    modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+      const activeOrders = [];
+      const completedOrders = [];
+
+      snapshot.forEach(doc => {
+        const order = { id: doc.id, ...doc.data() };
+        if (order.status === 'выполнен') {
+          completedOrders.push(order);
+        } else {
+          activeOrders.push(order);
+        }
+      });
+
+      renderOrders(activeOrders, completedOrders);
+    } catch (err) {
+      console.error(err);
+      document.getElementById('activeOrders').innerHTML = '<div class="empty-message">Ошибка загрузки заказов</div>';
+    }
   }
 
-  // Карта
-  document.getElementById('mapButton').addEventListener('click', () => {
-    document.getElementById('mapModal').style.display = 'flex';
-  });
-  document.getElementById('closeMapBtn').addEventListener('click', () => {
-    document.getElementById('mapModal').style.display = 'none';
-  });
-  document.getElementById('mapModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('mapModal')) {
-      document.getElementById('mapModal').style.display = 'none';
-    }
-  });
+  function renderOrders(active, completed) {
+    const activeContainer = document.getElementById('activeOrders');
+    const completedContainer = document.getElementById('completedOrders');
 
-  // Telegram
-  document.getElementById('telegramBtn').addEventListener('click', () => {
-    window.open('https://t.me/musor_go', '_blank');
-  });
-  document.getElementById('helpLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    window.open('https://t.me/musor_go', '_blank');
-  });
-
-  // Оферта
-  document.getElementById('offerLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('offerModal').style.display = 'flex';
-  });
-  document.getElementById('closeOfferBtn').addEventListener('click', () => {
-    document.getElementById('offerModal').style.display = 'none';
-  });
-
-  // Отображение статуса заказа по ссылке
-  const urlParams = new URLSearchParams(window.location.search);
-  const orderId = urlParams.get('order');
-  
-  if (orderId) {
-    document.getElementById('orderForm').style.display = 'none';
-    document.getElementById('statusContainer').style.display = 'block';
-    db.collection("orders").doc(orderId).onSnapshot((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        let statusClass = "status-new", statusText = data.status;
-        if (data.status === "в работе") { statusClass = "status-work"; statusText = "В работе"; }
-        if (data.status === "выполнен") { statusClass = "status-done"; statusText = "Выполнен"; }
-        if (data.status === "ожидает оплаты") { statusClass = "status-new"; statusText = "Ожидает оплаты"; }
-        if (data.status === "оплачен") { statusClass = "status-work"; statusText = "Оплачен, ищем курьера"; }
-        
-        let courierInfo = "";
-        if (data.courier) courierInfo = `<div class="order-info-row"><span>Курьер</span><span>${data.courier}</span></div>`;
-        if (data.pickupTime) courierInfo += `<div class="order-info-row"><span>Время вывоза</span><span>${data.pickupTime}</span></div>`;
-        
-        document.getElementById('statusContainer').innerHTML = `
-          <div class="order-status">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-              <strong>Заказ #${orderId.slice(0, 6)}</strong>
-              <div class="status-badge ${statusClass}">${statusText}</div>
-            </div>
-            <hr>
-            <div class="order-info-row"><span>Адрес</span><span>${data.street}, д.${data.house}, кв.${data.flat}</span></div>
-            <div class="order-info-row"><span>Дата и время</span><span>${data.preferredDateTime || "не выбрано"}</span></div>
-            <div class="order-info-row"><span>Способ</span><span>${data.deliveryType || "не указан"}</span></div>
-            <div class="order-info-row"><span>Телефон</span><span>${data.phone}</span></div>
-            ${courierInfo}
-            ${data.comment ? `<div class="order-info-row"><span>Комментарий</span><span>${data.comment}</span></div>` : ""}
+    if (active.length === 0) {
+      activeContainer.innerHTML = '<div class="empty-message">У вас нет активных заказов</div>';
+    } else {
+      activeContainer.innerHTML = '';
+      active.forEach(order => {
+        const div = document.createElement('div');
+        div.className = 'order-item';
+        div.innerHTML = `
+          <div class="order-header">
+            <span class="order-id">Заказ #${order.id.slice(0,6)}</span>
+            <span class="order-status active">${order.status === 'ожидает оплаты' ? 'Ожидает оплаты' : order.status}</span>
           </div>
-          <div class="form-card" style="margin-top: 16px; text-align: center;">
-            <p style="color: #8b9eb0;">Статус обновляется автоматически</p>
-            <button onclick="window.location.href=window.location.pathname" class="btn" style="margin-top: 12px;">Новый заказ</button>
+          <div class="order-details">${order.street}, ${order.house}, кв.${order.flat} • ${order.preferredDateTime || 'время не выбрано'}</div>
+          <div class="order-buttons">
+            <button class="order-btn track-btn" data-id="${order.id}">Отследить</button>
+            <button class="order-btn repeat-btn" data-id="${order.id}">Повторить заказ</button>
           </div>
         `;
-      }
+        activeContainer.appendChild(div);
+      });
+    }
+
+    if (completed.length === 0) {
+      completedContainer.innerHTML = '<div class="empty-message">У вас нет завершённых заказов</div>';
+    } else {
+      completedContainer.innerHTML = '';
+      completed.forEach(order => {
+        const div = document.createElement('div');
+        div.className = 'order-item';
+        div.innerHTML = `
+          <div class="order-header">
+            <span class="order-id">Заказ #${order.id.slice(0,6)}</span>
+            <span class="order-status completed">Выполнен</span>
+          </div>
+          <div class="order-details">${order.street}, ${order.house}, кв.${order.flat} • ${order.preferredDateTime || 'время не выбрано'}</div>
+          <div class="order-buttons">
+            <button class="order-btn repeat-btn" data-id="${order.id}">Заказать снова</button>
+          </div>
+        `;
+        completedContainer.appendChild(div);
+      });
+    }
+
+    document.querySelectorAll('.track-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.open(`index.html?order=${btn.dataset.id}`, '_blank');
+      });
+    });
+    document.querySelectorAll('.repeat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.location.href = `index.html?repeat=${btn.dataset.id}`;
+      });
     });
   }
 
-  document.getElementById('streetSelect').addEventListener('change', updateHouses);
-  initDateOptions();
-  initTimePicker();
-  document.getElementById('timeSelectBtn').addEventListener('click', showTimeModal);
-  document.getElementById('cancelTimeBtn').addEventListener('click', hideTimeModal);
-  document.getElementById('saveTimeBtn').addEventListener('click', saveTime);
+  const tabs = document.querySelectorAll('.tab');
+  const activeDiv = document.getElementById('activeOrders');
+  const completedDiv = document.getElementById('completedOrders');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      if (tab.dataset.orderTab === 'active') {
+        activeDiv.style.display = 'flex';
+        completedDiv.style.display = 'none';
+      } else {
+        activeDiv.style.display = 'none';
+        completedDiv.style.display = 'flex';
+      }
+    });
+  });
+
+  const editModal = document.getElementById('editModal');
+  const editNameInput = document.getElementById('editNameInput');
+  document.getElementById('editProfileBtn').onclick = () => {
+    editNameInput.value = userName;
+    editModal.style.display = 'flex';
+  };
+  document.getElementById('saveNameBtn').onclick = async () => {
+    const newName = editNameInput.value.trim();
+    if (newName && currentUser) {
+      await db.collection('users').doc(currentUser.uid).update({ name: newName });
+      userName = newName;
+      document.getElementById('userNameDisplay').innerText = userName;
+    }
+    editModal.style.display = 'none';
+  };
+  document.getElementById('cancelModalBtn').onclick = () => {
+    editModal.style.display = 'none';
+  };
+  window.onclick = (e) => {
+    if (e.target === editModal) editModal.style.display = 'none';
+  };
+
+  document.getElementById('logoutBtn').onclick = async () => {
+    if (confirm('Выйти из аккаунта?')) {
+      await auth.signOut();
+      // Перенаправляем на главную без перезагрузки страницы
+      window.location.href = 'index.html';
+    }
+  };
 </script>
 </body>
 </html>
