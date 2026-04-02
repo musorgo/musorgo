@@ -20,7 +20,6 @@
       max-width: 720px;
       margin: 0 auto;
     }
-    /* Шапка по центру */
     .header {
       text-align: center;
       margin-bottom: 32px;
@@ -49,6 +48,63 @@
       font-weight: 700;
       color: #1a2a3a;
     }
+    .form-card {
+      background: white;
+      border-radius: 28px;
+      padding: 32px;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6c6c70;
+      margin-bottom: 6px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      font-size: 16px;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #007aff;
+      color: white;
+      border: none;
+      border-radius: 44px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-secondary {
+      background: #e5e5ea;
+      color: #1d1c1f;
+      margin-top: 12px;
+    }
+    .error {
+      color: #ff3b30;
+      font-size: 13px;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    .link a {
+      color: #007aff;
+      text-decoration: none;
+    }
     .user-name {
       font-size: 20px;
       font-weight: 600;
@@ -74,19 +130,11 @@
       font-size: 15px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
-    }
-    .action-btn:hover {
-      background: #e9f2ff;
     }
     .logout-btn {
       border-color: #ff3b30;
       color: #ff3b30;
     }
-    .logout-btn:hover {
-      background: #fee2e2;
-    }
-    /* Вкладки */
     .tabs {
       display: flex;
       justify-content: center;
@@ -106,7 +154,6 @@
       color: #007aff;
       border-bottom-color: #007aff;
     }
-    /* Кнопка Новый заказ */
     .new-order-wrapper {
       text-align: center;
       margin-bottom: 24px;
@@ -123,7 +170,6 @@
       text-decoration: none;
       display: inline-block;
     }
-    /* Списки заказов */
     .orders-list {
       display: flex;
       flex-direction: column;
@@ -186,7 +232,6 @@
       color: #8e8e93;
       padding: 32px 0;
     }
-    /* Модальное окно */
     .modal {
       display: none;
       position: fixed;
@@ -239,48 +284,7 @@
   </style>
 </head>
 <body>
-<div class="container">
-  <!-- Шапка по центру -->
-  <div class="header">
-    <div class="logo">
-      <span class="logo-text">Мусор</span>
-      <div class="logo-box"><span>GO</span></div>
-    </div>
-    <div class="user-name" id="userNameDisplay">Загрузка...</div>
-    <div class="user-email" id="userEmailDisplay"></div>
-    <div class="action-buttons">
-      <button class="action-btn" id="editProfileBtn">Редактировать</button>
-      <button class="action-btn logout-btn" id="logoutBtn">Выйти</button>
-    </div>
-  </div>
-
-  <!-- Вкладки -->
-  <div class="tabs">
-    <div class="tab active" data-order-tab="active">Активные заказы</div>
-    <div class="tab" data-order-tab="completed">Завершённые</div>
-  </div>
-
-  <!-- Кнопка Новый заказ -->
-  <div class="new-order-wrapper">
-    <a href="index.html" class="new-order-btn">+ Новый заказ</a>
-  </div>
-
-  <!-- Списки заказов -->
-  <div id="activeOrders" class="orders-list"></div>
-  <div id="completedOrders" class="orders-list" style="display: none;"></div>
-</div>
-
-<!-- Модальное окно редактирования имени -->
-<div id="editModal" class="modal">
-  <div class="modal-content">
-    <h3>Редактировать профиль</h3>
-    <input type="text" id="editNameInput" placeholder="Ваше имя">
-    <div class="modal-buttons">
-      <button class="modal-btn save-btn" id="saveNameBtn">Сохранить</button>
-      <button class="modal-btn cancel-btn" id="cancelModalBtn">Отмена</button>
-    </div>
-  </div>
-</div>
+<div class="container" id="app"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -301,17 +305,164 @@
   let currentUser = null;
   let userName = "";
 
-  auth.onAuthStateChanged(async (user) => {
-    currentUser = user;
-    if (user && user.emailVerified) {
-      await loadUserProfile(user);
-      await loadOrders(user.email);
-    } else if (user && !user.emailVerified) {
-      document.getElementById('userEmailDisplay').innerText = user.email + ' (не подтверждён)';
-    } else {
-      window.location.href = 'index.html';
+  function renderLoginForm() {
+    document.getElementById('app').innerHTML = `
+      <div class="header">
+        <div class="logo">
+          <span class="logo-text">Мусор</span>
+          <div class="logo-box"><span>GO</span></div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="example@mail.ru">
+        </div>
+        <div class="input-group">
+          <label>Пароль</label>
+          <input type="password" id="loginPassword" placeholder="••••••••">
+        </div>
+        <button class="btn" id="loginBtn">Войти</button>
+        <div id="loginError" class="error"></div>
+        <div class="link">
+          Нет аккаунта? <a href="#" id="showRegisterLink">Зарегистрироваться</a>
+        </div>
+      </div>
+    `;
+    document.getElementById('loginBtn').onclick = login;
+    document.getElementById('showRegisterLink').onclick = (e) => {
+      e.preventDefault();
+      renderRegisterForm();
+    };
+  }
+
+  function renderRegisterForm() {
+    document.getElementById('app').innerHTML = `
+      <div class="header">
+        <div class="logo">
+          <span class="logo-text">Мусор</span>
+          <div class="logo-box"><span>GO</span></div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="example@mail.ru">
+        </div>
+        <div class="input-group">
+          <label>Пароль</label>
+          <input type="password" id="regPassword" placeholder="••••••••">
+        </div>
+        <div class="input-group">
+          <label>Повторите пароль</label>
+          <input type="password" id="regPasswordConfirm" placeholder="••••••••">
+        </div>
+        <button class="btn" id="registerBtn">Зарегистрироваться</button>
+        <div id="registerError" class="error"></div>
+        <div class="link">
+          Уже есть аккаунт? <a href="#" id="showLoginLink">Войти</a>
+        </div>
+      </div>
+    `;
+    document.getElementById('registerBtn').onclick = register;
+    document.getElementById('showLoginLink').onclick = (e) => {
+      e.preventDefault();
+      renderLoginForm();
+    };
+  }
+
+  async function login() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorDiv = document.getElementById('loginError');
+    errorDiv.innerText = '';
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      // после успешного входа onAuthStateChanged сам перерисует страницу
+    } catch (err) {
+      errorDiv.innerText = err.message;
     }
-  });
+  }
+
+  async function register() {
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('regPasswordConfirm').value;
+    const errorDiv = document.getElementById('registerError');
+    errorDiv.innerText = '';
+    if (password !== confirm) {
+      errorDiv.innerText = 'Пароли не совпадают';
+      return;
+    }
+    try {
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      await userCredential.user.sendEmailVerification();
+      await auth.signOut();
+      renderLoginForm();
+      alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
+    } catch (err) {
+      errorDiv.innerText = err.message;
+    }
+  }
+
+  function renderAccountPage(user) {
+    document.getElementById('app').innerHTML = `
+      <div class="header">
+        <div class="logo">
+          <span class="logo-text">Мусор</span>
+          <div class="logo-box"><span>GO</span></div>
+        </div>
+        <div class="user-name" id="userNameDisplay">Загрузка...</div>
+        <div class="user-email" id="userEmailDisplay"></div>
+        <div class="action-buttons">
+          <button class="action-btn" id="editProfileBtn">Редактировать</button>
+          <button class="action-btn logout-btn" id="logoutBtn">Выйти</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-order-tab="active">Активные заказы</div>
+        <div class="tab" data-order-tab="completed">Завершённые</div>
+      </div>
+      <div class="new-order-wrapper">
+        <a href="index.html" class="new-order-btn">+ Новый заказ</a>
+      </div>
+      <div id="activeOrders" class="orders-list"></div>
+      <div id="completedOrders" class="orders-list" style="display: none;"></div>
+    `;
+
+    loadUserProfile(user);
+    loadOrders(user.email);
+
+    // Переключение вкладок
+    const tabs = document.querySelectorAll('.tab');
+    const activeDiv = document.getElementById('activeOrders');
+    const completedDiv = document.getElementById('completedOrders');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        if (tab.dataset.orderTab === 'active') {
+          activeDiv.style.display = 'flex';
+          completedDiv.style.display = 'none';
+        } else {
+          activeDiv.style.display = 'none';
+          completedDiv.style.display = 'flex';
+        }
+      });
+    });
+
+    document.getElementById('editProfileBtn').onclick = () => {
+      const modal = document.getElementById('editModal');
+      if (modal) modal.style.display = 'flex';
+      else createEditModal();
+    };
+    document.getElementById('logoutBtn').onclick = async () => {
+      if (confirm('Выйти из аккаунта?')) {
+        await auth.signOut();
+        renderLoginForm();
+      }
+    };
+  }
 
   async function loadUserProfile(user) {
     const userDoc = await db.collection('users').doc(user.uid).get();
@@ -398,14 +549,11 @@
       });
     }
 
-    // Отследить
     document.querySelectorAll('.track-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const orderId = btn.dataset.id;
-        window.open(`index.html?order=${orderId}`, '_blank');
+        window.open(`index.html?order=${btn.dataset.id}`, '_blank');
       });
     });
-    // Повторить
     document.querySelectorAll('.repeat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         window.location.href = `index.html?repeat=${btn.dataset.id}`;
@@ -413,54 +561,52 @@
     });
   }
 
-  // Переключение вкладок
-  const tabs = document.querySelectorAll('.tab');
-  const activeDiv = document.getElementById('activeOrders');
-  const completedDiv = document.getElementById('completedOrders');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      if (tab.dataset.orderTab === 'active') {
-        activeDiv.style.display = 'flex';
-        completedDiv.style.display = 'none';
-      } else {
-        activeDiv.style.display = 'none';
-        completedDiv.style.display = 'flex';
+  function createEditModal() {
+    const modalDiv = document.createElement('div');
+    modalDiv.id = 'editModal';
+    modalDiv.className = 'modal';
+    modalDiv.innerHTML = `
+      <div class="modal-content">
+        <h3>Редактировать профиль</h3>
+        <input type="text" id="editNameInput" placeholder="Ваше имя">
+        <div class="modal-buttons">
+          <button class="modal-btn save-btn" id="saveNameBtn">Сохранить</button>
+          <button class="modal-btn cancel-btn" id="cancelModalBtn">Отмена</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalDiv);
+
+    const editNameInput = document.getElementById('editNameInput');
+    document.getElementById('saveNameBtn').onclick = async () => {
+      const newName = editNameInput.value.trim();
+      if (newName && currentUser) {
+        await db.collection('users').doc(currentUser.uid).update({ name: newName });
+        userName = newName;
+        document.getElementById('userNameDisplay').innerText = userName;
       }
-    });
+      modalDiv.style.display = 'none';
+    };
+    document.getElementById('cancelModalBtn').onclick = () => {
+      modalDiv.style.display = 'none';
+    };
+    modalDiv.onclick = (e) => {
+      if (e.target === modalDiv) modalDiv.style.display = 'none';
+    };
+    return modalDiv;
+  }
+
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    if (user && user.emailVerified) {
+      renderAccountPage(user);
+    } else if (user && !user.emailVerified) {
+      renderLoginForm();
+      alert('Подтвердите email, перейдя по ссылке в письме');
+    } else {
+      renderLoginForm();
+    }
   });
-
-  // Редактирование имени
-  const editModal = document.getElementById('editModal');
-  const editNameInput = document.getElementById('editNameInput');
-  document.getElementById('editProfileBtn').onclick = () => {
-    editNameInput.value = userName;
-    editModal.style.display = 'flex';
-  };
-  document.getElementById('saveNameBtn').onclick = async () => {
-    const newName = editNameInput.value.trim();
-    if (newName && currentUser) {
-      await db.collection('users').doc(currentUser.uid).update({ name: newName });
-      userName = newName;
-      document.getElementById('userNameDisplay').innerText = userName;
-    }
-    editModal.style.display = 'none';
-  };
-  document.getElementById('cancelModalBtn').onclick = () => {
-    editModal.style.display = 'none';
-  };
-  window.onclick = (e) => {
-    if (e.target === editModal) editModal.style.display = 'none';
-  };
-
-  // Выход
-  document.getElementById('logoutBtn').onclick = async () => {
-    if (confirm('Выйти из аккаунта?')) {
-      await auth.signOut();
-      window.location.href = 'index.html';
-    }
-  };
 </script>
 </body>
 </html>
