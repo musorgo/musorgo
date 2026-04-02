@@ -5,7 +5,6 @@
   <title>МусорGO — вынос мусора</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -20,7 +19,6 @@
     }
     .container { max-width: 560px; margin: 0 auto; }
     
-    /* Шапка */
     .hero {
       background: white;
       border-radius: 32px;
@@ -46,7 +44,6 @@
     .logo-box span { font-size: 32px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
     .tagline { color: #5a6e7c; font-size: 15px; font-weight: 400; margin-top: 6px; }
     
-    /* Кнопки по центру */
     .center-buttons {
       display: flex;
       flex-direction: column;
@@ -80,7 +77,6 @@
       min-width: 180px;
     }
     
-    /* Карточки */
     .form-card {
       background: white;
       border-radius: 20px;
@@ -248,7 +244,6 @@
       color: #8b9eb0;
     }
     
-    /* Модальные окна */
     .modal {
       display: none;
       position: fixed;
@@ -409,7 +404,6 @@
     }
     @media (max-width: 600px) { iframe { height: 400px; } }
     
-    /* Стили для форм входа */
     .auth-input {
       margin-bottom: 16px;
       text-align: left;
@@ -461,7 +455,6 @@
 
   <div id="statusContainer" style="display: none;"></div>
 
-  <!-- Блок 1: Куда приехать -->
   <div class="form-card" id="orderForm">
     <div class="section-title">Куда приехать?</div>
     <div class="input-group">
@@ -493,7 +486,6 @@
     </div>
   </div>
 
-  <!-- Блок 2: Как передадите мусор + когда забрать -->
   <div class="form-card">
     <div class="section-title">Как передадите мусор?</div>
     <div class="delivery-options" id="deliveryOptions">
@@ -512,7 +504,6 @@
     <div class="info-banner">Выберите удобное время. Мы приедем в этот интервал.</div>
   </div>
 
-  <!-- Блок 3: Детали заказа + кнопки -->
   <div class="form-card">
     <div class="section-title">Детали заказа</div>
     <div class="input-group">
@@ -530,7 +521,6 @@
     </div>
   </div>
   
-  <!-- Подвал -->
   <div class="footer">
     <div class="footer-links">
       <a href="#" id="offerLink">Публичная оферта</a>
@@ -546,14 +536,10 @@
   </div>
 </div>
 
-<!-- Модальное окно авторизации -->
 <div id="authModal" class="modal">
-  <div class="modal-content" id="authModalContent">
-    <!-- Контент будет динамически меняться -->
-  </div>
+  <div class="modal-content" id="authModalContent"></div>
 </div>
 
-<!-- Модальное окно выбора времени -->
 <div id="timeModal" class="time-modal">
   <div class="time-modal-content">
     <div class="time-modal-title">Выберите время</div>
@@ -568,7 +554,6 @@
   </div>
 </div>
 
-<!-- Модальное окно оферты -->
 <div id="offerModal" class="modal">
   <div class="modal-content">
     <div class="modal-title">Публичная оферта</div>
@@ -577,18 +562,16 @@
   </div>
 </div>
 
-<!-- Модальное окно с картой -->
 <div id="mapModal" class="modal">
   <div class="modal-content map-modal">
     <div class="map-modal-header">
       <div class="modal-title">Наша зона обслуживания</div>
       <button class="close-map-btn" id="closeMapBtn">✕</button>
     </div>
-    <iframe id="map_942516914" frameborder="0" width="100%" height="500px" src="https://makemap.2gis.ru/widget?data=eJy1VMFuEzEQ_RdzZFXZY3s8jtRDlEKJlJaUgiqocghZk27ZxtFmS0mj_DtO1nZEDyBFcNy34_Gb955nw3xTusaV584_uLap3Ir1bjesXS8d67G3bto-No4VbNn4pWva_f8NK91q1lTLtvKLUDV-13998fHTfHTdX18Mzq4WlwPFR_LD3J4PxgP7NJ6fnoYWq7bx393A174Jh16p8qsBnfGbqmzvWA_S9_vldFa1a9YTBftW1XU-V-LMSMs6NFfxE12w5-GidD_DkW3B5t1A6x3dOM3Y1-t5YFywmQ9jV4tpux_39hbFCRgUkgqtT4BbofSk6FArje1QI9FG1HKdao3klFEEFTugSA0MCLEHBVdKJvTFZZNJoFyVgbqValscY8B9f2fA8_83QFqkEv9oABxjQJDPmiSqUFlUI5LUWpkDaiDqpygaILkhEzuQ0jajSNEWFAQJVVzqDtWkRUKlSh2QMN9mrcTIAQwklDTKiCLlEBil0hRG5cCgociXIN0GVulIgeShVJpEwSDKQ7Z-EycHBhDMUYG5vO63w7M3T8PLwYyP7q9-lOdn_POQRrL_-t-FBXWJf3mt8qjXGl4jxGelucr2gRJRUZI5AFJG6XbaZk8VdO4JUIA5FYZHVKFWB0tEZxQAcUyokNESEMRzKoK9XYddYCNIVkBkayHvi8AQKKIqEyNhdRdXQUaltsR5onsADaW0Cszrxti4bsJUufCFWjk9UiJtJwV7mC7HflV18diwetqy3r5ckCQIi08A2oLVu997ncJIyLlRGNQLVnr_ELwPm4uFmPm6vrlzrv6yR9vm0W1_AfUbvFM" sandbox="allow-modals allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
+    <iframe src="https://makemap.2gis.ru/widget?data=eJy1VMFuEzEQ_RdzZFXZY3s8jtRDlEKJlJaUgiqocghZk27ZxtFmS0mj_DtO1nZEDyBFcNy34_Gb955nw3xTusaV584_uLap3Ir1bjesXS8d67G3bto-No4VbNn4pWva_f8NK91q1lTLtvKLUDV-13998fHTfHTdX18Mzq4WlwPFR_LD3J4PxgP7NJ6fnoYWq7bx393A174Jh16p8qsBnfGbqmzvWA_S9_vldFa1a9YTBftW1XU-V-LMSMs6NFfxE12w5-GidD_DkW3B5t1A6x3dOM3Y1-t5YFywmQ9jV4tpux_39hbFCRgUkgqtT4BbofSk6FArje1QI9FG1HKdao3klFEEFTugSA0MCLEHBVdKJvTFZZNJoFyVgbqValscY8B9f2fA8_83QFqkEv9oABxjQJDPmiSqUFlUI5LUWpkDaiDqpygaILkhEzuQ0jajSNEWFAQJVVzqDtWkRUKlSh2QMN9mrcTIAQwklDTKiCLlEBil0hRG5cCgociXIN0GVulIgeShVJpEwSDKQ7Z-EycHBhDMUYG5vO63w7M3T8PLwYyP7q9-lOdn_POQRrL_-t-FBXWJf3mt8qjXGl4jxGelucr2gRJRUZI5AFJG6XbaZk8VdO4JUIA5FYZHVKFWB0tEZxQAcUyokNESEMRzKoK9XYddYCNIVkBkayHvi8AQKKIqEyNhdRdXQUaltsR5onsADaW0Cszrxti4bsJUufCFWjk9UiJtJwV7mC7HflV18diwetqy3r5ckCQIi08A2oLVu997ncJIyLlRGNQLVnr_ELwPm4uFmPm6vrlzrv6yR9vm0W1_AfUbvFM" sandbox="allow-modals allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
   </div>
 </div>
 
-<!-- Модальное окно после заказа -->
 <div id="successModal" class="modal">
   <div class="modal-content">
     <div class="modal-title">Заказ создан</div>
@@ -605,7 +588,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-  // ========== FIREBASE ==========
   const firebaseConfig = {
     apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
     authDomain: "musor-go.firebaseapp.com",
@@ -618,26 +600,33 @@
   const db = firebase.firestore();
   const auth = firebase.auth();
 
-  // Элементы DOM
   const authButton = document.getElementById('authButton');
   const authModal = document.getElementById('authModal');
   let currentUserName = '';
 
-  // Функция обновления кнопки входа
   async function updateAuthButton() {
     const user = auth.currentUser;
     if (user && user.emailVerified) {
-      // Получаем имя пользователя из Firestore
       const userDoc = await db.collection('users').doc(user.uid).get();
-      const name = userDoc.exists ? userDoc.data().name : user.email.split('@')[0];
-      currentUserName = name;
+      currentUserName = userDoc.exists ? userDoc.data().name : user.email.split('@')[0];
       authButton.textContent = currentUserName;
     } else {
       authButton.textContent = 'Войти';
     }
   }
 
-  // Отображение формы входа
+  async function ensureUserDocument(user) {
+    const userRef = db.collection('users').doc(user.uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      await userRef.set({
+        name: user.email.split('@')[0],
+        email: user.email,
+        createdAt: new Date().toISOString()
+      });
+    }
+  }
+
   function showLoginForm() {
     const modalContent = document.getElementById('authModalContent');
     modalContent.innerHTML = `
@@ -663,9 +652,16 @@
       const errorDiv = document.getElementById('authError');
       errorDiv.innerText = '';
       try {
-        await auth.signInWithEmailAndPassword(email, password);
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        if (!user.emailVerified) {
+          errorDiv.innerText = 'Подтвердите email, перейдя по ссылке в письме';
+          await auth.signOut();
+          return;
+        }
+        await ensureUserDocument(user);
         authModal.style.display = 'none';
-        updateAuthButton();
+        await updateAuthButton();
       } catch (err) {
         errorDiv.innerText = err.message;
       }
@@ -677,7 +673,6 @@
     };
   }
 
-  // Отображение формы регистрации
   function showRegisterForm() {
     const modalContent = document.getElementById('authModalContent');
     modalContent.innerHTML = `
@@ -717,7 +712,7 @@
         await auth.signOut();
         authModal.style.display = 'none';
         alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
-        updateAuthButton();
+        await updateAuthButton();
       } catch (err) {
         errorDiv.innerText = err.message;
       }
@@ -729,10 +724,8 @@
     };
   }
 
-  // Кнопка входа
   authButton.onclick = () => {
     if (auth.currentUser && auth.currentUser.emailVerified) {
-      // Если уже авторизован — выход
       auth.signOut().then(() => updateAuthButton());
     } else {
       showLoginForm();
@@ -740,15 +733,14 @@
     }
   };
 
-  // Закрытие модального окна по клику вне
   authModal.onclick = (e) => {
     if (e.target === authModal) authModal.style.display = 'none';
   };
 
-  // Обновляем кнопку при изменении состояния
-  auth.onAuthStateChanged(() => updateAuthButton());
+  auth.onAuthStateChanged((user) => {
+    updateAuthButton();
+  });
 
-  // Данные домов
   const housesData = {
     "Александра Шмакова": ["6","10","12","13","14","15","16","17","17А","18","19","21","23","24","25","25А","26","27","28А","29","31","33","35","36","37","38","39","39А","40","42","44","46"],
     "Бейвеля": ["1","3","6","6/1","7А","8","9","10","14","18","20","22","22/1","27","29","29А","31","33","33А","35","37","37А","38","39","40","41","42","43","44","46","46А","46Б","48","49","50","51","52","54","54А","55","56","58","59","61","63","65","65А","67","67А","67Ас2","69","72","73","75","77","79","112","112А","114","116","118"],
@@ -983,7 +975,6 @@
     modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
   }
 
-  // Карта
   document.getElementById('mapButton').addEventListener('click', () => {
     document.getElementById('mapModal').style.display = 'flex';
   });
@@ -996,7 +987,6 @@
     }
   });
 
-  // Telegram
   document.getElementById('telegramBtn').addEventListener('click', () => {
     window.open('https://t.me/musor_go', '_blank');
   });
@@ -1005,7 +995,6 @@
     window.open('https://t.me/musor_go', '_blank');
   });
 
-  // Оферта
   document.getElementById('offerLink').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('offerModal').style.display = 'flex';
@@ -1014,7 +1003,6 @@
     document.getElementById('offerModal').style.display = 'none';
   });
 
-  // Отображение статуса заказа по ссылке
   const urlParams = new URLSearchParams(window.location.search);
   const orderId = urlParams.get('order');
   
