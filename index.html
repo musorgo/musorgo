@@ -607,23 +607,25 @@
   async function updateAuthButton() {
     const user = auth.currentUser;
     if (user && user.emailVerified) {
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      currentUserName = userDoc.exists ? userDoc.data().name : user.email.split('@')[0];
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          currentUserName = userDoc.data().name;
+        } else {
+          currentUserName = user.email.split('@')[0];
+          await db.collection('users').doc(user.uid).set({
+            name: currentUserName,
+            email: user.email,
+            createdAt: new Date().toISOString()
+          });
+        }
+      } catch (err) {
+        console.warn('Ошибка при работе с users:', err);
+        currentUserName = user.email.split('@')[0];
+      }
       authButton.textContent = currentUserName;
     } else {
       authButton.textContent = 'Войти';
-    }
-  }
-
-  async function ensureUserDocument(user) {
-    const userRef = db.collection('users').doc(user.uid);
-    const doc = await userRef.get();
-    if (!doc.exists) {
-      await userRef.set({
-        name: user.email.split('@')[0],
-        email: user.email,
-        createdAt: new Date().toISOString()
-      });
     }
   }
 
@@ -659,9 +661,7 @@
           await auth.signOut();
           return;
         }
-        await ensureUserDocument(user);
         authModal.style.display = 'none';
-        await updateAuthButton();
       } catch (err) {
         errorDiv.innerText = err.message;
       }
@@ -712,7 +712,6 @@
         await auth.signOut();
         authModal.style.display = 'none';
         alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
-        await updateAuthButton();
       } catch (err) {
         errorDiv.innerText = err.message;
       }
