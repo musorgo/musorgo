@@ -5,25 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>МусорGO — Личный кабинет</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: #f5f5f7;
       color: #1d1c1f;
       padding: 24px 16px;
     }
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+    .container { max-width: 720px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 32px; }
     .logo {
       display: flex;
       align-items: baseline;
@@ -31,23 +21,14 @@
       gap: 6px;
       margin-bottom: 12px;
     }
-    .logo-text {
-      font-size: 32px;
-      font-weight: 700;
-      color: #1a2a3a;
-      letter-spacing: -0.3px;
-    }
+    .logo-text { font-size: 32px; font-weight: 700; color: #1a2a3a; }
     .logo-box {
       background: #f5b042;
       border-radius: 12px;
       padding: 2px 10px;
       display: inline-block;
     }
-    .logo-box span {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1a2a3a;
-    }
+    .logo-box span { font-size: 28px; font-weight: 700; color: #1a2a3a; }
     .form-card {
       background: white;
       border-radius: 28px;
@@ -56,9 +37,7 @@
       margin: 0 auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
-    .input-group {
-      margin-bottom: 20px;
-    }
+    .input-group { margin-bottom: 20px; }
     .input-group label {
       display: block;
       font-size: 14px;
@@ -85,11 +64,6 @@
       cursor: pointer;
       margin-top: 8px;
     }
-    .btn-secondary {
-      background: #e5e5ea;
-      color: #1d1c1f;
-      margin-top: 12px;
-    }
     .error {
       color: #ff3b30;
       font-size: 13px;
@@ -101,20 +75,9 @@
       margin-top: 20px;
       font-size: 14px;
     }
-    .link a {
-      color: #007aff;
-      text-decoration: none;
-    }
-    .user-name {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .user-email {
-      font-size: 14px;
-      color: #6c6c70;
-      margin-bottom: 16px;
-    }
+    .link a { color: #007aff; text-decoration: none; }
+    .user-name { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .user-email { font-size: 14px; color: #6c6c70; margin-bottom: 16px; }
     .action-buttons {
       display: flex;
       justify-content: center;
@@ -131,10 +94,7 @@
       font-weight: 500;
       cursor: pointer;
     }
-    .logout-btn {
-      border-color: #ff3b30;
-      color: #ff3b30;
-    }
+    .logout-btn { border-color: #ff3b30; color: #ff3b30; }
     .tabs {
       display: flex;
       justify-content: center;
@@ -150,14 +110,8 @@
       cursor: pointer;
       border-bottom: 2px solid transparent;
     }
-    .tab.active {
-      color: #007aff;
-      border-bottom-color: #007aff;
-    }
-    .new-order-wrapper {
-      text-align: center;
-      margin-bottom: 24px;
-    }
+    .tab.active { color: #007aff; border-bottom-color: #007aff; }
+    .new-order-wrapper { text-align: center; margin-bottom: 24px; }
     .new-order-btn {
       background: #007aff;
       color: white;
@@ -170,11 +124,7 @@
       text-decoration: none;
       display: inline-block;
     }
-    .orders-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .orders-list { display: flex; flex-direction: column; gap: 16px; }
     .order-item {
       background: white;
       border-radius: 16px;
@@ -189,34 +139,17 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    .order-id {
-      font-weight: 600;
-      font-size: 15px;
-    }
+    .order-id { font-weight: 600; font-size: 15px; }
     .order-status {
       font-size: 12px;
       padding: 4px 12px;
       border-radius: 20px;
       background: #f5f5f7;
     }
-    .order-status.active {
-      background: #d4f0ff;
-      color: #007aff;
-    }
-    .order-status.completed {
-      background: #e5f5e5;
-      color: #2c6e2c;
-    }
-    .order-details {
-      font-size: 14px;
-      color: #6c6c70;
-      margin-bottom: 12px;
-    }
-    .order-buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    .order-status.active { background: #d4f0ff; color: #007aff; }
+    .order-status.completed { background: #e5f5e5; color: #2c6e2c; }
+    .order-details { font-size: 14px; color: #6c6c70; margin-bottom: 12px; }
+    .order-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
     .order-btn {
       background: none;
       border: 1px solid #007aff;
@@ -227,11 +160,7 @@
       font-weight: 500;
       cursor: pointer;
     }
-    .empty-message {
-      text-align: center;
-      color: #8e8e93;
-      padding: 32px 0;
-    }
+    .empty-message { text-align: center; color: #8e8e93; padding: 32px 0; }
     .modal {
       display: none;
       position: fixed;
@@ -261,11 +190,7 @@
       font-size: 16px;
       margin: 16px 0;
     }
-    .modal-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
+    .modal-buttons { display: flex; gap: 12px; justify-content: center; }
     .modal-btn {
       padding: 10px 20px;
       border-radius: 40px;
@@ -273,18 +198,14 @@
       font-weight: 500;
       cursor: pointer;
     }
-    .save-btn {
-      background: #007aff;
-      color: white;
-    }
-    .cancel-btn {
-      background: #e5e5ea;
-      color: #1d1c1f;
-    }
+    .save-btn { background: #007aff; color: white; }
+    .cancel-btn { background: #e5e5ea; color: #1d1c1f; }
   </style>
 </head>
 <body>
-<div class="container" id="app"></div>
+<div class="container" id="app">
+  <div style="text-align: center; padding: 50px;">Загрузка...</div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -298,6 +219,7 @@
     messagingSenderId: "249921799089",
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
+  
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
@@ -305,6 +227,7 @@
   let currentUser = null;
   let userName = "";
 
+  // Функция для отображения формы входа
   function renderLoginForm() {
     document.getElementById('app').innerHTML = `
       <div class="header">
@@ -329,13 +252,14 @@
         </div>
       </div>
     `;
-    document.getElementById('loginBtn').onclick = login;
+    document.getElementById('loginBtn').onclick = () => login();
     document.getElementById('showRegisterLink').onclick = (e) => {
       e.preventDefault();
       renderRegisterForm();
     };
   }
 
+  // Форма регистрации
   function renderRegisterForm() {
     document.getElementById('app').innerHTML = `
       <div class="header">
@@ -364,7 +288,7 @@
         </div>
       </div>
     `;
-    document.getElementById('registerBtn').onclick = register;
+    document.getElementById('registerBtn').onclick = () => register();
     document.getElementById('showLoginLink').onclick = (e) => {
       e.preventDefault();
       renderLoginForm();
@@ -376,11 +300,24 @@
     const password = document.getElementById('loginPassword').value;
     const errorDiv = document.getElementById('loginError');
     errorDiv.innerText = '';
+    
+    console.log('Попытка входа:', email);
+    
     try {
-      await auth.signInWithEmailAndPassword(email, password);
-      // после успешного входа onAuthStateChanged сам перерисует страницу
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      console.log('Вход успешен:', userCredential.user.email);
+      // onAuthStateChanged сам перерисует страницу
     } catch (err) {
-      errorDiv.innerText = err.message;
+      console.error('Ошибка входа:', err.code, err.message);
+      if (err.code === 'auth/user-not-found') {
+        errorDiv.innerText = 'Пользователь не найден';
+      } else if (err.code === 'auth/wrong-password') {
+        errorDiv.innerText = 'Неверный пароль';
+      } else if (err.code === 'auth/invalid-email') {
+        errorDiv.innerText = 'Неверный формат email';
+      } else {
+        errorDiv.innerText = err.message;
+      }
     }
   }
 
@@ -390,10 +327,12 @@
     const confirm = document.getElementById('regPasswordConfirm').value;
     const errorDiv = document.getElementById('registerError');
     errorDiv.innerText = '';
+    
     if (password !== confirm) {
       errorDiv.innerText = 'Пароли не совпадают';
       return;
     }
+    
     try {
       const userCredential = await auth.createUserWithEmailAndPassword(email, password);
       await userCredential.user.sendEmailVerification();
@@ -401,10 +340,12 @@
       renderLoginForm();
       alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
     } catch (err) {
+      console.error('Ошибка регистрации:', err);
       errorDiv.innerText = err.message;
     }
   }
 
+  // Личный кабинет
   function renderAccountPage(user) {
     document.getElementById('app').innerHTML = `
       <div class="header">
@@ -429,11 +370,11 @@
       <div id="activeOrders" class="orders-list"></div>
       <div id="completedOrders" class="orders-list" style="display: none;"></div>
     `;
-
+    
     loadUserProfile(user);
     loadOrders(user.email);
-
-    // Переключение вкладок
+    
+    // Вкладки
     const tabs = document.querySelectorAll('.tab');
     const activeDiv = document.getElementById('activeOrders');
     const completedDiv = document.getElementById('completedOrders');
@@ -450,12 +391,8 @@
         }
       });
     });
-
-    document.getElementById('editProfileBtn').onclick = () => {
-      const modal = document.getElementById('editModal');
-      if (modal) modal.style.display = 'flex';
-      else createEditModal();
-    };
+    
+    document.getElementById('editProfileBtn').onclick = () => showEditModal();
     document.getElementById('logoutBtn').onclick = async () => {
       if (confirm('Выйти из аккаунта?')) {
         await auth.signOut();
@@ -463,29 +400,32 @@
       }
     };
   }
-
+  
   async function loadUserProfile(user) {
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    if (userDoc.exists) {
-      userName = userDoc.data().name || user.email.split('@')[0];
-    } else {
-      userName = user.email.split('@')[0];
-      await db.collection('users').doc(user.uid).set({ name: userName, email: user.email });
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        userName = userDoc.data().name || user.email.split('@')[0];
+      } else {
+        userName = user.email.split('@')[0];
+        await db.collection('users').doc(user.uid).set({ name: userName, email: user.email });
+      }
+      document.getElementById('userNameDisplay').innerText = userName;
+      document.getElementById('userEmailDisplay').innerText = user.email;
+    } catch(err) {
+      console.error('Ошибка загрузки профиля:', err);
     }
-    document.getElementById('userNameDisplay').innerText = userName;
-    document.getElementById('userEmailDisplay').innerText = user.email;
   }
-
+  
   async function loadOrders(email) {
     try {
       const snapshot = await db.collection('orders')
         .where('userEmail', '==', email)
         .orderBy('createdAt', 'desc')
         .get();
-
+        
       const activeOrders = [];
       const completedOrders = [];
-
       snapshot.forEach(doc => {
         const order = { id: doc.id, ...doc.data() };
         if (order.status === 'выполнен') {
@@ -494,18 +434,17 @@
           activeOrders.push(order);
         }
       });
-
       renderOrders(activeOrders, completedOrders);
-    } catch (err) {
-      console.error(err);
+    } catch(err) {
+      console.error('Ошибка загрузки заказов:', err);
       document.getElementById('activeOrders').innerHTML = '<div class="empty-message">Ошибка загрузки заказов</div>';
     }
   }
-
+  
   function renderOrders(active, completed) {
     const activeContainer = document.getElementById('activeOrders');
     const completedContainer = document.getElementById('completedOrders');
-
+    
     if (active.length === 0) {
       activeContainer.innerHTML = '<div class="empty-message">У вас нет активных заказов</div>';
     } else {
@@ -527,7 +466,7 @@
         activeContainer.appendChild(div);
       });
     }
-
+    
     if (completed.length === 0) {
       completedContainer.innerHTML = '<div class="empty-message">У вас нет завершённых заказов</div>';
     } else {
@@ -548,61 +487,62 @@
         completedContainer.appendChild(div);
       });
     }
-
+    
     document.querySelectorAll('.track-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        window.open(`index.html?order=${btn.dataset.id}`, '_blank');
-      });
+      btn.addEventListener('click', () => window.open(`index.html?order=${btn.dataset.id}`, '_blank'));
     });
     document.querySelectorAll('.repeat-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        window.location.href = `index.html?repeat=${btn.dataset.id}`;
-      });
+      btn.addEventListener('click', () => window.location.href = `index.html?repeat=${btn.dataset.id}`);
     });
   }
-
-  function createEditModal() {
-    const modalDiv = document.createElement('div');
-    modalDiv.id = 'editModal';
-    modalDiv.className = 'modal';
-    modalDiv.innerHTML = `
-      <div class="modal-content">
-        <h3>Редактировать профиль</h3>
-        <input type="text" id="editNameInput" placeholder="Ваше имя">
-        <div class="modal-buttons">
-          <button class="modal-btn save-btn" id="saveNameBtn">Сохранить</button>
-          <button class="modal-btn cancel-btn" id="cancelModalBtn">Отмена</button>
+  
+  function showEditModal() {
+    let modal = document.getElementById('editModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'editModal';
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <h3>Редактировать профиль</h3>
+          <input type="text" id="editNameInput" placeholder="Ваше имя">
+          <div class="modal-buttons">
+            <button class="modal-btn save-btn" id="saveNameBtn">Сохранить</button>
+            <button class="modal-btn cancel-btn" id="cancelModalBtn">Отмена</button>
+          </div>
         </div>
-      </div>
-    `;
-    document.body.appendChild(modalDiv);
-
-    const editNameInput = document.getElementById('editNameInput');
+      `;
+      document.body.appendChild(modal);
+    }
+    document.getElementById('editNameInput').value = userName;
+    modal.style.display = 'flex';
+    
     document.getElementById('saveNameBtn').onclick = async () => {
-      const newName = editNameInput.value.trim();
+      const newName = document.getElementById('editNameInput').value.trim();
       if (newName && currentUser) {
         await db.collection('users').doc(currentUser.uid).update({ name: newName });
         userName = newName;
         document.getElementById('userNameDisplay').innerText = userName;
       }
-      modalDiv.style.display = 'none';
+      modal.style.display = 'none';
     };
     document.getElementById('cancelModalBtn').onclick = () => {
-      modalDiv.style.display = 'none';
+      modal.style.display = 'none';
     };
-    modalDiv.onclick = (e) => {
-      if (e.target === modalDiv) modalDiv.style.display = 'none';
-    };
-    return modalDiv;
+    modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
   }
-
+  
+  // Отслеживание состояния авторизации
   auth.onAuthStateChanged(async (user) => {
+    console.log('onAuthStateChanged:', user ? user.email : 'null');
     currentUser = user;
-    if (user && user.emailVerified) {
-      renderAccountPage(user);
-    } else if (user && !user.emailVerified) {
-      renderLoginForm();
-      alert('Подтвердите email, перейдя по ссылке в письме');
+    if (user) {
+      if (user.emailVerified) {
+        renderAccountPage(user);
+      } else {
+        renderLoginForm();
+        alert('Подтвердите email, перейдя по ссылке в письме');
+      }
     } else {
       renderLoginForm();
     }
