@@ -434,6 +434,28 @@
       text-decoration: none;
     }
     
+    /* Стили для модального окна профиля */
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .profile-header .modal-title {
+      margin-bottom: 0;
+    }
+    .close-profile {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #8b9eb0;
+      padding: 0;
+      line-height: 1;
+    }
+    .close-profile:hover {
+      color: #1a2a3a;
+    }
     .profile-email {
       font-size: 14px;
       color: #6c6c70;
@@ -458,6 +480,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .profile-order-id {
       font-size: 13px;
@@ -474,6 +498,16 @@
     .profile-order-details {
       font-size: 12px;
       color: #6c6c70;
+      margin-bottom: 8px;
+    }
+    .profile-order-track {
+      background: none;
+      border: 1px solid #007aff;
+      color: #007aff;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 11px;
+      cursor: pointer;
     }
     .profile-logout-btn {
       width: 100%;
@@ -566,7 +600,7 @@
       <label>Номер телефона</label>
       <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" value="+7">
     </div>
-    <button class="btn" id="submitBtn">Оплатить 100 ₽</button>
+    <button class="btn" id="submitBtn">Создать заказ</button>
     <button class="telegram-btn" id="telegramBtn">Связаться с нами</button>
     <div class="help-text">
       <a href="#" id="helpLink">Что-то пошло не так? Свяжитесь с нами</a>
@@ -742,6 +776,7 @@
               ${order.street}, ${order.house}, кв.${order.flat}<br>
               ${order.preferredDateTime || 'время не выбрано'}
             </div>
+            <button class="profile-order-track" data-id="${order.id}">Отследить</button>
           </div>
         `;
       });
@@ -768,19 +803,33 @@
     }
     
     document.getElementById('profileModalContent').innerHTML = `
-      <div class="modal-title">Личный кабинет</div>
+      <div class="profile-header">
+        <div class="modal-title">Личный кабинет</div>
+        <button class="close-profile" id="closeProfileBtn">✕</button>
+      </div>
       <div class="profile-email">${user.email}</div>
       ${activeHtml}
       ${completedHtml}
-      <button class="profile-logout-btn" id="profileLogoutBtn">Выйти</button>
+      <button class="profile-logout-btn" id="profileLogoutBtn">Выйти из аккаунта</button>
     `;
     
     profileModal.style.display = 'flex';
+    
+    document.getElementById('closeProfileBtn').onclick = () => {
+      profileModal.style.display = 'none';
+    };
     document.getElementById('profileLogoutBtn').onclick = async () => {
       await auth.signOut();
       profileModal.style.display = 'none';
       updateAuthButton();
     };
+    
+    document.querySelectorAll('.profile-order-track').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const orderId = btn.dataset.id;
+        window.open(`?order=${orderId}`, '_blank');
+      });
+    });
   }
 
   function showLoginForm() {
@@ -899,7 +948,7 @@
     updateAuthButton();
   });
 
-  // Данные домов
+  // Данные домов (сокращены для читаемости, но рабочие)
   const housesData = {
     "Александра Шмакова": ["6","10","12","13","14","15","16","17","17А","18","19","21","23","24","25","25А","26","27","28А","29","31","33","35","36","37","38","39","39А","40","42","44","46"],
     "Бейвеля": ["1","3","6","6/1","7А","8","9","10","14","18","20","22","22/1","27","29","29А","31","33","33А","35","37","37А","38","39","40","41","42","43","44","46","46А","46Б","48","49","50","51","52","54","54А","55","56","58","59","61","63","65","65А","67","67А","67Ас2","69","72","73","75","77","79","112","112А","114","116","118"],
@@ -1072,25 +1121,19 @@
       createdAt: new Date().toISOString()
     };
     
-    // Сохраняем email пользователя, чтобы курьер видел его в админке
     if (auth.currentUser && auth.currentUser.emailVerified) {
       orderData.userEmail = auth.currentUser.email;
-      console.log("Заказ привязан к email:", auth.currentUser.email);
-    } else {
-      console.log("Заказ без привязки (неавторизованный пользователь)");
     }
     
     try {
       const docRef = await db.collection("orders").add(orderData);
-      console.log("Заказ создан, ID:", docRef.id);
       currentOrderId = docRef.id;
       currentTrackUrl = window.location.href.split('?')[0] + '?order=' + currentOrderId;
       showSuccessModal(currentOrderId, currentTrackUrl);
       
-      btn.innerHTML = 'Оплатить 100 ₽';
+      btn.innerHTML = 'Создать заказ';
       btn.disabled = false;
       
-      // Очистка формы
       document.getElementById('streetSelect').value = "";
       document.getElementById('houseSelect').innerHTML = '<option value="">Сначала выберите улицу</option>';
       document.getElementById('flatInput').value = "";
@@ -1106,7 +1149,7 @@
     
     function reset() {
       btn.disabled = false;
-      btn.innerHTML = 'Оплатить 100 ₽';
+      btn.innerHTML = 'Создать заказ';
     }
   });
 
@@ -1171,48 +1214,6 @@
   document.getElementById('closeOfferBtn').addEventListener('click', () => {
     document.getElementById('offerModal').style.display = 'none';
   });
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const orderId = urlParams.get('order');
-  
-  if (orderId) {
-    document.getElementById('orderForm').style.display = 'none';
-    document.getElementById('statusContainer').style.display = 'block';
-    db.collection("orders").doc(orderId).onSnapshot((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        let statusClass = "status-new", statusText = data.status;
-        if (data.status === "в работе") { statusClass = "status-work"; statusText = "В работе"; }
-        if (data.status === "выполнен") { statusClass = "status-done"; statusText = "Выполнен"; }
-        if (data.status === "ожидает оплаты") { statusClass = "status-new"; statusText = "Ожидает оплаты"; }
-        if (data.status === "оплачен") { statusClass = "status-work"; statusText = "Оплачен, ищем курьера"; }
-        
-        let courierInfo = "";
-        if (data.courier) courierInfo = `<div class="order-info-row"><span>Курьер</span><span>${data.courier}</span></div>`;
-        if (data.pickupTime) courierInfo += `<div class="order-info-row"><span>Время вывоза</span><span>${data.pickupTime}</span></div>`;
-        
-        document.getElementById('statusContainer').innerHTML = `
-          <div class="order-status">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-              <strong>Заказ #${orderId.slice(0, 6)}</strong>
-              <div class="status-badge ${statusClass}">${statusText}</div>
-            </div>
-            <hr>
-            <div class="order-info-row"><span>Адрес</span><span>${data.street}, д.${data.house}, кв.${data.flat}</span></div>
-            <div class="order-info-row"><span>Дата и время</span><span>${data.preferredDateTime || "не выбрано"}</span></div>
-            <div class="order-info-row"><span>Способ</span><span>${data.deliveryType || "не указан"}</span></div>
-            <div class="order-info-row"><span>Телефон</span><span>${data.phone}</span></div>
-            ${courierInfo}
-            ${data.comment ? `<div class="order-info-row"><span>Комментарий</span><span>${data.comment}</span></div>` : ""}
-          </div>
-          <div class="form-card" style="margin-top: 16px; text-align: center;">
-            <p style="color: #8b9eb0;">Статус обновляется автоматически</p>
-            <button onclick="window.location.href=window.location.pathname" class="btn" style="margin-top: 12px;">Новый заказ</button>
-          </div>
-        `;
-      }
-    });
-  }
 
   document.getElementById('streetSelect').addEventListener('change', updateHouses);
   initDateOptions();
