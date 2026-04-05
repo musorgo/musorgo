@@ -29,7 +29,7 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .logo {
       display: flex;
@@ -62,15 +62,6 @@
       font-weight: 500;
       color: #2c5f2d;
     }
-    .sound-toggle {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 30px;
-    }
-    .sound-toggle:hover { background: #eef2f5; }
     .logout-btn {
       background: #eef2f5;
       color: #4a5b6b;
@@ -91,7 +82,7 @@
       text-align: center;
       max-width: 400px;
       margin: 80px auto;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
     .login-box h3 { font-size: 22px; font-weight: 600; margin-bottom: 24px; color: #1a2a3a; }
     .login-box select, .login-box input {
@@ -133,7 +124,7 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       border: 1px solid transparent;
     }
     .stat-card.active {
@@ -169,13 +160,13 @@
       border-radius: 20px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .section-title {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 600;
       margin-bottom: 16px;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 2px solid #eef2f5;
       display: flex;
       justify-content: space-between;
@@ -192,19 +183,28 @@
       color: #4a5b6b;
     }
     
+    /* Карточка заказа */
     .order-card {
       background: #f8fafc;
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 12px;
-      border-left: 4px solid;
       transition: all 0.2s;
+      border-left: 4px solid;
     }
-    .order-card.waiting { border-left-color: #f5b042; }
+    .order-card.my-order {
+      border: 2px solid #1a2a3a;
+      background: #ffffff;
+    }
     .order-card.new { border-left-color: #f59e0b; }
     .order-card.work { border-left-color: #3b82f6; }
     .order-card.done { border-left-color: #10b981; }
-    .order-card:hover { background: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .order-card.waiting { border-left-color: #f5b042; }
+    
+    .order-card:hover {
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
     
     .order-header {
       display: flex;
@@ -226,35 +226,50 @@
     .status-work { background: #e0e7ff; color: #1e40af; }
     .status-done { background: #dcfce7; color: #166534; }
     
-    .order-details { font-size: 13px; color: #4a5b6b; margin-bottom: 12px; }
-    .order-details p { margin: 6px 0; display: flex; flex-wrap: wrap; gap: 8px; }
-    .order-details strong { color: #1a2a3a; font-weight: 500; min-width: 85px; }
-    .courier-badge {
-      background: #eef2f5;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      display: inline-block;
+    .order-details {
+      font-size: 14px;
+      color: #1a2a3a;
+      margin-bottom: 12px;
     }
+    .order-details p {
+      margin: 8px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .order-details strong {
+      font-weight: 600;
+      min-width: 85px;
+      color: #4a5b6b;
+    }
+    .address {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a2a3a;
+      margin-bottom: 8px;
+    }
+    
     .order-actions {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
       margin-top: 12px;
     }
     .btn {
-      padding: 8px 16px;
+      padding: 10px 18px;
       border: none;
-      border-radius: 40px;
+      border-radius: 44px;
       cursor: pointer;
       font-weight: 500;
-      font-size: 13px;
-      transition: opacity 0.2s;
+      font-size: 14px;
+      transition: all 0.2s;
     }
-    .btn:active { opacity: 0.8; }
     .btn-primary { background: #1a2a3a; color: white; }
     .btn-success { background: #10b981; color: white; }
     .btn-warning { background: #f5b042; color: #1a2a3a; }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    
     .time-input {
       display: flex;
       gap: 8px;
@@ -286,6 +301,16 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+    
+    /* Пульсация для новых заказов */
+    @keyframes pulse {
+      0% { border-left-color: #f59e0b; }
+      50% { border-left-color: #ffb347; }
+      100% { border-left-color: #f59e0b; }
+    }
+    .order-card.new.pulse {
+      animation: pulse 1s ease-in-out 2;
+    }
   </style>
 </head>
 <body>
@@ -306,7 +331,6 @@
       </select>
       <input type="password" id="passwordInput" placeholder="Пароль">
       <button class="login-btn" onclick="login()">Войти</button>
-      <!-- подсказка с паролями удалена -->
     </div>
   </div>
   
@@ -319,7 +343,6 @@
       <div class="courier-panel">
         <span class="courier-name" id="courierName"></span>
         <span class="courier-stats" id="courierCount">0 заказов</span>
-        <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
         <button class="logout-btn" onclick="logout()">Выход</button>
       </div>
     </div>
@@ -344,7 +367,7 @@
     </div>
     
     <div class="search-bar">
-      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ID заказа, телефону или адресу">
+      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ID, телефону или адресу">
     </div>
     
     <div id="ordersContainer"></div>
@@ -361,7 +384,6 @@
     messagingSenderId: "249921799089",
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   
@@ -379,32 +401,16 @@
   let searchQuery = "";
   let lastWaitingCount = 0;
   let lastNewCount = 0;
-  let soundEnabled = true;
-  let notificationSound = null;
+  let debounceTimer = null;
   
-  function initSound() {
-    notificationSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
-    notificationSound.volume = 0.5;
-  }
-  
-  function playSound() {
-    if (soundEnabled && notificationSound) {
-      notificationSound.play().catch(e => console.log("Sound error"));
-    }
-  }
-  
-  function toggleSound() {
-    soundEnabled = !soundEnabled;
-    const btn = document.getElementById('soundToggle');
-    btn.innerHTML = soundEnabled ? "🔊" : "🔇";
-  }
+  // Для автопрокрутки
+  let lastNewOrderId = null;
   
   function showNotification(message) {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.innerHTML = message;
     document.body.appendChild(notification);
-    playSound();
     setTimeout(() => notification.remove(), 3000);
   }
   
@@ -498,8 +504,11 @@
   function initSearch() {
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
-      searchQuery = e.target.value.trim().toLowerCase();
-      renderFilteredOrders();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        renderFilteredOrders();
+      }, 300);
     });
   }
   
@@ -526,13 +535,25 @@
     } else if (activeFilter === "work") {
       filteredOrders = filteredOrders.filter(o => o.status === "в работе");
     } else if (activeFilter === "my") {
-      filteredOrders = filteredOrders.filter(o => o.courier === currentCourier);
+      filteredOrders = filteredOrders.filter(o => o.courierId === currentCourierId);
     }
     
-    // Применяем поиск
     filteredOrders = filterOrdersBySearch(filteredOrders);
     
-    renderOrdersByList(filteredOrders);
+    // Сортировка: мои заказы, новые, в работе (чужие), выполненные
+    const myOrders = filteredOrders.filter(o => o.courierId === currentCourierId);
+    const newOrders = filteredOrders.filter(o => o.status === "новый" && o.courierId !== currentCourierId);
+    const workOthers = filteredOrders.filter(o => o.status === "в работе" && o.courierId !== currentCourierId);
+    const doneOrders = filteredOrders.filter(o => o.status === "выполнен");
+    const waitingOrders = filteredOrders.filter(o => o.status === "ожидает оплаты");
+    
+    renderOrdersByList({
+      waiting: waitingOrders,
+      my: myOrders,
+      new: newOrders,
+      workOthers: workOthers,
+      done: doneOrders
+    });
   }
   
   function loadOrders() {
@@ -545,6 +566,7 @@
       .onSnapshot((snapshot) => {
         const orders = [];
         let waitingCount = 0, newCount = 0, workCount = 0, myCount = 0;
+        let newOrderIds = [];
         
         snapshot.forEach(doc => {
           const data = doc.data();
@@ -553,18 +575,24 @@
           allOrders = orders;
           
           if (data.status === "ожидает оплаты") waitingCount++;
-          else if (data.status === "новый") newCount++;
+          else if (data.status === "новый") {
+            newCount++;
+            if (!initialLoad) newOrderIds.push(doc.id);
+          }
           else if (data.status === "в работе") workCount++;
           
-          if (data.courier === currentCourier) myCount++;
+          if (data.courierId === currentCourierId) myCount++;
         });
         
-        if (!initialLoad) {
-          if (waitingCount > lastWaitingCount) {
-            showNotification(`💳 Новый заказ ожидает оплаты! Всего: ${waitingCount}`);
-          }
-          if (newCount > lastNewCount) {
-            showNotification(`🆕 Новый оплаченный заказ! Всего: ${newCount}`);
+        // Уведомления о новых заказах
+        if (!initialLoad && newCount > lastNewCount) {
+          showNotification(`🆕 Новый оплаченный заказ! Всего: ${newCount}`);
+          // Автоскролл к первому новому заказу
+          if (newOrderIds.length) {
+            setTimeout(() => {
+              const firstNewElement = document.querySelector(`.order-card[data-id="${newOrderIds[0]}"]`);
+              if (firstNewElement) firstNewElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
           }
         }
         lastWaitingCount = waitingCount;
@@ -580,67 +608,66 @@
       });
   }
   
-  function renderOrdersByList(orders) {
+  function renderOrdersByList(groups) {
     const container = document.getElementById('ordersContainer');
-    
-    const waitingOrders = orders.filter(o => o.status === "ожидает оплаты");
-    const newOrders = orders.filter(o => o.status === "новый");
-    const workOrders = orders.filter(o => o.status === "в работе");
-    const doneOrders = orders.filter(o => o.status === "выполнен");
-    
     let html = "";
     
-    if (waitingOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">💳 ОЖИДАЮТ ОПЛАТЫ <span class="section-count">${waitingOrders.length}</span></div>`;
-      waitingOrders.forEach(order => { html += renderOrderCard(order, "waiting"); });
+    if (groups.waiting.length > 0) {
+      html += `<div class="section"><div class="section-title">💳 ОЖИДАЮТ ОПЛАТЫ <span class="section-count">${groups.waiting.length}</span></div>`;
+      groups.waiting.forEach(order => { html += renderOrderCard(order, "waiting"); });
       html += `</div>`;
     }
     
-    if (newOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">🟡 НОВЫЕ <span class="section-count">${newOrders.length}</span></div>`;
-      newOrders.forEach(order => { html += renderOrderCard(order, "new"); });
+    if (groups.my.length > 0) {
+      html += `<div class="section"><div class="section-title">🔥 МОИ ЗАКАЗЫ <span class="section-count">${groups.my.length}</span></div>`;
+      groups.my.forEach(order => { html += renderOrderCard(order, "my"); });
       html += `</div>`;
     }
     
-    if (workOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">🔵 В РАБОТЕ <span class="section-count">${workOrders.length}</span></div>`;
-      workOrders.forEach(order => { html += renderOrderCard(order, "work"); });
+    if (groups.new.length > 0) {
+      html += `<div class="section"><div class="section-title">🟡 НОВЫЕ <span class="section-count">${groups.new.length}</span></div>`;
+      groups.new.forEach(order => { html += renderOrderCard(order, "new"); });
       html += `</div>`;
     }
     
-    if (doneOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">✅ ВЫПОЛНЕНЫ <span class="section-count">${doneOrders.length}</span></div>`;
-      doneOrders.forEach(order => { html += renderOrderCard(order, "done"); });
+    if (groups.workOthers.length > 0) {
+      html += `<div class="section"><div class="section-title">🔵 В РАБОТЕ <span class="section-count">${groups.workOthers.length}</span></div>`;
+      groups.workOthers.forEach(order => { html += renderOrderCard(order, "work"); });
       html += `</div>`;
     }
     
-    if (orders.length === 0) {
-      let filterText = "";
-      if (activeFilter === "waiting") filterText = "ожидающих оплаты";
-      else if (activeFilter === "new") filterText = "новых";
-      else if (activeFilter === "work") filterText = "в работе";
-      else if (activeFilter === "my") filterText = "ваших";
-      else filterText = "";
-      html = `<div class="section" style="text-align: center; color: #8b9eb0;">📭 Нет ${filterText} заказов</div>`;
+    if (groups.done.length > 0) {
+      html += `<div class="section"><div class="section-title">✅ ВЫПОЛНЕНЫ <span class="section-count">${groups.done.length}</span></div>`;
+      groups.done.forEach(order => { html += renderOrderCard(order, "done"); });
+      html += `</div>`;
+    }
+    
+    if (groups.waiting.length + groups.my.length + groups.new.length + groups.workOthers.length + groups.done.length === 0) {
+      html = `<div class="section" style="text-align: center; color: #8b9eb0;">📭 Нет заказов</div>`;
     }
     
     container.innerHTML = html;
+    
+    // Добавляем атрибут data-id для автоскролла
+    document.querySelectorAll('.order-card').forEach(card => {
+      const orderId = card.getAttribute('data-order-id');
+      if (orderId) card.setAttribute('data-id', orderId);
+    });
   }
   
   function renderOrderCard(order, type) {
     const date = order.preferredDateTime || "не выбрано";
     const doorCode = order.doorCode ? `🔑 Домофон: ${order.doorCode}` : "";
-    const comment = order.comment ? `📝 ${order.comment}` : "";
-    const courierInfo = order.courier ? `<span class="courier-badge">Курьер: ${order.courier}</span>` : "";
-    const pickupTime = order.pickupTime ? `⏰ Время: ${order.pickupTime}` : "";
+    const comment = order.comment ? order.comment : "";
+    const isMyOrder = (type === "my");
+    const isWaiting = (type === "waiting");
+    const isNew = (type === "new");
+    const isWorkOther = (type === "work");
+    const isDone = (type === "done");
     
     let actions = "";
-    
-    if (type === "waiting") {
-      actions = `<div class="order-actions"><span class="courier-badge">⏳ Ожидает оплаты от клиента</span></div>`;
-    } else if (type === "new") {
-      actions = `<div class="order-actions"><button class="btn btn-primary" onclick="takeOrder('${order.id}')">✅ Взять в работу</button></div>`;
-    } else if (type === "work" && order.courier === currentCourier) {
+    if (isMyOrder) {
+      // Мои заказы: только "Указать время" и "Выполнен"
       actions = `
         <div class="order-actions">
           <div class="time-input">
@@ -650,41 +677,75 @@
           <button class="btn btn-success" onclick="completeOrder('${order.id}')">✅ Выполнен</button>
         </div>
       `;
-    } else if (type === "work") {
-      actions = `<div class="order-actions"><span class="courier-badge">👤 В работе у: ${order.courier}</span></div>`;
+    } else if (isNew) {
+      actions = `<div class="order-actions"><button class="btn btn-primary" onclick="takeOrder('${order.id}')">✅ Взять в работу</button></div>`;
+    } else if (isWaiting) {
+      actions = `<div class="order-actions"><span class="courier-badge" style="background:#eef2f5; padding:4px 12px; border-radius:20px;">⏳ Ожидает оплаты от клиента</span></div>`;
+    } else if (isWorkOther) {
+      actions = `<div class="order-actions"><span class="courier-badge" style="background:#eef2f5; padding:4px 12px; border-radius:20px;">👤 В работе у: ${order.courier}</span></div>`;
     }
     
+    let statusText = "";
+    if (isWaiting) statusText = "Ожидает оплаты";
+    else if (isNew) statusText = "Новый";
+    else if (isMyOrder) statusText = order.status === "в работе" ? "В работе" : order.status;
+    else if (isWorkOther) statusText = "В работе";
+    else if (isDone) statusText = "Выполнен";
+    
+    let statusClass = "";
+    if (isWaiting) statusClass = "status-waiting";
+    else if (isNew) statusClass = "status-new";
+    else if (isMyOrder || isWorkOther) statusClass = "status-work";
+    else if (isDone) statusClass = "status-done";
+    
+    let cardClass = `order-card ${type}`;
+    if (isMyOrder) cardClass += " my-order";
+    
     return `
-      <div class="order-card ${type}">
+      <div class="${cardClass}" data-order-id="${order.id}">
         <div class="order-header">
-          <span class="order-id">#${order.id.slice(0, 6)}</span>
-          <span class="order-status status-${type === 'waiting' ? 'waiting' : (type === 'new' ? 'new' : (type === 'work' ? 'work' : 'done'))}">
-            ${type === 'waiting' ? 'Ожидает оплаты' : (type === 'new' ? 'Новый' : (type === 'work' ? 'В работе' : 'Выполнен'))}
-          </span>
+          <span class="order-id">#${order.id.slice(0,6)}</span>
+          <span class="order-status ${statusClass}">${statusText}</span>
         </div>
+        <div class="address">📍 ${order.street}, ${order.house}, кв.${order.flat}</div>
         <div class="order-details">
-          <p><strong>Адрес:</strong> ${order.street}, ${order.house}, кв.${order.flat}</p>
-          <p><strong>Телефон:</strong> ${order.phone} • <strong>Время:</strong> ${date}</p>
-          <p><strong>Способ:</strong> ${order.deliveryType || "не указан"}</p>
+          <p><strong>📞</strong> ${order.phone}</p>
+          <p><strong>⏰</strong> ${date}</p>
           ${doorCode ? `<p>${doorCode}</p>` : ""}
-          ${comment ? `<p>${comment}</p>` : ""}
-          ${courierInfo ? `<p>${courierInfo}</p>` : ""}
-          ${pickupTime ? `<p>${pickupTime}</p>` : ""}
+          ${comment ? `<p><strong>📝</strong> ${comment}</p>` : ""}
         </div>
         ${actions}
       </div>
     `;
   }
   
+  // ========== ТРАНЗАКЦИЯ ДЛЯ ВЗЯТИЯ ЗАКАЗА (защита от двойного взятия) ==========
   async function takeOrder(orderId) {
+    const ref = db.collection("orders").doc(orderId);
+    let btn = event?.target;
+    if (btn) btn.disabled = true;
+    
     try {
-      await db.collection("orders").doc(orderId).update({
-        status: "в работе",
-        courier: currentCourier,
-        takenAt: new Date().toISOString()
+      await db.runTransaction(async (transaction) => {
+        const doc = await transaction.get(ref);
+        if (!doc.exists) throw new Error("Заказ не найден");
+        const data = doc.data();
+        if (data.status !== "новый") {
+          throw new Error("Заказ уже взят другим курьером");
+        }
+        transaction.update(ref, {
+          status: "в работе",
+          courier: currentCourier,
+          courierId: currentCourierId,
+          takenAt: new Date().toISOString()
+        });
       });
-      showNotification(`✅ Заказ #${orderId.slice(0,6)} взят в работу!`);
-    } catch(e) { alert("Ошибка: " + e.message); }
+      showNotification("✅ Заказ взят в работу");
+      await updateCourierStats();
+    } catch (error) {
+      showNotification("❌ " + error.message);
+      if (btn) btn.disabled = false;
+    }
   }
   
   async function setPickupTime(orderId) {
@@ -692,26 +753,27 @@
     const pickupTime = timeInput.value;
     if (!pickupTime) { alert("Введите время вывоза"); return; }
     try {
-      await db.collection("orders").doc(orderId).update({ pickupTime: pickupTime });
+      await db.collection("orders").doc(orderId).update({
+        pickupTime: pickupTime
+      });
       showNotification(`⏰ Время вывоза: ${pickupTime}`);
       timeInput.value = "";
     } catch(e) { alert("Ошибка: " + e.message); }
   }
   
   async function completeOrder(orderId) {
-    if (confirm("Отметить заказ как выполненный?")) {
-      try {
-        await db.collection("orders").doc(orderId).update({
-          status: "выполнен",
-          completedAt: new Date().toISOString()
-        });
-        await incrementCourierOrders();
-        showNotification(`✅ Заказ #${orderId.slice(0,6)} выполнен! +1 к статистике`);
-      } catch(e) { alert("Ошибка: " + e.message); }
-    }
+    // Убираем confirm, сразу выполняем
+    try {
+      await db.collection("orders").doc(orderId).update({
+        status: "выполнен",
+        completedAt: new Date().toISOString()
+      });
+      await incrementCourierOrders();
+      showNotification(`✅ Заказ #${orderId.slice(0,6)} выполнен! +1 к статистике`);
+    } catch(e) { alert("Ошибка: " + e.message); }
   }
   
-  initSound();
+  // Инициализация
   if (localStorage.getItem("courierAuth") === "true") {
     showAdminPanel();
   } else {
