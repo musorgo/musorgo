@@ -246,8 +246,8 @@
       border-color: #f5b042;
     }
     
-    /* Основная CTA кнопка */
-    .btn {
+    /* Кнопка оплаты */
+    .pay-btn-main {
       width: 100%;
       padding: 18px;
       background: #f5b042;
@@ -259,14 +259,17 @@
       cursor: pointer;
       transition: all 0.2s ease;
       box-shadow: 0 4px 12px rgba(245,176,66,0.3);
+      margin-bottom: 16px;
     }
-    .btn:active {
+    .pay-btn-main:active {
       transform: scale(0.97);
     }
-    .btn:disabled {
-      opacity: 0.6;
+    .pay-btn-main:disabled {
+      opacity: 0.5;
       cursor: not-allowed;
       transform: none;
+      background: #ccc;
+      box-shadow: none;
     }
     
     .telegram-btn {
@@ -638,64 +641,24 @@
       color: #1a2a3a;
       text-align: right;
     }
-    .pay-btn {
-      background: #f5b042;
-      color: #1a2a3a;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-    }
     
-    /* Robokassa модальное окно */
-    .robokassa-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-    .robokassa-content {
-      background: white;
-      border-radius: 28px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
+    /* Виджет Robokassa */
+    .robokassa-widget-container {
+      margin-top: 20px;
       padding: 20px;
-      position: relative;
+      background: #f8fafc;
+      border-radius: 20px;
+      text-align: center;
     }
-    .robokassa-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .robokassa-header h3 {
-      font-size: 20px;
-      color: #1a2a3a;
-    }
-    .close-robokassa {
-      background: none;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      color: #8b9eb0;
-    }
-    #robokassaFrame {
+    .robokassa-widget-container iframe {
       width: 100%;
-      min-height: 400px;
+      height: 82px;
       border: none;
+    }
+    .robokassa-info {
+      font-size: 12px;
+      color: #8b9eb0;
+      margin-top: 10px;
     }
     
     .footer {
@@ -813,7 +776,14 @@
       <div class="error-message" id="phoneError">Введите корректный номер телефона (11 цифр, +7)</div>
     </div>
     
-    <button class="btn" id="submitBtn">Вынести мусор</button>
+    <!-- Кнопка оплаты (активна только после заполнения всех полей) -->
+    <button class="pay-btn-main" id="payBtn" disabled>💳 Оплатить 100 ₽</button>
+    
+    <!-- Виджет Robokassa -->
+    <div class="robokassa-widget-container">
+      <iframe id="robokassaFrame" src="about:blank" width="304" height="82" style="border:0;width:304px;height:82px;overflow:hidden;background-color:transparent;" allowTransparency="true"></iframe>
+      <div class="robokassa-info">Безопасная оплата через Robokassa</div>
+    </div>
     
     <button class="telegram-btn" id="telegramBtn">Связаться с нами</button>
     <div class="help-text">
@@ -840,17 +810,6 @@
       ИНН: 740107903031<br>
       Оплата через Robokassa
     </div>
-  </div>
-</div>
-
-<!-- Robokassa модальное окно -->
-<div id="robokassaModal" class="robokassa-modal">
-  <div class="robokassa-content">
-    <div class="robokassa-header">
-      <h3>Оплата заказа</h3>
-      <button class="close-robokassa" id="closeRobokassaBtn">&times;</button>
-    </div>
-    <iframe id="robokassaFrame" src="about:blank"></iframe>
   </div>
 </div>
 
@@ -882,13 +841,12 @@
   const authModal = document.getElementById('authModal');
   const profileModal = document.getElementById('profileModal');
   const trackModal = document.getElementById('trackModal');
-  const submitBtn = document.getElementById('submitBtn');
+  const payBtn = document.getElementById('payBtn');
   const offerLink = document.getElementById('offerLink');
   const mapButton = document.getElementById('mapButton');
   const offerModal = document.getElementById('offerModal');
   const mapModal = document.getElementById('mapModal');
   const statusIslandContainer = document.getElementById('statusIslandContainer');
-  const robokassaModal = document.getElementById('robokassaModal');
   const robokassaFrame = document.getElementById('robokassaFrame');
   
   let lastOrderUnsubscribe = null;
@@ -948,23 +906,56 @@
       errorDiv.innerText = msg;
     }
   }
-  function validateForm() {
-    let isValid = true;
+  
+  // Проверка валидности всех полей
+  function isFormValid() {
     const street = document.getElementById('streetSelect').value;
     const house = document.getElementById('houseSelect').value;
     const flat = document.getElementById('flatInput').value;
     const phone = document.getElementById('phone').value;
     const phoneDigits = phone.replace(/\D/g, '');
     const isValidPhone = phoneDigits.length === 11 && phoneDigits.startsWith('7');
-    if (!street) { showError('streetSelect', 'streetError', 'Выберите улицу'); isValid = false; }
-    else clearError('streetSelect', 'streetError');
-    if (!house) { showError('houseSelect', 'houseError', 'Выберите дом'); isValid = false; }
-    else clearError('houseSelect', 'houseError');
-    if (!flat) { showError('flatInput', 'flatError', 'Введите квартиру'); isValid = false; }
-    else clearError('flatInput', 'flatError');
-    if (!isValidPhone) { showError('phone', 'phoneError', 'Введите корректный номер телефона (11 цифр, +7)'); isValid = false; }
-    else clearError('phone', 'phoneError');
-    return isValid;
+    const hasTime = selectedTime && selectedTime !== '';
+    
+    return street && house && flat && isValidPhone && hasTime;
+  }
+  
+  // Обновление состояния кнопки оплаты
+  function updatePayButtonState() {
+    const isValid = isFormValid();
+    payBtn.disabled = !isValid;
+    
+    // Обновляем стили ошибок в реальном времени
+    const street = document.getElementById('streetSelect').value;
+    const house = document.getElementById('houseSelect').value;
+    const flat = document.getElementById('flatInput').value;
+    const phone = document.getElementById('phone').value;
+    const phoneDigits = phone.replace(/\D/g, '');
+    const isValidPhone = phoneDigits.length === 11 && phoneDigits.startsWith('7');
+    
+    if (!street && document.getElementById('streetSelect').value !== '') {
+      showError('streetSelect', 'streetError', 'Выберите улицу');
+    } else if (street) {
+      clearError('streetSelect', 'streetError');
+    }
+    
+    if (!house && document.getElementById('houseSelect').value !== '') {
+      showError('houseSelect', 'houseError', 'Выберите дом');
+    } else if (house) {
+      clearError('houseSelect', 'houseError');
+    }
+    
+    if (!flat && document.getElementById('flatInput').value !== '') {
+      showError('flatInput', 'flatError', 'Введите квартиру');
+    } else if (flat) {
+      clearError('flatInput', 'flatError');
+    }
+    
+    if (!isValidPhone && phone !== '+7') {
+      showError('phone', 'phoneError', 'Введите корректный номер телефона (11 цифр, +7)');
+    } else if (isValidPhone) {
+      clearError('phone', 'phoneError');
+    }
   }
 
   const housesData = {
@@ -998,7 +989,9 @@
       option.textContent = house;
       houseSelect.appendChild(option);
     });
+    updatePayButtonState();
   }
+  
   function initDateOptions() {
     const options = document.querySelectorAll('.date-option');
     options.forEach(opt => {
@@ -1006,10 +999,12 @@
         options.forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         selectedDate = opt.dataset.date;
+        updatePayButtonState();
       });
     });
     if (options.length) options[0].classList.add('selected');
   }
+  
   function initTimePicker() {
     const hoursScroll = document.getElementById('hoursScroll');
     const minutesScroll = document.getElementById('minutesScroll');
@@ -1023,6 +1018,7 @@
         document.querySelectorAll('#hoursScroll .time-item').forEach(el => el.classList.remove('selected'));
         div.classList.add('selected');
         selectedHour = hour;
+        updateTimeDisplay();
       };
       hoursScroll.appendChild(div);
     }
@@ -1036,6 +1032,7 @@
         document.querySelectorAll('#minutesScroll .time-item').forEach(el => el.classList.remove('selected'));
         div.classList.add('selected');
         selectedMinute = min;
+        updateTimeDisplay();
       };
       minutesScroll.appendChild(div);
     });
@@ -1045,6 +1042,7 @@
     if (defaultMinute) defaultMinute.classList.add('selected');
     updateTimeDisplay();
   }
+  
   function updateTimeDisplay() {
     selectedTime = `${selectedHour}:${selectedMinute}`;
     const displaySpan = document.getElementById('selectedTimeDisplay');
@@ -1056,7 +1054,9 @@
       displaySpan.textContent = '';
       timeBtn.querySelector('span:first-child').textContent = 'Выбрать время';
     }
+    updatePayButtonState();
   }
+  
   function showTimeModal() {
     const modal = document.getElementById('timeModal');
     modal.style.display = 'flex';
@@ -1099,77 +1099,94 @@
     if (value.length > 7) formatted += '-' + value.slice(7, 9);
     if (value.length > 9) formatted += '-' + value.slice(9, 11);
     this.value = formatted;
+    updatePayButtonState();
   });
 
-  // ========== ФУНКЦИЯ ОПЛАТЫ ЧЕРЕЗ ROBOKASSA (IFRAME) ==========
-  function openRobokassaPayment(orderId, amount, description) {
-    currentOrderId = orderId;
+  // Добавляем слушатели на все поля для проверки валидации
+  document.getElementById('streetSelect').addEventListener('change', updatePayButtonState);
+  document.getElementById('houseSelect').addEventListener('change', updatePayButtonState);
+  document.getElementById('flatInput').addEventListener('input', updatePayButtonState);
+
+  // ========== ФУНКЦИЯ ОПЛАТЫ ==========
+  async function createOrderAndPay() {
+    const user = auth.currentUser;
+    if (!user || !user.emailVerified) {
+      showLoginForm();
+      authModal.style.display = 'flex';
+      return;
+    }
     
-    // Прямой URL к платежной форме Robokassa (используем iframe версию)
-    const paymentUrl = 'https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?EncodedInvoiceId=udCxxUjnY0Oelsd_nU0WnA';
+    if (!isFormValid()) {
+      alert('Пожалуйста, заполните все обязательные поля');
+      return;
+    }
     
-    // Загружаем платежную форму в iframe
-    robokassaFrame.src = paymentUrl;
+    const btn = payBtn;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> Создаем заказ...';
     
-    // Показываем модальное окно
-    robokassaModal.style.display = 'flex';
+    const street = document.getElementById('streetSelect').value;
+    const house = document.getElementById('houseSelect').value;
+    const flat = document.getElementById('flatInput').value;
+    let phone = document.getElementById('phone').value;
+    const doorCode = document.getElementById('doorCode').value;
+    const comment = document.getElementById('comment').value;
+    const dateText = selectedDate === "today" ? "Сегодня" : "Завтра";
+    const fullDateTime = `${dateText} в ${selectedTime}`;
     
-    // Отслеживаем изменение URL в iframe (чтобы понять, когда пользователь оплатил)
-    let checkInterval = setInterval(() => {
-      try {
-        // Пытаемся получить URL iframe (работает только если iframe с того же домена)
-        // Из-за ограничений CORS мы не можем получить URL, поэтому используем другой подход
-      } catch(e) {
-        // CORS ограничение - игнорируем
-      }
-    }, 1000);
+    const orderData = {
+      street, house, flat, phone, doorCode, comment,
+      deliveryType: selectedDeliveryType,
+      preferredDateTime: fullDateTime,
+      tariffPrice: 100,
+      status: "новый",
+      createdAt: new Date().toISOString(),
+      userId: user.uid,
+      userEmail: user.email,
+      paidAt: new Date().toISOString()
+    };
     
-    // Останавливаем проверку через 5 минут
-    setTimeout(() => {
-      clearInterval(checkInterval);
-    }, 300000);
-  }
-  
-  async function markOrderAsPaid(orderId) {
     try {
-      await db.collection('orders').doc(orderId).update({
-        status: 'новый',
-        paidAt: new Date().toISOString(),
-        paymentStatus: 'success'
-      });
-      robokassaModal.style.display = 'none';
-      alert('✅ Оплата прошла успешно! Ваш заказ принят в работу.');
-      if (auth.currentUser) {
-        subscribeToLastOrder();
-      }
-    } catch (error) {
-      console.error('Ошибка обновления заказа:', error);
+      const docRef = await db.collection("orders").add(orderData);
+      saveUserData();
+      currentOrderId = docRef.id;
+      
+      // Загружаем виджет Robokassa для оплаты
+      const paymentUrl = 'https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?EncodedInvoiceId=udCxxUjnY0Oelsd_nU0WnA';
+      robokassaFrame.src = paymentUrl;
+      
+      // Показываем сообщение об успехе
+      const successModal = document.getElementById('successModal');
+      document.getElementById('modalText').innerHTML = `Заказ #${docRef.id.slice(0,6)} создан!<br><br>Для оплаты используйте виджет Robokassa выше.<br><br>После оплаты заказ будет передан курьеру.`;
+      successModal.style.display = 'flex';
+      
+      // Очищаем форму
+      document.getElementById('streetSelect').value = "";
+      document.getElementById('houseSelect').innerHTML = '<option value="">Сначала выберите улицу</option>';
+      document.getElementById('flatInput').value = "";
+      document.getElementById('doorCode').value = "";
+      document.getElementById('comment').value = "";
+      document.getElementById('phone').value = "+7";
+      selectedTime = "";
+      updateTimeDisplay();
+      updatePayButtonState();
+      
+    } catch(e) { 
+      alert("Ошибка: " + e.message); 
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '💳 Оплатить 100 ₽';
+      // Обновляем статус кнопки после очистки формы
+      updatePayButtonState();
     }
   }
   
-  // Закрытие модального окна Robokassa
-  document.getElementById('closeRobokassaBtn').addEventListener('click', () => {
-    robokassaModal.style.display = 'none';
-    robokassaFrame.src = 'about:blank';
-    if (currentOrderId) {
-      if (confirm('Вы не завершили оплату. Удалить незавершенный заказ?')) {
-        db.collection('orders').doc(currentOrderId).delete().catch(console.error);
-      }
-      currentOrderId = null;
-    }
-  });
+  payBtn.addEventListener('click', createOrderAndPay);
   
-  robokassaModal.addEventListener('click', (e) => {
-    if (e.target === robokassaModal) {
-      robokassaModal.style.display = 'none';
-      robokassaFrame.src = 'about:blank';
-      if (currentOrderId) {
-        if (confirm('Вы не завершили оплату. Удалить незавершенный заказ?')) {
-          db.collection('orders').doc(currentOrderId).delete().catch(console.error);
-        }
-        currentOrderId = null;
-      }
-    }
+  // Загружаем виджет Robokassa при загрузке страницы
+  window.addEventListener('load', function() {
+    const paymentUrl = 'https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?EncodedInvoiceId=udCxxUjnY0Oelsd_nU0WnA';
+    robokassaFrame.src = paymentUrl;
   });
 
   // ========== АВТОРИЗАЦИЯ ==========
@@ -1256,12 +1273,11 @@
         <div class="profile-order-item">
           <div class="profile-order-header">
             <span class="profile-order-id">Заказ #${order.id.slice(0,6)}</span>
-            <span class="profile-order-status status-active">${order.status === 'ожидает оплаты' ? 'Ожидает оплаты' : order.status}</span>
+            <span class="profile-order-status status-active">${order.status}</span>
           </div>
           <div class="profile-order-details">${order.street}, ${order.house}, кв.${order.flat}<br>${order.preferredDateTime || ''}</div>
           <div class="profile-order-buttons">
             <button class="profile-order-track" data-id="${order.id}">Отследить</button>
-            ${order.status === 'ожидает оплаты' ? `<button class="pay-btn" data-id="${order.id}">💳 Оплатить</button>` : ''}
           </div>
         </div>
       `;
@@ -1297,12 +1313,6 @@
     document.querySelectorAll('.profile-order-track').forEach(btn => {
       btn.addEventListener('click', () => showTrackModal(btn.dataset.id));
     });
-    document.querySelectorAll('.pay-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const orderId = btn.dataset.id;
-        openRobokassaPayment(orderId, 100, 'Вынос мусора');
-      });
-    });
   }
 
   async function showTrackModal(orderId) {
@@ -1310,8 +1320,7 @@
     if (!doc.exists) return;
     const order = doc.data();
     let statusText = order.status;
-    if (statusText === 'ожидает оплаты') statusText = 'Ожидает оплаты';
-    else if (statusText === 'новый') statusText = 'Новый (оплачен)';
+    if (statusText === 'новый') statusText = 'Новый (оплачен)';
     else if (statusText === 'в работе') statusText = 'В работе';
     else if (statusText === 'выполнен') statusText = 'Выполнен';
     const html = `
@@ -1348,11 +1357,7 @@
     let icon = '', text = '', actionBtn = '';
     const status = order.status;
     const pickupTime = order.pickupTime;
-    if (status === 'ожидает оплаты') {
-      icon = '💳';
-      text = 'Ожидание оплаты';
-      actionBtn = '<button class="status-link" id="statusToCabinet">Оплатить</button>';
-    } else if (status === 'новый') {
+    if (status === 'новый') {
       icon = '🟡';
       text = 'Поиск курьера...';
       actionBtn = '<button class="status-link" id="statusToCabinet">Отследить</button>';
@@ -1375,11 +1380,7 @@
       </div>
     `;
     statusIslandContainer.innerHTML = islandHtml;
-    if (status === 'ожидает оплаты') {
-      document.getElementById('statusToCabinet')?.addEventListener('click', () => {
-        openRobokassaPayment(order.id, 100, 'Вынос мусора');
-      });
-    } else if (status !== 'выполнен') {
+    if (status !== 'выполнен') {
       document.getElementById('statusToCabinet')?.addEventListener('click', () => {
         if (auth.currentUser) showProfileModal();
         else { showLoginForm(); authModal.style.display = 'flex'; }
@@ -1420,64 +1421,6 @@
         }
       }, { includeMetadataChanges: true });
   }
-
-  // ========== СОЗДАНИЕ ЗАКАЗА ==========
-  submitBtn.addEventListener('click', async function() {
-    const user = auth.currentUser;
-    if (!user || !user.emailVerified) {
-      showLoginForm();
-      authModal.style.display = 'flex';
-      return;
-    }
-    if (!validateForm()) return;
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loading"></span> Создаем заказ...';
-    const street = document.getElementById('streetSelect').value;
-    const house = document.getElementById('houseSelect').value;
-    const flat = document.getElementById('flatInput').value;
-    let phone = document.getElementById('phone').value;
-    const doorCode = document.getElementById('doorCode').value;
-    const comment = document.getElementById('comment').value;
-    if (!selectedTime) { alert("Выберите время"); reset(); return; }
-    const dateText = selectedDate === "today" ? "Сегодня" : "Завтра";
-    const fullDateTime = `${dateText} в ${selectedTime}`;
-    const orderData = {
-      street, house, flat, phone, doorCode, comment,
-      deliveryType: selectedDeliveryType,
-      preferredDateTime: fullDateTime,
-      tariffPrice: 100,
-      status: "ожидает оплаты",
-      createdAt: new Date().toISOString(),
-      userId: user.uid,
-      userEmail: user.email
-    };
-    try {
-      const docRef = await db.collection("orders").add(orderData);
-      saveUserData();
-      
-      // Открываем оплату
-      openRobokassaPayment(docRef.id, 100, 'Вынос мусора');
-      
-      // Показываем сообщение
-      const successModal = document.getElementById('successModal');
-      document.getElementById('modalText').innerHTML = `Заказ #${docRef.id.slice(0,6)} создан. Оплатите его в открывшемся окне.`;
-      successModal.style.display = 'flex';
-      
-      // Очищаем форму
-      document.getElementById('streetSelect').value = "";
-      document.getElementById('houseSelect').innerHTML = '<option value="">Сначала выберите улицу</option>';
-      document.getElementById('flatInput').value = "";
-      document.getElementById('doorCode').value = "";
-      document.getElementById('comment').value = "";
-      document.getElementById('phone').value = "+7";
-      reset();
-    } catch(e) { 
-      alert("Ошибка: " + e.message); 
-      reset();
-    }
-    function reset() { btn.disabled = false; btn.innerHTML = 'Вынести мусор'; }
-  });
 
   // Обработчики модалки успеха
   document.getElementById('trackFromSuccessBtn').onclick = () => {
