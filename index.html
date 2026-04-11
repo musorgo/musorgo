@@ -686,16 +686,23 @@
     }
     #robokassaFrame {
       width: 100%;
-      height: 82px;
+      min-height: 400px;
       border: none;
-      display: block;
-      margin: 0 auto;
     }
     .robokassa-info {
       font-size: 12px;
       color: #8b9eb0;
       text-align: center;
       margin-top: 15px;
+    }
+    .test-mode-badge {
+      background: #ff9800;
+      color: white;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 10px;
     }
     
     .footer {
@@ -851,8 +858,14 @@
       <h3>Оплата заказа</h3>
       <button class="close-robokassa" id="closeRobokassaBtn">&times;</button>
     </div>
+    <div style="text-align: center;">
+      <div class="test-mode-badge">🧪 ТЕСТОВЫЙ РЕЖИМ</div>
+    </div>
     <iframe id="robokassaFrame" src="about:blank"></iframe>
-    <div class="robokassa-info">Безопасная оплата через Robokassa</div>
+    <div class="robokassa-info">
+      🔐 Безопасная оплата через Robokassa<br>
+      <span style="font-size: 11px;">Для тестовых платежей используйте тестовые реквизиты Robokassa</span>
+    </div>
   </div>
 </div>
 
@@ -878,6 +891,64 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const auth = firebase.auth();
+
+  // ========== НАСТРОЙКИ ROBOKASSA (ЗАМЕНИТЕ НА СВОИ) ==========
+  // ⚠️ ВАЖНО: Замените эти значения на свои из личного кабинета Robokassa!
+  const ROBOKASSA_CONFIG = {
+    // Логин магазина (MerchantLogin)
+    merchantLogin: "YOUR_MERCHANT_LOGIN",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ЛОГИН!
+    
+    // Пароль #1 для тестового режима (который вы сгенерировали)
+    testPassword1: "YOUR_TEST_PASSWORD_1",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ТЕСТОВЫЙ ПАРОЛЬ #1!
+    
+    // Пароль #2 для тестового режима (который вы сгенерировали)
+    testPassword2: "YOUR_TEST_PASSWORD_2",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ТЕСТОВЫЙ ПАРОЛЬ #2!
+    
+    // Алгоритм шифрования (MD5 или SHA256)
+    algorithm: "MD5",  // 🔴 УКАЖИТЕ ВАШ АЛГОРИТМ (MD5 или SHA256)
+    
+    // Тестовый режим (true - тестовые платежи, false - боевые)
+    isTestMode: true,  // 🔴 ДЛЯ ТЕСТА = true, ДЛЯ БОЯ = false
+    
+    // URL для оплаты
+    paymentUrl: "https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.js"
+  };
+  
+  // Функция для вычисления подписи (SignatureValue)
+  function calculateSignature(outSum, invId, password) {
+    // Формируем строку для подписи: "MerchantLogin:OutSum:InvoiceID:Password"
+    const signatureString = `${ROBOKASSA_CONFIG.merchantLogin}:${outSum}:${invId}:${password}`;
+    
+    console.log("Строка для подписи:", signatureString);
+    
+    if (ROBOKASSA_CONFIG.algorithm.toUpperCase() === "MD5") {
+      // MD5
+      return CryptoJS.MD5(signatureString).toString();
+    } else {
+      // SHA-256
+      return CryptoJS.SHA256(signatureString).toString();
+    }
+  }
+  
+  // Функция для создания платежа через Robokassa
+  async function createRobokassaPayment(orderId, amount, description) {
+    // Используем тестовые пароли, если включен тестовый режим
+    const password = ROBOKASSA_CONFIG.isTestMode ? ROBOKASSA_CONFIG.testPassword1 : ROBOKASSA_CONFIG.testPassword1;
+    
+    // Генерируем подпись
+    const signature = calculateSignature(amount, orderId, password);
+    
+    // Формируем URL для оплаты
+    let paymentUrl = `${ROBOKASSA_CONFIG.paymentUrl}?MerchantLogin=${ROBOKASSA_CONFIG.merchantLogin}&OutSum=${amount}&InvoiceID=${orderId}&Description=${encodeURIComponent(description)}&SignatureValue=${signature}`;
+    
+    // Добавляем параметр тестового режима, если нужно
+    if (ROBOKASSA_CONFIG.isTestMode) {
+      paymentUrl += `&IsTest=1`;
+    }
+    
+    console.log("URL оплаты:", paymentUrl);
+    return paymentUrl;
+  }
 
   // DOM элементы
   const authButton = document.getElementById('authButton');
@@ -1187,7 +1258,8 @@
       createdAt: new Date().toISOString(),
       userId: user.uid,
       userEmail: user.email,
-      paidAt: new Date().toISOString()
+      paidAt: new Date().toISOString(),
+      isTestPayment: ROBOKASSA_CONFIG.isTestMode
     };
     
     try {
@@ -1195,8 +1267,10 @@
       saveUserData();
       currentOrderId = docRef.id;
       
-      // Загружаем виджет Robokassa в iframe
-      const paymentUrl = 'https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?EncodedInvoiceId=udCxxUjnY0Oelsd_nU0WnA';
+      // Создаем платеж через Robokassa с подписью
+      const paymentUrl = await createRobokassaPayment(docRef.id, 100, "Вынос мусора");
+      
+      // Загружаем платежную форму в iframe
       robokassaFrame.src = paymentUrl;
       
       // Открываем модальное окно с оплатой
@@ -1204,7 +1278,8 @@
       
       // Показываем сообщение об успешном создании заказа
       const successModal = document.getElementById('successModal');
-      document.getElementById('modalText').innerHTML = `Заказ #${docRef.id.slice(0,6)} создан!<br><br>Оплатите его в открывшемся окне.`;
+      const testModeText = ROBOKASSA_CONFIG.isTestMode ? '<br><br>🧪 Это ТЕСТОВЫЙ платёж. Деньги не спишутся.' : '';
+      document.getElementById('modalText').innerHTML = `Заказ #${docRef.id.slice(0,6)} создан!<br><br>Оплатите его в открывшемся окне.${testModeText}`;
       successModal.style.display = 'flex';
       
       // Очищаем форму
@@ -1383,6 +1458,7 @@
       <div class="track-row"><span class="track-label">Время</span><span class="track-value">${order.preferredDateTime || ''}</span></div>
       <div class="track-row"><span class="track-label">Телефон</span><span class="track-value">${order.phone}</span></div>
       ${order.pickupTime ? `<div class="track-row"><span class="track-label">Время вывоза</span><span class="track-value">${order.pickupTime}</span></div>` : ''}
+      ${order.isTestPayment ? `<div class="track-row"><span class="track-label">🧪</span><span class="track-value">Тестовый платёж</span></div>` : ''}
     `;
     document.getElementById('trackDetails').innerHTML = html;
     trackModal.style.display = 'flex';
@@ -1532,5 +1608,8 @@
     }
   });
 </script>
+
+<!-- Подключаем CryptoJS для хеширования -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
 </html>
