@@ -688,6 +688,7 @@
       width: 100%;
       min-height: 400px;
       border: none;
+      background: white;
     }
     .robokassa-info {
       font-size: 12px;
@@ -864,7 +865,7 @@
     <iframe id="robokassaFrame" src="about:blank"></iframe>
     <div class="robokassa-info">
       🔐 Безопасная оплата через Robokassa<br>
-      <span style="font-size: 11px;">Для тестовых платежей используйте тестовые реквизиты Robokassa</span>
+      <span style="font-size: 11px;">Тестовая карта: 4111 1111 1111 1111, любой срок и CVV</span>
     </div>
   </div>
 </div>
@@ -892,62 +893,29 @@
   const db = firebase.firestore();
   const auth = firebase.auth();
 
-  // ========== НАСТРОЙКИ ROBOKASSA (ЗАМЕНИТЕ НА СВОИ) ==========
-  // ⚠️ ВАЖНО: Замените эти значения на свои из личного кабинета Robokassa!
+  // ========== НАСТРОЙКИ ROBOKASSA (ЗАМЕНИТЕ НА СВОИ!) ==========
+  // ⚠️ ВАЖНО: Замените YOUR_MERCHANT_LOGIN на ваш логин из личного кабинета Robokassa!
   const ROBOKASSA_CONFIG = {
-    // Логин магазина (MerchantLogin)
-    merchantLogin: "musorgo",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ЛОГИН!
-    
-    // Пароль #1 для тестового режима (который вы сгенерировали)
-    testPassword1: "LoEEYfNV8OT1LU90A3Jt",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ТЕСТОВЫЙ ПАРОЛЬ #1!
-    
-    // Пароль #2 для тестового режима (который вы сгенерировали)
-    testPassword2: "nEBQ05SPnxMrqg0Iij69",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ТЕСТОВЫЙ ПАРОЛЬ #2!
-    
-    // Алгоритм шифрования (MD5 или SHA256)
-    algorithm: "MD5",  // 🔴 УКАЖИТЕ ВАШ АЛГОРИТМ (MD5 или SHA256)
-    
-    // Тестовый режим (true - тестовые платежи, false - боевые)
-    isTestMode: true,  // 🔴 ДЛЯ ТЕСТА = true, ДЛЯ БОЯ = false
-    
-    // URL для оплаты
-    paymentUrl: "https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.js"
+    merchantLogin: "YOUR_MERCHANT_LOGIN",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ЛОГИН МАГАЗИНА!
+    isTestMode: true  // true - тестовые платежи, false - боевые
   };
   
-  // Функция для вычисления подписи (SignatureValue)
-  function calculateSignature(outSum, invId, password) {
-    // Формируем строку для подписи: "MerchantLogin:OutSum:InvoiceID:Password"
-    const signatureString = `${ROBOKASSA_CONFIG.merchantLogin}:${outSum}:${invId}:${password}`;
+  // Функция для создания прямого iframe URL (без document.write)
+  function getRobokassaIframeUrl(orderId, amount, description) {
+    // Формируем прямую ссылку на iframe версию платежной формы
+    // Используем FormMS.if вместо FormMS.js
+    let url = `https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?`;
+    url += `MerchantLogin=${ROBOKASSA_CONFIG.merchantLogin}`;
+    url += `&OutSum=${amount}`;
+    url += `&InvoiceID=${orderId}`;
+    url += `&Description=${encodeURIComponent(description)}`;
     
-    console.log("Строка для подписи:", signatureString);
-    
-    if (ROBOKASSA_CONFIG.algorithm.toUpperCase() === "MD5") {
-      // MD5
-      return CryptoJS.MD5(signatureString).toString();
-    } else {
-      // SHA-256
-      return CryptoJS.SHA256(signatureString).toString();
-    }
-  }
-  
-  // Функция для создания платежа через Robokassa
-  async function createRobokassaPayment(orderId, amount, description) {
-    // Используем тестовые пароли, если включен тестовый режим
-    const password = ROBOKASSA_CONFIG.isTestMode ? ROBOKASSA_CONFIG.testPassword1 : ROBOKASSA_CONFIG.testPassword1;
-    
-    // Генерируем подпись
-    const signature = calculateSignature(amount, orderId, password);
-    
-    // Формируем URL для оплаты
-    let paymentUrl = `${ROBOKASSA_CONFIG.paymentUrl}?MerchantLogin=${ROBOKASSA_CONFIG.merchantLogin}&OutSum=${amount}&InvoiceID=${orderId}&Description=${encodeURIComponent(description)}&SignatureValue=${signature}`;
-    
-    // Добавляем параметр тестового режима, если нужно
     if (ROBOKASSA_CONFIG.isTestMode) {
-      paymentUrl += `&IsTest=1`;
+      url += `&IsTest=1`;
     }
     
-    console.log("URL оплаты:", paymentUrl);
-    return paymentUrl;
+    console.log("Robokassa URL:", url);
+    return url;
   }
 
   // DOM элементы
@@ -1249,6 +1217,9 @@
     const dateText = selectedDate === "today" ? "Сегодня" : "Завтра";
     const fullDateTime = `${dateText} в ${selectedTime}`;
     
+    // Генерируем уникальный ID заказа (число для Robokassa)
+    const invoiceId = Date.now();
+    
     const orderData = {
       street, house, flat, phone, doorCode, comment,
       deliveryType: selectedDeliveryType,
@@ -1259,7 +1230,8 @@
       userId: user.uid,
       userEmail: user.email,
       paidAt: new Date().toISOString(),
-      isTestPayment: ROBOKASSA_CONFIG.isTestMode
+      isTestPayment: ROBOKASSA_CONFIG.isTestMode,
+      invoiceId: invoiceId
     };
     
     try {
@@ -1267,8 +1239,8 @@
       saveUserData();
       currentOrderId = docRef.id;
       
-      // Создаем платеж через Robokassa с подписью
-      const paymentUrl = await createRobokassaPayment(docRef.id, 100, "Вынос мусора");
+      // Создаем прямую ссылку на iframe Robokassa
+      const paymentUrl = getRobokassaIframeUrl(invoiceId, 100, "Вынос мусора");
       
       // Загружаем платежную форму в iframe
       robokassaFrame.src = paymentUrl;
@@ -1608,8 +1580,5 @@
     }
   });
 </script>
-
-<!-- Подключаем CryptoJS для хеширования -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </body>
 </html>
