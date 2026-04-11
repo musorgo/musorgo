@@ -87,7 +87,7 @@
       background: #eef2f5;
     }
     
-    /* ДИНАМИЧЕСКИЙ СТАТУС (Dynamic Island) */
+    /* ДИНАМИЧЕСКИЙ СТАТУС */
     .status-island {
       background: #1a1a1a;
       color: white;
@@ -246,7 +246,7 @@
       border-color: #f5b042;
     }
     
-    /* Основная CTA кнопка (теперь внутри формы) */
+    /* Основная CTA кнопка */
     .btn {
       width: 100%;
       padding: 18px;
@@ -650,6 +650,52 @@
       margin-top: 8px;
     }
     
+    /* Robokassa модальное окно */
+    .robokassa-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .robokassa-content {
+      background: white;
+      border-radius: 28px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      position: relative;
+    }
+    .robokassa-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .robokassa-header h3 {
+      font-size: 20px;
+      color: #1a2a3a;
+    }
+    .close-robokassa {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #8b9eb0;
+    }
+    #robokassaWidgetContainer {
+      min-height: 400px;
+    }
+    
     .footer {
       background: transparent;
       padding: 20px 0;
@@ -696,7 +742,6 @@
       <button id="mapButton" class="zone-btn-top">Зона обслуживания</button>
       <button id="authButton" class="user-link">Войти</button>
     </div>
-    <!-- Dynamic Island статуса -->
     <div id="statusIslandContainer"></div>
   </div>
 
@@ -766,7 +811,6 @@
       <div class="error-message" id="phoneError">Введите корректный номер телефона (11 цифр, +7)</div>
     </div>
     
-    <!-- КНОПКА ВЫНЕСТИ МУСОР -->
     <button class="btn" id="submitBtn">Вынести мусор</button>
     
     <button class="telegram-btn" id="telegramBtn">Связаться с нами</button>
@@ -806,6 +850,17 @@
 <div id="mapModal" class="modal"><div class="modal-content map-modal"><div class="map-modal-header"><div class="modal-title">Наша зона обслуживания</div><button class="close-map-btn" id="closeMapBtn">✕</button></div><iframe src="https://makemap.2gis.ru/widget?data=eJy1VMFuEzEQ_RdzZFXZY3s8jtRDlEKJlJaUgiqocghZk27ZxtFmS0mj_DtO1nZEDyBFcNy34_Gb955nw3xTusaV584_uLap3Ir1bjesXS8d67G3bto-No4VbNn4pWva_f8NK91q1lTLtvKLUDV-13998fHTfHTdX18Mzq4WlwPFR_LD3J4PxgP7NJ6fnoYWq7bx393A174Jh16p8qsBnfGbqmzvWA_S9_vldFa1a9YTBftW1XU-V-LMSMs6NFfxE12w5-GidD_DkW3B5t1A6x3dOM3Y1-t5YFywmQ9jV4tpux_39hbFCRgUkgqtT4BbofSk6FArje1QI9FG1HKdao3klFEEFTugSA0MCLEHBVdKJvTFZZNJoFyVgbqValscY8B9f2fA8_83QFqkEv9oABxjQJDPmiSqUFlUI5LUWpkDaiDqpygaILkhEzuQ0jajSNEWFAQJVVzqDtWkRUKlSh2QMN9mrcTIAQwklDTKiCLlEBil0hRG5cCgociXIN0GVulIgeShVJpEwSDKQ7Z-EycHBhDMUYG5vO63w7M3T8PLwYyP7q9-lOdn_POQRrL_-t-FBXWJf3mt8qjXGl4jxGelucr2gRJRUZI5AFJG6XbaZk8VdO4JUIA5FYZHVKFWB0tEZxQAcUyokNESEMRzKoK9XYddYCNIVkBkayHvi8AQKKIqEyNhdRdXQUaltsR5onsADaW0Cszrxti4bsJUufCFWjk9UiJtJwV7mC7HflV18diwetqy3r5ckCQIi08A2oLVu997ncJIyLlRGNQLVnr_ELwPm4uFmPm6vrlzrv6yR9vm0W1_AfUbvFM" sandbox="allow-modals allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe></div></div>
 <div id="successModal" class="modal"><div class="modal-content"><div class="modal-icon" style="font-size: 48px; margin-bottom: 8px;">✅</div><div class="modal-title">Заказ создан</div><div class="modal-text" id="modalText" style="text-align: center;">Отследить его можно в личном кабинете</div><div class="modal-buttons"><button class="modal-btn" id="trackFromSuccessBtn">Отследить</button><button class="modal-btn" id="closeSuccessBtn">Закрыть</button></div></div></div>
 
+<!-- Robokassa модальное окно -->
+<div id="robokassaModal" class="robokassa-modal">
+  <div class="robokassa-content">
+    <div class="robokassa-header">
+      <h3>Оплата заказа</h3>
+      <button class="close-robokassa" id="closeRobokassaBtn">&times;</button>
+    </div>
+    <div id="robokassaWidgetContainer"></div>
+  </div>
+</div>
+
 <script>
   // ========== FIREBASE ==========
   const firebaseConfig = {
@@ -831,10 +886,12 @@
   const offerModal = document.getElementById('offerModal');
   const mapModal = document.getElementById('mapModal');
   const statusIslandContainer = document.getElementById('statusIslandContainer');
+  const robokassaModal = document.getElementById('robokassaModal');
+  const robokassaWidgetContainer = document.getElementById('robokassaWidgetContainer');
   
   let lastOrderUnsubscribe = null;
-  // Хранилище скрытых выполенных заказов (ключ - userId_orderId)
   let hiddenCompletedOrders = new Set();
+  let currentOrderId = null; // Храним ID текущего заказа для оплаты
 
   function loadHiddenOrders() {
     const stored = localStorage.getItem('hiddenCompletedOrders');
@@ -851,7 +908,7 @@
     return hiddenCompletedOrders.has(`${userId}_${orderId}`);
   }
 
-  // Вспомогательные функции (валидация, данные домов, время и т.д.)
+  // Вспомогательные функции
   function saveUserData() {
     const street = document.getElementById('streetSelect').value;
     const house = document.getElementById('houseSelect').value;
@@ -877,15 +934,17 @@
   function clearError(fieldId, errorId) {
     const field = document.getElementById(fieldId);
     const errorDiv = document.getElementById(errorId);
-    field.classList.remove('input-error');
-    errorDiv.style.display = 'none';
+    if (field) field.classList.remove('input-error');
+    if (errorDiv) errorDiv.style.display = 'none';
   }
   function showError(fieldId, errorId, msg) {
     const field = document.getElementById(fieldId);
     const errorDiv = document.getElementById(errorId);
-    field.classList.add('input-error');
-    errorDiv.style.display = 'block';
-    errorDiv.innerText = msg;
+    if (field) field.classList.add('input-error');
+    if (errorDiv) {
+      errorDiv.style.display = 'block';
+      errorDiv.innerText = msg;
+    }
   }
   function validateForm() {
     let isValid = true;
@@ -1040,6 +1099,105 @@
     this.value = formatted;
   });
 
+  // ========== ФУНКЦИЯ ОПЛАТЫ ЧЕРЕЗ ROBOKASSA ==========
+  function openRobokassaPayment(orderId, amount, description) {
+    currentOrderId = orderId;
+    
+    // Очищаем контейнер перед загрузкой нового виджета
+    robokassaWidgetContainer.innerHTML = '';
+    
+    // Показываем модальное окно
+    robokassaModal.style.display = 'flex';
+    
+    // Создаем скрипт для загрузки виджета Robokassa
+    // Ваш уникальный EncodedInvoiceId
+    const encodedInvoiceId = 'udCxxUjnY0Oelsd_nU0WnA';
+    
+    // Загружаем скрипт Robokassa
+    const script = document.createElement('script');
+    script.src = `https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.js?EncodedInvoiceId=${encodedInvoiceId}`;
+    script.type = 'text/javascript';
+    
+    // Добавляем обработчик успешной загрузки
+    script.onload = function() {
+      console.log('Robokassa виджет загружен');
+      
+      // Ожидаем, что Robokassa создаст глобальный объект или форму
+      // Обычно виджет сам встраивается в контейнер, но может потребоваться дополнительная инициализация
+      
+      // Проверяем, есть ли функция инициализации от Robokassa
+      if (window.Robokassa && typeof window.Robokassa.init === 'function') {
+        window.Robokassa.init({
+          container: 'robokassaWidgetContainer',
+          invoiceId: encodedInvoiceId,
+          onSuccess: function() {
+            handlePaymentSuccess(orderId);
+          },
+          onFail: function() {
+            handlePaymentFail(orderId);
+          }
+        });
+      }
+    };
+    
+    script.onerror = function() {
+      robokassaWidgetContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #ff3b30;">❌ Ошибка загрузки платежной системы. Попробуйте позже.</div>';
+    };
+    
+    robokassaWidgetContainer.appendChild(script);
+  }
+  
+  function handlePaymentSuccess(orderId) {
+    // Обновляем статус заказа в Firestore
+    db.collection('orders').doc(orderId).update({
+      status: 'новый',
+      paidAt: new Date().toISOString(),
+      paymentStatus: 'success'
+    }).then(() => {
+      // Закрываем модальное окно
+      robokassaModal.style.display = 'none';
+      // Показываем сообщение об успехе
+      alert('✅ Оплата прошла успешно! Ваш заказ принят в работу.');
+      // Обновляем интерфейс
+      if (auth.currentUser) {
+        subscribeToLastOrder();
+      }
+    }).catch(error => {
+      console.error('Ошибка обновления заказа:', error);
+      alert('Оплата прошла, но произошла ошибка обновления статуса. Свяжитесь с поддержкой.');
+    });
+  }
+  
+  function handlePaymentFail(orderId) {
+    robokassaModal.style.display = 'none';
+    alert('❌ Оплата не прошла. Попробуйте еще раз или выберите другой способ оплаты.');
+    // Можно удалить заказ или оставить его в статусе "ожидает оплаты"
+  }
+  
+  // Закрытие модального окна Robokassa
+  document.getElementById('closeRobokassaBtn').addEventListener('click', () => {
+    robokassaModal.style.display = 'none';
+    // При закрытии окна, если заказ не оплачен, можно его удалить или оставить
+    if (currentOrderId) {
+      if (confirm('Вы не завершили оплату. Удалить незавершенный заказ?')) {
+        db.collection('orders').doc(currentOrderId).delete().catch(console.error);
+      }
+      currentOrderId = null;
+    }
+  });
+  
+  robokassaModal.addEventListener('click', (e) => {
+    if (e.target === robokassaModal) {
+      robokassaModal.style.display = 'none';
+      if (currentOrderId) {
+        if (confirm('Вы не завершили оплату. Удалить незавершенный заказ?')) {
+          db.collection('orders').doc(currentOrderId).delete().catch(console.error);
+        }
+        currentOrderId = null;
+      }
+    }
+  });
+
   // ========== АВТОРИЗАЦИЯ ==========
   async function updateAuthButton() {
     const user = auth.currentUser;
@@ -1129,7 +1287,7 @@
           <div class="profile-order-details">${order.street}, ${order.house}, кв.${order.flat}<br>${order.preferredDateTime || ''}</div>
           <div class="profile-order-buttons">
             <button class="profile-order-track" data-id="${order.id}">Отследить</button>
-            ${order.status === 'ожидает оплаты' ? `<button class="pay-btn" data-id="${order.id}">💳 Оплатить (тест)</button>` : ''}
+            ${order.status === 'ожидает оплаты' ? `<button class="pay-btn" data-id="${order.id}">💳 Оплатить</button>` : ''}
           </div>
         </div>
       `;
@@ -1166,7 +1324,10 @@
       btn.addEventListener('click', () => showTrackModal(btn.dataset.id));
     });
     document.querySelectorAll('.pay-btn').forEach(btn => {
-      btn.addEventListener('click', () => payOrder(btn.dataset.id));
+      btn.addEventListener('click', () => {
+        const orderId = btn.dataset.id;
+        openRobokassaPayment(orderId, 100, 'Вынос мусора');
+      });
     });
   }
 
@@ -1191,16 +1352,6 @@
     trackModal.style.display = 'flex';
   }
 
-  async function payOrder(orderId) {
-    try {
-      const orderRef = db.collection('orders').doc(orderId);
-      const doc = await orderRef.get();
-      if (doc.data().status !== 'ожидает оплаты') throw new Error('Заказ уже оплачен');
-      await orderRef.update({ status: 'новый', paidAt: new Date().toISOString() });
-      alert('Оплата прошла успешно (тестовый режим)');
-    } catch(e) { alert('Ошибка оплаты: ' + e.message); }
-  }
-
   authButton.onclick = () => {
     if (auth.currentUser && auth.currentUser.emailVerified) showProfileModal();
     else { showLoginForm(); authModal.style.display = 'flex'; }
@@ -1210,13 +1361,12 @@
   document.getElementById('closeTrackBtn').onclick = () => trackModal.style.display = 'none';
   trackModal.onclick = (e) => { if (e.target === trackModal) trackModal.style.display = 'none'; };
 
-  // ========== ДИНАМИЧЕСКИЙ СТАТУС (с кнопкой Закрыть для выполненного) ==========
+  // ========== ДИНАМИЧЕСКИЙ СТАТУС ==========
   function renderStatusIsland(order, userId) {
     if (!order) {
       statusIslandContainer.innerHTML = '';
       return;
     }
-    // Если заказ выполнен и скрыт пользователем — не показываем
     if (order.status === 'выполнен' && isOrderHidden(order.id, userId)) {
       statusIslandContainer.innerHTML = '';
       return;
@@ -1227,7 +1377,7 @@
     if (status === 'ожидает оплаты') {
       icon = '💳';
       text = 'Ожидание оплаты';
-      actionBtn = '<button class="status-link" id="statusToCabinet">Отследить</button>';
+      actionBtn = '<button class="status-link" id="statusToCabinet">Оплатить</button>';
     } else if (status === 'новый') {
       icon = '🟡';
       text = 'Поиск курьера...';
@@ -1251,17 +1401,19 @@
       </div>
     `;
     statusIslandContainer.innerHTML = islandHtml;
-    if (status !== 'выполнен') {
+    if (status === 'ожидает оплаты') {
+      document.getElementById('statusToCabinet')?.addEventListener('click', () => {
+        openRobokassaPayment(order.id, 100, 'Вынос мусора');
+      });
+    } else if (status !== 'выполнен') {
       document.getElementById('statusToCabinet')?.addEventListener('click', () => {
         if (auth.currentUser) showProfileModal();
         else { showLoginForm(); authModal.style.display = 'flex'; }
       });
     } else {
       document.getElementById('closeStatusBtn')?.addEventListener('click', () => {
-        // Скрываем этот выполненный заказ
         saveHiddenOrder(order.id, userId);
         statusIslandContainer.innerHTML = '';
-        // Также можно отписаться от этого конкретного заказа, но подписка всё равно придёт, а проверка isOrderHidden скроет
       });
     }
     if (navigator.vibrate) navigator.vibrate(200);
@@ -1274,8 +1426,6 @@
       statusIslandContainer.innerHTML = '';
       return;
     }
-    // Подписка на последний заказ пользователя (актуальный)
-    // Используем includeMetadataChanges для мгновенных обновлений
     lastOrderUnsubscribe = db.collection('orders')
       .where('userEmail', '==', user.email)
       .orderBy('createdAt', 'desc')
@@ -1292,13 +1442,12 @@
         },
         error: (err) => {
           console.warn("Ошибка подписки на заказы:", err);
-          // При ошибке пробуем переподключиться через 5 секунд
           setTimeout(() => subscribeToLastOrder(), 5000);
         }
       }, { includeMetadataChanges: true });
   }
 
-  // ========== СОЗДАНИЕ ЗАКАЗА (только авторизованные) ==========
+  // ========== СОЗДАНИЕ ЗАКАЗА ==========
   submitBtn.addEventListener('click', async function() {
     const user = auth.currentUser;
     if (!user || !user.emailVerified) {
@@ -1331,11 +1480,12 @@
     };
     try {
       const docRef = await db.collection("orders").add(orderData);
-      const successModal = document.getElementById('successModal');
-      document.getElementById('modalText').innerHTML = `Заказ #${docRef.id.slice(0,6)} создан. Отследить его можно в личном кабинете.`;
-      successModal.style.display = 'flex';
       saveUserData();
-      // Очистка формы
+      
+      // Открываем оплату сразу после создания заказа
+      openRobokassaPayment(docRef.id, 100, 'Вынос мусора');
+      
+      // Очищаем форму
       document.getElementById('streetSelect').value = "";
       document.getElementById('houseSelect').innerHTML = '<option value="">Сначала выберите улицу</option>';
       document.getElementById('flatInput').value = "";
@@ -1343,11 +1493,14 @@
       document.getElementById('comment').value = "";
       document.getElementById('phone').value = "+7";
       reset();
-    } catch(e) { alert("Ошибка: " + e.message); reset(); }
+    } catch(e) { 
+      alert("Ошибка: " + e.message); 
+      reset();
+    }
     function reset() { btn.disabled = false; btn.innerHTML = 'Вынести мусор'; }
   });
 
-  // Обработчики модалки успеха
+  // Обработчики модалки успеха (теперь не используется, но оставим)
   document.getElementById('trackFromSuccessBtn').onclick = () => {
     document.getElementById('successModal').style.display = 'none';
     if (auth.currentUser) showProfileModal();
@@ -1374,6 +1527,15 @@
   document.getElementById('closeMapBtn').onclick = () => mapModal.style.display = 'none';
   offerModal.onclick = (e) => { if (e.target === offerModal) offerModal.style.display = 'none'; };
   mapModal.onclick = (e) => { if (e.target === mapModal) mapModal.style.display = 'none'; };
+
+  // Telegram кнопка
+  document.getElementById('telegramBtn').onclick = () => {
+    window.open('https://t.me/musor_go', '_blank');
+  };
+  document.getElementById('helpLink').onclick = (e) => {
+    e.preventDefault();
+    window.open('https://t.me/musor_go', '_blank');
+  };
 
   // Инициализация
   document.getElementById('streetSelect').addEventListener('change', updateHouses);
