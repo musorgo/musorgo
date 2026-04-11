@@ -8,6 +8,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -686,7 +687,7 @@
     }
     #robokassaFrame {
       width: 100%;
-      min-height: 400px;
+      min-height: 450px;
       border: none;
       background: white;
     }
@@ -894,27 +895,54 @@
   const auth = firebase.auth();
 
   // ========== НАСТРОЙКИ ROBOKASSA (ЗАМЕНИТЕ НА СВОИ!) ==========
-  // ⚠️ ВАЖНО: Замените YOUR_MERCHANT_LOGIN на ваш логин из личного кабинета Robokassa!
+  // ⚠️ ВАЖНО: Замените эти значения на свои из личного кабинета Robokassa!
   const ROBOKASSA_CONFIG = {
+    // Логин магазина (скопируйте из раздела "Мои магазины" в личном кабинете)
     merchantLogin: "musorgo",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ЛОГИН МАГАЗИНА!
-    isTestMode: true  // true - тестовые платежи, false - боевые
+    
+    // Тестовый пароль №1 (сгенерируйте в "Технических настройках" -> "Параметры проведения тестовых платежей")
+    testPassword1: "CedyX86sOvGBSLbj6k87",  // 🔴 ЗАМЕНИТЕ НА СВОЙ ТЕСТОВЫЙ ПАРОЛЬ №1!
+    
+    // Алгоритм шифрования (должен совпадать с тем, что выбран в тестовых настройках)
+    algorithm: "MD5",  // 🔴 УКАЖИТЕ MD5 или SHA256 (как у вас в настройках)
+    
+    // Режим (true — тестовые платежи, false — боевые)
+    isTestMode: true   // 🔴 ПОКА ОСТАВЛЯЕМ true ДЛЯ ТЕСТА
   };
   
-  // Функция для создания прямого iframe URL (без document.write)
+  // Функция для создания ПРАВИЛЬНОЙ ссылки на iframe Robokassa (с подписью)
   function getRobokassaIframeUrl(orderId, amount, description) {
-    // Формируем прямую ссылку на iframe версию платежной формы
-    // Используем FormMS.if вместо FormMS.js
+    // Используем тестовый пароль №1
+    const password = ROBOKASSA_CONFIG.testPassword1;
+    
+    // Формируем строку для подписи в правильном порядке:
+    // Логин:Сумма:НомерЗаказа:Пароль
+    const signatureString = `${ROBOKASSA_CONFIG.merchantLogin}:${amount}:${orderId}:${password}`;
+    console.log("Строка для подписи (тест):", signatureString);
+    
+    // Вычисляем подпись (SignatureValue)
+    let signature;
+    if (ROBOKASSA_CONFIG.algorithm.toUpperCase() === "MD5") {
+      signature = CryptoJS.MD5(signatureString).toString();
+    } else {
+      signature = CryptoJS.SHA256(signatureString).toString();
+    }
+    console.log("Подпись (SignatureValue):", signature);
+    
+    // Формируем URL для iframe (используем FormMS.if)
     let url = `https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?`;
     url += `MerchantLogin=${ROBOKASSA_CONFIG.merchantLogin}`;
     url += `&OutSum=${amount}`;
     url += `&InvoiceID=${orderId}`;
     url += `&Description=${encodeURIComponent(description)}`;
+    url += `&SignatureValue=${signature}`;
     
+    // Добавляем флаг тестового режима
     if (ROBOKASSA_CONFIG.isTestMode) {
       url += `&IsTest=1`;
     }
     
-    console.log("Robokassa URL:", url);
+    console.log("Итоговый URL оплаты:", url);
     return url;
   }
 
@@ -1239,7 +1267,7 @@
       saveUserData();
       currentOrderId = docRef.id;
       
-      // Создаем прямую ссылку на iframe Robokassa
+      // Создаем правильную ссылку на iframe Robokassa с подписью
       const paymentUrl = getRobokassaIframeUrl(invoiceId, 100, "Вынос мусора");
       
       // Загружаем платежную форму в iframe
