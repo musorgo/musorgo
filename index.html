@@ -11,7 +11,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   
   <style>
-    /* Стили оставлены без изменений для краткости, но вы должны их оставить из вашего старого файла */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
@@ -146,6 +145,29 @@
       font-weight: 500;
       color: #4a5b6b;
       margin-bottom: 6px;
+    }
+    .input-with-button {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .input-with-button input {
+      flex: 1;
+    }
+    .help-mini-btn {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #5a6e7c;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .help-mini-btn:hover {
+      background: #eef2f5;
     }
     select, input, textarea {
       width: 100%;
@@ -770,7 +792,10 @@
     </div>
     <div class="input-group">
       <label>Код домофона</label>
-      <input type="text" id="doorCode" placeholder="Например, 1234">
+      <div class="input-with-button">
+        <input type="text" id="doorCode" placeholder="Например, 1234">
+        <button class="help-mini-btn" id="doorCodeHelpBtn">Как узнать?</button>
+      </div>
     </div>
   </div>
 
@@ -850,6 +875,28 @@
   </div>
 </div>
 
+<!-- Модальное окно с инструкцией по коду домофона -->
+<div id="doorCodeHelpModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-title">🔑 Как узнать код домофона</div>
+    <div class="modal-text">
+      <p><strong>Для пользователей «Интерсвязь. Умный город»</strong></p>
+      <p>Чтобы курьер смог войти в подъезд, вы можете создать для них временный цифровой код в приложении «Интерсвязь. Умный город»:</p>
+      <ol style="margin-left: 20px; margin-bottom: 20px;">
+        <li>Откройте приложение и перейдите в раздел «Мой двор».</li>
+        <li>Нажмите на иконку «Выдать доступ», затем выберите «Создать временный код».</li>
+        <li>Готовый код обычно действует в течение суток.</li>
+      </ol>
+      <p><strong>Для остальных систем</strong></p>
+      <p>К сожалению, процедура может отличаться в зависимости от модели и производителя вашего домофона. Пожалуйста, обратитесь к инструкции по эксплуатации вашего устройства или свяжитесь с управляющей компанией.</p>
+      <p style="margin-top: 20px; color: #8b9eb0;">💡 Если курьер не сможет попасть в подъезд, он свяжется с вами по указанному номеру телефона.</p>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn" id="closeDoorCodeHelpBtn">Понятно</button>
+    </div>
+  </div>
+</div>
+
 <!-- Модальные окна -->
 <div id="authModal" class="modal"><div class="modal-content" id="authModalContent"></div></div>
 <div id="profileModal" class="modal"><div class="modal-content" id="profileModalContent" style="max-width: 480px;"></div></div>
@@ -874,23 +921,19 @@
   const auth = firebase.auth();
 
   // ========== НАСТРОЙКИ ROBOKASSA (ЗАМЕНИТЕ НА СВОИ БОЕВЫЕ!) ==========
-  // 🔴🔴🔴 ВНИМАНИЕ! ЭТО САМОЕ ВАЖНОЕ МЕСТО! 🔴🔴🔴
   const ROBOKASSA_CONFIG = {
-    merchantLogin: "musorgo",  // 🔴 ВАШ ЛОГИН МАГАЗИНА В ROBOKASSA
-    password1: "nEBQ05SPnxMrqg0Iij69", // 🔴 ВАШ ПАРОЛЬ №1 ИЗ ТЕХНИЧЕСКИХ НАСТРОЕК
-    algorithm: "MD5",          // 🔴 MD5 или SHA256 (как в настройках)
-    isTestMode: false          // 🔴 false - БОЕВОЙ РЕЖИМ, true - ТЕСТОВЫЙ
+    merchantLogin: "musorgo",
+    password1: "ljTC9V4aDsXfDZt798TX",
+    algorithm: "MD5",
+    isTestMode: false
   };
   
-  // Функция для создания ПРАВИЛЬНОЙ ссылки на iframe Robokassa
   function getRobokassaIframeUrl(orderId, invoiceId, amount, description) {
     const password = ROBOKASSA_CONFIG.password1;
     
-    // Формируем строку для подписи: Логин:Сумма:НомерСчета:Пароль1
     const signatureString = `${ROBOKASSA_CONFIG.merchantLogin}:${amount}:${invoiceId}:${password}`;
     console.log("Строка для подписи:", signatureString);
     
-    // Вычисляем подпись
     let signature;
     if (ROBOKASSA_CONFIG.algorithm.toUpperCase() === "MD5") {
       signature = CryptoJS.MD5(signatureString).toString();
@@ -899,7 +942,6 @@
     }
     console.log("Подпись:", signature);
     
-    // Формируем URL для платежной формы
     let url = `https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?`;
     url += `MerchantLogin=${ROBOKASSA_CONFIG.merchantLogin}`;
     url += `&OutSum=${amount}`;
@@ -907,19 +949,16 @@
     url += `&Description=${encodeURIComponent(description)}`;
     url += `&SignatureValue=${signature}`;
     
-    // Добавляем Email пользователя для автозаполнения
     const user = auth.currentUser;
     if (user && user.email) {
       url += `&Email=${encodeURIComponent(user.email)}`;
     }
     
-    // Добавляем флаг тестового режима если нужно
     if (ROBOKASSA_CONFIG.isTestMode) {
       url += `&IsTest=1`;
     }
     
-    // Куда вернуть пользователя после оплаты (можно указать страницу "Спасибо" или главную)
-    const successUrl = window.location.href; // Возвращаем на ту же страницу
+    const successUrl = window.location.href;
     url += `&SuccessURL=${encodeURIComponent(successUrl)}`;
     url += `&FailURL=${encodeURIComponent(successUrl)}`;
     
@@ -940,6 +979,7 @@
   const statusIslandContainer = document.getElementById('statusIslandContainer');
   const robokassaModal = document.getElementById('robokassaModal');
   const robokassaFrame = document.getElementById('robokassaFrame');
+  const doorCodeHelpModal = document.getElementById('doorCodeHelpModal');
   
   let lastOrderUnsubscribe = null;
   let hiddenCompletedOrders = new Set();
@@ -958,7 +998,6 @@
     return hiddenCompletedOrders.has(`${userId}_${orderId}`);
   }
 
-  // Вспомогательные функции
   function saveUserData() {
     const street = document.getElementById('streetSelect').value;
     const house = document.getElementById('houseSelect').value;
@@ -1193,7 +1232,20 @@
   document.getElementById('houseSelect').addEventListener('change', updatePayButtonState);
   document.getElementById('flatInput').addEventListener('input', updatePayButtonState);
 
-  // ========== ФУНКЦИЯ ОПЛАТЫ (создание заказа и открытие модалки с виджетом) ==========
+  // Кнопка "Как узнать код домофона"
+  document.getElementById('doorCodeHelpBtn').addEventListener('click', () => {
+    doorCodeHelpModal.style.display = 'flex';
+  });
+  document.getElementById('closeDoorCodeHelpBtn').addEventListener('click', () => {
+    doorCodeHelpModal.style.display = 'none';
+  });
+  doorCodeHelpModal.addEventListener('click', (e) => {
+    if (e.target === doorCodeHelpModal) {
+      doorCodeHelpModal.style.display = 'none';
+    }
+  });
+
+  // ========== ФУНКЦИЯ ОПЛАТЫ ==========
   async function createOrderAndPay() {
     const user = auth.currentUser;
     if (!user || !user.emailVerified) {
@@ -1220,17 +1272,14 @@
     const dateText = selectedDate === "today" ? "Сегодня" : "Завтра";
     const fullDateTime = `${dateText} в ${selectedTime}`;
     
-    // Генерируем уникальный ID счета для Robokassa
     const invoiceId = Date.now();
     
-    // СОЗДАЕМ ЗАКАЗ СО СТАТУСОМ "pending_payment" (ОЖИДАЕТ ОПЛАТЫ)
-    // Курьер не поедет, пока статус не сменится на "оплачен" или "новый"
     const orderData = {
       street, house, flat, phone, doorCode, comment,
       deliveryType: selectedDeliveryType,
       preferredDateTime: fullDateTime,
       tariffPrice: 100,
-      status: "pending_payment", // <-- ВАЖНО! Статус "Ожидает оплаты"
+      status: "pending_payment",
       createdAt: new Date().toISOString(),
       userId: user.uid,
       userEmail: user.email,
@@ -1242,24 +1291,17 @@
       const docRef = await db.collection("orders").add(orderData);
       saveUserData();
       
-      // Сохраняем ID заказа для возможного отслеживания
       currentOrderData = { id: docRef.id, ...orderData };
       
-      // Создаем ссылку на оплату
       const paymentUrl = getRobokassaIframeUrl(docRef.id, invoiceId, 100, `Заказ мусора #${docRef.id.slice(0,6)}`);
       
-      // Загружаем платежную форму в iframe
       robokassaFrame.src = paymentUrl;
-      
-      // Открываем модальное окно с оплатой
       robokassaModal.style.display = 'flex';
       
-      // Показываем сообщение об успешном создании заказа
       const successModal = document.getElementById('successModal');
       document.getElementById('modalText').innerHTML = `Заказ #${docRef.id.slice(0,6)} создан и ожидает оплаты.<br><br>После оплаты статус заказа изменится автоматически.`;
       successModal.style.display = 'flex';
       
-      // Очищаем форму (но не сбрасываем selectedTime сразу, чтобы не сломать)
       document.getElementById('streetSelect').value = "";
       document.getElementById('houseSelect').innerHTML = '<option value="">Сначала выберите улицу</option>';
       document.getElementById('flatInput').value = "";
@@ -1281,11 +1323,9 @@
   
   payBtn.addEventListener('click', createOrderAndPay);
   
-  // Закрытие модального окна Robokassa
   document.getElementById('closeRobokassaBtn').addEventListener('click', () => {
     robokassaModal.style.display = 'none';
     robokassaFrame.src = 'about:blank';
-    // Не удаляем заказ, он останется в статусе "pending_payment"
   });
   
   robokassaModal.addEventListener('click', (e) => {
@@ -1295,7 +1335,7 @@
     }
   });
 
-  // ========== АВТОРИЗАЦИЯ (С ИМЕНЕМ) ==========
+  // ========== АВТОРИЗАЦИЯ ==========
   async function updateAuthButton() {
     const user = auth.currentUser;
     if (user && user.emailVerified) {
@@ -1329,7 +1369,7 @@
         }
         authModal.style.display = 'none';
         updateAuthButton();
-        subscribeToLastOrder(); // Подписываемся на заказы после входа
+        subscribeToLastOrder();
       } catch (err) { errorDiv.innerText = err.message; }
     };
     document.getElementById('showRegisterLink').onclick = (e) => { e.preventDefault(); showRegisterForm(); };
@@ -1357,7 +1397,6 @@
       if (password !== confirm) { errorDiv.innerText = 'Пароли не совпадают'; return; }
       try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        // Сохраняем имя пользователя в Firestore
         await db.collection("users").doc(userCredential.user.uid).set({
           name: name,
           email: email,
@@ -1376,7 +1415,6 @@
     const user = auth.currentUser;
     if (!user || !user.emailVerified) return;
     
-    // Получаем имя пользователя из Firestore
     let displayName = "Пользователь";
     try {
       const userDoc = await db.collection("users").doc(user.uid).get();
@@ -1391,7 +1429,6 @@
     let active = [], completed = [];
     snapshot.forEach(doc => {
       const order = { id: doc.id, ...doc.data() };
-      // Активные заказы - те, которые не выполнены (включая ожидающие оплаты)
       if (order.status === 'выполнен') completed.push(order);
       else active.push(order);
     });
@@ -1490,13 +1527,12 @@
   document.getElementById('closeTrackBtn').onclick = () => trackModal.style.display = 'none';
   trackModal.onclick = (e) => { if (e.target === trackModal) trackModal.style.display = 'none'; };
 
-  // ========== ДИНАМИЧЕСКИЙ СТАТУС (теперь показывает только оплаченные заказы) ==========
+  // ========== ДИНАМИЧЕСКИЙ СТАТУС ==========
   function renderStatusIsland(order, userId) {
     if (!order) {
       statusIslandContainer.innerHTML = '';
       return;
     }
-    // Не показываем ожидающие оплаты заказы в динамическом островке (чтобы не сбивать с толку)
     if (order.status === 'pending_payment') {
       statusIslandContainer.innerHTML = '';
       return;
@@ -1556,10 +1592,9 @@
       statusIslandContainer.innerHTML = '';
       return;
     }
-    // Слушаем только заказы со статусом НЕ "pending_payment"
     lastOrderUnsubscribe = db.collection('orders')
       .where('userEmail', '==', user.email)
-      .where('status', 'in', ['новый', 'в работе', 'выполнен']) // Игнорируем pending_payment
+      .where('status', 'in', ['новый', 'в работе', 'выполнен'])
       .orderBy('createdAt', 'desc')
       .limit(1)
       .onSnapshot({
