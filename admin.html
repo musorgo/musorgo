@@ -18,7 +18,6 @@
     }
     .container { max-width: 800px; margin: 0 auto; }
     
-    /* Шапка */
     .header {
       background: white;
       border-radius: 20px;
@@ -52,6 +51,7 @@
       background: #f8fafc;
       padding: 6px 16px;
       border-radius: 40px;
+      flex-wrap: wrap;
     }
     .courier-name { font-weight: 600; font-size: 14px; color: #1a2a3a; }
     .courier-stats {
@@ -62,7 +62,7 @@
       font-weight: 500;
       color: #2c5f2d;
     }
-    .logout-btn {
+    .logout-btn, .refresh-btn {
       background: #eef2f5;
       color: #4a5b6b;
       border: none;
@@ -72,9 +72,8 @@
       font-weight: 500;
       font-size: 13px;
     }
-    .logout-btn:hover { background: #e2e8f0; }
+    .logout-btn:hover, .refresh-btn:hover { background: #e2e8f0; }
     
-    /* Вход */
     .login-box {
       background: white;
       border-radius: 28px;
@@ -108,7 +107,6 @@
       margin-top: 12px;
     }
     
-    /* Статистика */
     .stats {
       display: flex;
       gap: 10px;
@@ -135,7 +133,6 @@
     .stat-number { font-size: 24px; font-weight: 700; color: #1a2a3a; }
     .stat-label { font-size: 11px; color: #8b9eb0; margin-top: 4px; }
     
-    /* Поиск */
     .search-bar {
       margin-bottom: 20px;
     }
@@ -154,7 +151,6 @@
       box-shadow: 0 0 0 2px rgba(26,42,58,0.1);
     }
     
-    /* Секции заказов */
     .section {
       background: white;
       border-radius: 20px;
@@ -183,7 +179,6 @@
       color: #4a5b6b;
     }
     
-    /* Карточка заказа */
     .order-card {
       background: #f8fafc;
       border-radius: 16px;
@@ -233,6 +228,7 @@
     .status-new { background: #fed7aa; color: #9b4a00; }
     .status-work { background: #e0e7ff; color: #1e40af; }
     .status-done { background: #dcfce7; color: #166534; }
+    .status-cash { background: #e8f5e9; color: #2e7d32; }
     
     .address {
       font-size: 18px;
@@ -309,6 +305,17 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+    
+    .payment-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .payment-online { background: #e0e7ff; color: #1e40af; }
+    .payment-cash { background: #e8f5e9; color: #2e7d32; }
   </style>
 </head>
 <body>
@@ -329,6 +336,9 @@
       </select>
       <input type="password" id="passwordInput" placeholder="Пароль">
       <button class="login-btn" onclick="login()">Войти</button>
+      <div style="margin-top: 16px; font-size: 12px; color: #8b9eb0;">
+        Тестовые пароли: egor123, sergey123, ivan123
+      </div>
     </div>
   </div>
   
@@ -341,6 +351,7 @@
       <div class="courier-panel">
         <span class="courier-name" id="courierName"></span>
         <span class="courier-stats" id="courierCount">0 заказов</span>
+        <button class="refresh-btn" onclick="manualRefresh()">🔄 Обновить</button>
         <button class="logout-btn" onclick="logout()">Выход</button>
       </div>
     </div>
@@ -365,7 +376,7 @@
     </div>
     
     <div class="search-bar">
-      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ID, телефону или адресу">
+      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ID, телефону, адресу или комментарию">
     </div>
     
     <div id="ordersContainer"></div>
@@ -382,9 +393,11 @@
     messagingSenderId: "249921799089",
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
+  
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   
+  // Пароли курьеров (в реальном проекте хранить в Firestore)
   const COURIER_PASSWORDS = {
     "Егор": "egor123",
     "Сергей": "sergey123",
@@ -399,13 +412,24 @@
   let searchQuery = "";
   let debounceTimer = null;
   let lastNewCount = 0;
+  let lastNewIds = new Set();
   
-  function showNotification(message) {
+  // Воспроизведение звука при новом заказе
+  function playNotificationSound() {
+    try {
+      const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+      audio.volume = 0.3;
+      audio.play().catch(e => console.log('Звук не воспроизведен:', e));
+    } catch(e) {}
+  }
+  
+  function showNotification(message, isError = false) {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.innerHTML = message;
+    if (isError) notification.style.background = '#dc3545';
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    setTimeout(() => notification.remove(), 4000);
   }
   
   // ========== ВХОД / ВЫХОД ==========
@@ -414,7 +438,10 @@
     const password = document.getElementById('passwordInput').value;
     if (!name) { alert("Выберите курьера"); return; }
     if (COURIER_PASSWORDS[name] !== password) { alert("Неверный пароль"); return; }
+    
     currentCourier = name;
+    
+    // Ищем или создаем запись курьера
     const courierQuery = await db.collection("couriers").where("name", "==", name).get();
     if (courierQuery.empty) {
       const newDoc = await db.collection("couriers").add({
@@ -427,6 +454,7 @@
     } else {
       currentCourierId = courierQuery.docs[0].id;
     }
+    
     localStorage.setItem("courierAuth", "true");
     localStorage.setItem("courierName", name);
     localStorage.setItem("courierId", currentCourierId);
@@ -434,11 +462,12 @@
   }
   
   async function logout() {
+    if (ordersUnsubscribe) ordersUnsubscribe();
     localStorage.removeItem("courierAuth");
     localStorage.removeItem("courierName");
     localStorage.removeItem("courierId");
-    if (ordersUnsubscribe) ordersUnsubscribe();
     showLoginPanel();
+    showNotification("👋 Вы вышли из системы");
   }
   
   function showLoginPanel() {
@@ -462,20 +491,29 @@
   
   async function updateCourierStats() {
     if (!currentCourierId) return;
-    const courierDoc = await db.collection("couriers").doc(currentCourierId).get();
-    if (courierDoc.exists) {
-      const count = courierDoc.data().orders_count || 0;
-      document.getElementById('courierCount').innerHTML = count + " заказов";
-    }
+    try {
+      const courierDoc = await db.collection("couriers").doc(currentCourierId).get();
+      if (courierDoc.exists) {
+        const count = courierDoc.data().orders_count || 0;
+        document.getElementById('courierCount').innerHTML = count + " заказов";
+      }
+    } catch(e) { console.error("Ошибка статистики:", e); }
   }
   
   async function incrementCourierOrders() {
     if (!currentCourierId) return;
-    const courierRef = db.collection("couriers").doc(currentCourierId);
-    const courierDoc = await courierRef.get();
-    const currentCount = courierDoc.exists ? (courierDoc.data().orders_count || 0) : 0;
-    await courierRef.update({ orders_count: currentCount + 1 });
-    document.getElementById('courierCount').innerHTML = (currentCount + 1) + " заказов";
+    try {
+      const courierRef = db.collection("couriers").doc(currentCourierId);
+      const courierDoc = await courierRef.get();
+      const currentCount = courierDoc.exists ? (courierDoc.data().orders_count || 0) : 0;
+      await courierRef.update({ orders_count: currentCount + 1 });
+      document.getElementById('courierCount').innerHTML = (currentCount + 1) + " заказов";
+    } catch(e) { console.error("Ошибка обновления:", e); }
+  }
+  
+  function manualRefresh() {
+    showNotification("🔄 Обновление...");
+    renderFilteredOrders();
   }
   
   // ========== ФИЛЬТРЫ И ПОИСК ==========
@@ -510,14 +548,16 @@
       const streetMatch = order.street && order.street.toLowerCase().includes(searchQuery);
       const houseMatch = order.house && order.house.toLowerCase().includes(searchQuery);
       const flatMatch = order.flat && order.flat.toString().includes(searchQuery);
-      return idMatch || phoneMatch || streetMatch || houseMatch || flatMatch;
+      const commentMatch = order.comment && order.comment.toLowerCase().includes(searchQuery);
+      return idMatch || phoneMatch || streetMatch || houseMatch || flatMatch || commentMatch;
     });
   }
   
   function renderFilteredOrders() {
     let filteredOrders = [...allOrders];
+    
     if (activeFilter === "waiting") {
-      filteredOrders = filteredOrders.filter(o => o.status === "ожидает оплаты");
+      filteredOrders = filteredOrders.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты");
     } else if (activeFilter === "new") {
       filteredOrders = filteredOrders.filter(o => o.status === "новый");
     } else if (activeFilter === "work") {
@@ -525,14 +565,15 @@
     } else if (activeFilter === "my") {
       filteredOrders = filteredOrders.filter(o => o.courierId === currentCourierId);
     }
+    
     filteredOrders = filterOrdersBySearch(filteredOrders);
     
-    // Разделение на группы для сортировки
-    const myOrders = filteredOrders.filter(o => o.courierId === currentCourierId);
+    // Разделение на группы
+    const myOrders = filteredOrders.filter(o => o.courierId === currentCourierId && o.status !== "выполнен");
+    const waitingOrders = filteredOrders.filter(o => (o.status === "pending_payment" || o.status === "ожидает оплаты"));
     const newOrders = filteredOrders.filter(o => o.status === "новый" && o.courierId !== currentCourierId);
     const workOthers = filteredOrders.filter(o => o.status === "в работе" && o.courierId !== currentCourierId);
     const doneOrders = filteredOrders.filter(o => o.status === "выполнен");
-    const waitingOrders = filteredOrders.filter(o => o.status === "ожидает оплаты");
     
     renderOrdersByGroup({
       waiting: waitingOrders,
@@ -546,33 +587,47 @@
   function loadOrders() {
     if (ordersUnsubscribe) ordersUnsubscribe();
     let initialLoad = true;
+    
     ordersUnsubscribe = db.collection("orders")
       .orderBy("createdAt", "desc")
       .onSnapshot((snapshot) => {
         const orders = [];
         let waitingCount = 0, newCount = 0, workCount = 0, myCount = 0;
         let newOrderIds = [];
+        
         snapshot.forEach(doc => {
           const data = doc.data();
           const order = { id: doc.id, ...data };
           orders.push(order);
           allOrders = orders;
-          if (data.status === "ожидает оплаты") waitingCount++;
+          
+          // Подсчет для статистики
+          if (data.status === "pending_payment" || data.status === "ожидает оплаты") waitingCount++;
           else if (data.status === "новый") {
             newCount++;
-            if (!initialLoad) newOrderIds.push(doc.id);
+            if (!initialLoad && !lastNewIds.has(doc.id)) {
+              newOrderIds.push(doc.id);
+              lastNewIds.add(doc.id);
+            }
           }
           else if (data.status === "в работе") workCount++;
+          
           if (data.courierId === currentCourierId) myCount++;
         });
-        // Уведомление о новых заказах + автоскролл
-        if (!initialLoad && newCount > lastNewCount && newOrderIds.length) {
-          showNotification(`🆕 Новый оплаченный заказ! Всего: ${newCount}`);
+        
+        // Очищаем старые ID (если заказов стало меньше)
+        if (lastNewIds.size > 20) lastNewIds.clear();
+        
+        // Уведомление о новых заказах
+        if (!initialLoad && newOrderIds.length > 0) {
+          showNotification(`🆕 Новый заказ! Всего новых: ${newCount}`);
+          playNotificationSound();
           setTimeout(() => {
-            const firstNewElement = document.querySelector(`.order-card.new[data-id="${newOrderIds[0]}"]`);
+            const firstNewElement = document.querySelector(`.order-card.new`);
             if (firstNewElement) firstNewElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 300);
+          }, 500);
         }
+        
         lastNewCount = newCount;
         initialLoad = false;
         
@@ -582,6 +637,9 @@
         document.getElementById('statMy').innerText = myCount;
         
         renderFilteredOrders();
+      }, (error) => {
+        console.error("Ошибка загрузки:", error);
+        showNotification("❌ Ошибка соединения с сервером", true);
       });
   }
   
@@ -602,13 +660,13 @@
     }
     
     if (groups.new.length > 0) {
-      html += `<div class="section"><div class="section-title">🟡 НОВЫЕ <span class="section-count">${groups.new.length}</span></div>`;
+      html += `<div class="section"><div class="section-title">🟡 НОВЫЕ (оплачены) <span class="section-count">${groups.new.length}</span></div>`;
       groups.new.forEach(order => { html += renderOrderCard(order, "new"); });
       html += `</div>`;
     }
     
     if (groups.workOthers.length > 0) {
-      html += `<div class="section"><div class="section-title">🔵 В РАБОТЕ <span class="section-count">${groups.workOthers.length}</span></div>`;
+      html += `<div class="section"><div class="section-title">🔵 В РАБОТЕ У ДРУГИХ <span class="section-count">${groups.workOthers.length}</span></div>`;
       groups.workOthers.forEach(order => { html += renderOrderCard(order, "work"); });
       html += `</div>`;
     }
@@ -632,6 +690,12 @@
     const isWorkOther = (type === "work");
     const isDone = (type === "done");
     
+    // Определяем способ оплаты
+    const paymentMethod = order.paymentMethod || (order.status === "pending_payment" ? "online" : "unknown");
+    const paymentBadge = paymentMethod === "cash" 
+      ? '<span class="payment-badge payment-cash">💵 Наличные</span>' 
+      : '<span class="payment-badge payment-online">💳 Онлайн</span>';
+    
     let actions = "";
     if (isMyOrder) {
       actions = `
@@ -648,12 +712,13 @@
     } else if (isWaiting) {
       actions = `<div class="order-actions"><span style="background:#eef2f5; padding:8px 16px; border-radius:30px;">⏳ Ожидает оплаты</span></div>`;
     } else if (isWorkOther) {
-      actions = `<div class="order-actions"><span style="background:#eef2f5; padding:8px 16px; border-radius:30px;">👤 В работе у: ${order.courier}</span></div>`;
+      const courierName = order.courier || "неизвестный";
+      actions = `<div class="order-actions"><span style="background:#eef2f5; padding:8px 16px; border-radius:30px;">👤 В работе у: ${courierName}</span></div>`;
     }
     
     let statusText = "";
     if (isWaiting) statusText = "Ожидает оплаты";
-    else if (isNew) statusText = "Новый";
+    else if (isNew) statusText = "Новый (оплачен)";
     else if (isMyOrder) statusText = order.status === "в работе" ? "В работе" : order.status;
     else if (isWorkOther) statusText = "В работе";
     else if (isDone) statusText = "Выполнен";
@@ -667,20 +732,25 @@
     let cardClass = `order-card ${type}`;
     if (isMyOrder) cardClass += " my-order";
     
-    // Формируем детали: телефон, комментарий
     let detailsHtml = `
       <div class="order-details">
-        <p><strong>📞</strong> ${order.phone}</p>
+        <p><strong>📞 Телефон:</strong> ${order.phone || "не указан"}</p>
     `;
     if (order.comment) {
-      detailsHtml += `<p><strong>📝</strong> ${order.comment}</p>`;
+      detailsHtml += `<p><strong>📝 Комментарий:</strong> ${order.comment}</p>`;
+    }
+    if (order.doorCode) {
+      detailsHtml += `<p><strong>🔑 Код домофона:</strong> ${order.doorCode}</p>`;
+    }
+    if (order.pickupTime) {
+      detailsHtml += `<p><strong>⏰ Время вывоза:</strong> ${order.pickupTime}</p>`;
     }
     detailsHtml += `</div>`;
     
     return `
       <div class="${cardClass}" data-id="${order.id}">
         <div class="order-header">
-          <span class="order-id">#${order.id.slice(0,6)}</span>
+          <span class="order-id">#${order.id.slice(0,6)} ${paymentBadge}</span>
           <span class="order-status ${statusClass}">${statusText}</span>
         </div>
         <div class="address">📍 ${order.street}, ${order.house}, кв.${order.flat}</div>
@@ -690,18 +760,21 @@
     `;
   }
   
-  // ========== ТРАНЗАКЦИЯ ДЛЯ ВЗЯТИЯ ЗАКАЗА (ЗАЩИТА ОТ ДВОЙНОГО ВЗЯТИЯ) ==========
+  // ========== ТРАНЗАКЦИЯ ДЛЯ ВЗЯТИЯ ЗАКАЗА ==========
   async function takeOrder(orderId, button) {
     if (button) button.disabled = true;
     const ref = db.collection("orders").doc(orderId);
+    
     try {
       await db.runTransaction(async (transaction) => {
         const doc = await transaction.get(ref);
         if (!doc.exists) throw new Error("Заказ не найден");
         const data = doc.data();
+        
         if (data.status !== "новый") {
           throw new Error("Заказ уже взят другим курьером");
         }
+        
         transaction.update(ref, {
           status: "в работе",
           courier: currentCourier,
@@ -709,10 +782,12 @@
           takenAt: new Date().toISOString()
         });
       });
+      
       showNotification("✅ Заказ взят в работу");
       await updateCourierStats();
+      
     } catch (error) {
-      showNotification("❌ " + error.message);
+      showNotification("❌ " + error.message, true);
       if (button) button.disabled = false;
     }
   }
@@ -720,28 +795,46 @@
   async function setPickupTime(orderId) {
     const timeInput = document.getElementById(`time_${orderId}`);
     const pickupTime = timeInput.value;
-    if (!pickupTime) { alert("Введите время вывоза (например, 18:30)"); return; }
+    if (!pickupTime) { 
+      showNotification("⏰ Введите время вывоза (например, 18:30)", true);
+      return; 
+    }
+    
+    // Простая валидация формата времени
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(pickupTime)) {
+      showNotification("❌ Неверный формат времени. Используйте ЧЧ:ММ", true);
+      return;
+    }
+    
     try {
-      await db.collection("orders").doc(orderId).update({ pickupTime: pickupTime });
+      await db.collection("orders").doc(orderId).update({ 
+        pickupTime: pickupTime,
+        pickupTimeSetAt: new Date().toISOString()
+      });
       showNotification(`⏰ Время вывоза: ${pickupTime}`);
       timeInput.value = "";
-    } catch(e) { alert("Ошибка: " + e.message); }
+    } catch(e) { 
+      showNotification("❌ Ошибка: " + e.message, true);
+    }
   }
   
   async function completeOrder(orderId) {
-    // Нет confirm, сразу выполняем
     try {
       await db.collection("orders").doc(orderId).update({
         status: "выполнен",
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
+        completedBy: currentCourierId
       });
       await incrementCourierOrders();
       showNotification(`✅ Заказ #${orderId.slice(0,6)} выполнен! +1 к статистике`);
-    } catch(e) { alert("Ошибка: " + e.message); }
+    } catch(e) { 
+      showNotification("❌ Ошибка: " + e.message, true);
+    }
   }
   
   // Инициализация
-  if (localStorage.getItem("courierAuth") === "true") {
+  if (localStorage.getItem("courierAuth") === "true" && localStorage.getItem("courierName")) {
     showAdminPanel();
   } else {
     showLoginPanel();
