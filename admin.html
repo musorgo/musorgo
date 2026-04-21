@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МусорPRO — Админка курьеров</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>МусорPRO — Курьерская панель</title>
   
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -17,59 +17,57 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
-      background: #f0f2f5;
-      padding: 20px;
-      color: #1a1a1a;
+      background: #f5f7fa;
+      padding: 16px;
+      color: #1e293b;
     }
     
     .container {
-      max-width: 900px;
+      max-width: 500px;
       margin: 0 auto;
     }
     
     /* Шапка */
     .header {
       background: white;
-      border-radius: 16px;
-      padding: 15px 20px;
-      margin-bottom: 20px;
+      border-radius: 24px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     
     .logo {
       display: flex;
       align-items: baseline;
-      gap: 6px;
+      gap: 4px;
     }
     
     .logo-text {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
-      color: #1a2a3a;
+      color: #1e293b;
     }
     
     .logo-box {
-      background: #1a2a3a;
+      background: #f5b042;
       border-radius: 10px;
       padding: 3px 10px;
     }
     
     .logo-box span {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
-      color: white;
+      color: #1e293b;
     }
     
-    .courier-panel {
+    .courier-info {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #f5f5f5;
+      background: #f1f5f9;
       padding: 6px 16px;
       border-radius: 40px;
     }
@@ -77,197 +75,138 @@
     .courier-name {
       font-weight: 600;
       font-size: 14px;
+      color: #1e293b;
     }
     
     .courier-stats {
-      background: #e0e0e0;
-      padding: 4px 12px;
+      background: #e2e8f0;
+      padding: 4px 10px;
       border-radius: 30px;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2c5f2d;
     }
     
-    .logout-btn, .refresh-btn {
-      background: #e0e0e0;
+    .logout-btn {
+      background: none;
       border: none;
-      padding: 6px 16px;
-      border-radius: 40px;
+      font-size: 20px;
       cursor: pointer;
-      font-weight: 500;
-      font-size: 13px;
-      transition: background 0.2s;
+      padding: 6px;
+      color: #94a3b8;
     }
     
-    .logout-btn:hover, .refresh-btn:hover {
-      background: #d0d0d0;
-    }
-    
-    /* Вход */
-    .login-box {
+    /* Табы */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
       background: white;
-      border-radius: 24px;
-      padding: 40px 32px;
+      padding: 6px;
+      border-radius: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    .tab {
+      flex: 1;
       text-align: center;
-      max-width: 400px;
-      margin: 80px auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .login-box h3 {
-      font-size: 24px;
-      margin-bottom: 24px;
-    }
-    
-    .login-box select, .login-box input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      margin: 10px 0;
-      font-size: 16px;
-    }
-    
-    .login-btn {
-      width: 100%;
-      padding: 14px;
-      background: #1a2a3a;
-      color: white;
-      border: none;
+      padding: 12px 8px;
       border-radius: 40px;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 10px;
-    }
-    
-    .login-btn:hover {
-      background: #2a3a4a;
-    }
-    
-    /* Статистика */
-    .stats {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 15px 20px;
-      flex: 1;
-      min-width: 100px;
-      text-align: center;
-      cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border: 2px solid transparent;
+      color: #64748b;
     }
     
-    .stat-card.active {
-      border-color: #1a2a3a;
-      background: #f8f9fa;
+    .tab.active {
+      background: #1e293b;
+      color: white;
     }
     
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    .tab-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 11px;
+      margin-left: 6px;
     }
     
-    .stat-number {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1a2a3a;
-    }
-    
-    .stat-label {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
+    .tab.active .tab-badge {
+      background: rgba(255,255,255,0.25);
     }
     
     /* Поиск */
-    .search-bar {
-      margin-bottom: 20px;
+    .search-box {
+      margin-bottom: 16px;
     }
     
     .search-input {
       width: 100%;
-      padding: 12px 20px;
-      border: 1px solid #ddd;
-      border-radius: 40px;
-      font-size: 14px;
+      padding: 14px 18px;
       background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 44px;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
     }
     
     .search-input:focus {
-      outline: none;
-      border-color: #1a2a3a;
+      border-color: #f5b042;
+      box-shadow: 0 0 0 3px rgba(245,176,66,0.1);
     }
     
     /* Секции заказов */
     .section {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      padding: 0 4px;
     }
     
     .section-title {
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 600;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #f0f0f0;
-      display: flex;
-      justify-content: space-between;
+      color: #475569;
     }
     
     .section-count {
-      background: #f0f0f0;
+      background: #e2e8f0;
       padding: 2px 10px;
       border-radius: 20px;
       font-size: 12px;
+      color: #475569;
     }
     
     /* Карточка заказа */
     .order-card {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 15px;
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
       margin-bottom: 12px;
-      border-left: 4px solid;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       transition: all 0.2s;
+      border-left: 4px solid;
+      cursor: pointer;
     }
     
-    .order-card.my-order {
-      background: #fff8e7;
-      border: 1px solid #f5b042;
-      border-left: 4px solid #f5b042;
+    .order-card:active {
+      transform: scale(0.98);
     }
     
-    .order-card.new {
-      border-left-color: #ff9800;
-    }
-    
-    .order-card.work {
-      border-left-color: #2196f3;
-    }
-    
-    .order-card.done {
-      border-left-color: #4caf50;
-    }
-    
-    .order-card.waiting {
-      border-left-color: #9e9e9e;
-    }
-    
-    .order-card:hover {
-      transform: translateX(5px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+    .order-card.new { border-left-color: #f59e0b; }
+    .order-card.work { border-left-color: #3b82f6; }
+    .order-card.completed { border-left-color: #10b981; }
+    .order-card.cancelled { border-left-color: #ef4444; opacity: 0.7; }
+    .order-card.waiting { border-left-color: #94a3b8; }
+    .order-card.my { border-left-color: #f5b042; background: #fffbeb; }
     
     .order-header {
       display: flex;
@@ -275,111 +214,49 @@
       align-items: center;
       margin-bottom: 10px;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
     
     .order-id {
       font-size: 12px;
       font-weight: 600;
-      color: #666;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 20px;
     }
     
     .order-status {
-      padding: 4px 12px;
+      padding: 4px 10px;
       border-radius: 20px;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
     }
     
-    .status-waiting {
-      background: #e0e0e0;
-      color: #666;
-    }
-    
-    .status-new {
-      background: #ffe0b2;
-      color: #e65100;
-    }
-    
-    .status-work {
-      background: #bbdefb;
-      color: #1565c0;
-    }
-    
-    .status-done {
-      background: #c8e6c9;
-      color: #2e7d32;
-    }
+    .status-new { background: #fef3c7; color: #d97706; }
+    .status-work { background: #dbeafe; color: #2563eb; }
+    .status-completed { background: #d1fae5; color: #059669; }
+    .status-cancelled { background: #fee2e2; color: #dc2626; }
+    .status-waiting { background: #f1f5f9; color: #64748b; }
+    .status-my { background: #fef3c7; color: #d97706; }
     
     .address {
       font-size: 16px;
       font-weight: 600;
-      margin: 8px 0;
+      color: #1e293b;
+      margin-bottom: 8px;
     }
     
     .order-details {
       font-size: 13px;
-      color: #555;
+      color: #64748b;
       margin-bottom: 12px;
     }
     
-    .order-details p {
-      margin: 5px 0;
-    }
-    
-    .order-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-    
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 40px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-    
-    .btn-primary {
-      background: #1a2a3a;
-      color: white;
-    }
-    
-    .btn-success {
-      background: #4caf50;
-      color: white;
-    }
-    
-    .btn-warning {
-      background: #ff9800;
-      color: white;
-    }
-    
-    .btn:active {
-      transform: scale(0.95);
-    }
-    
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    .time-input {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    
-    .time-input input {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 40px;
-      font-size: 13px;
-      width: 100px;
+    .order-details span {
+      display: inline-block;
+      margin-right: 12px;
+      margin-bottom: 4px;
     }
     
     .payment-badge {
@@ -392,65 +269,242 @@
     }
     
     .payment-online {
-      background: #e3f2fd;
-      color: #1565c0;
+      background: #dbeafe;
+      color: #2563eb;
     }
     
     .payment-cash {
-      background: #e8f5e9;
-      color: #2e7d32;
+      background: #dcfce7;
+      color: #16a34a;
     }
     
+    .order-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #1e293b;
+      color: white;
+    }
+    
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-warning {
+      background: #f5b042;
+      color: #1e293b;
+    }
+    
+    .btn-outline {
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+    }
+    
+    .btn:active {
+      transform: scale(0.96);
+    }
+    
+    .time-input {
+      display: flex;
+      gap: 8px;
+      flex: 2;
+    }
+    
+    .time-input input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 40px;
+      font-size: 13px;
+      text-align: center;
+    }
+    
+    /* Модальное окно */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 28px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #94a3b8;
+    }
+    
+    .modal-body {
+      padding: 20px;
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .detail-label {
+      font-weight: 500;
+      color: #64748b;
+    }
+    
+    .detail-value {
+      font-weight: 500;
+      color: #1e293b;
+      text-align: right;
+    }
+    
+    .modal-actions {
+      padding: 20px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* Уведомления */
     .notification {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #1a2a3a;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
       color: white;
-      padding: 12px 20px;
+      padding: 12px 24px;
       border-radius: 40px;
-      z-index: 1000;
       font-size: 14px;
-      animation: slideIn 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1100;
+      animation: slideUp 0.3s ease;
+      white-space: nowrap;
     }
     
-    @keyframes slideIn {
+    @keyframes slideUp {
       from {
-        transform: translateX(100%);
         opacity: 0;
+        transform: translateX(-50%) translateY(20px);
       }
       to {
-        transform: translateX(0);
         opacity: 1;
+        transform: translateX(-50%) translateY(0);
       }
     }
     
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
+    /* Пустое состояние */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: #94a3b8;
+    }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    /* Лоадер */
+    .loader {
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #f5b042;
       border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.6s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
     }
     
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
     
-    .error-message {
-      background: #ffebee;
-      border: 1px solid #ffcdd2;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 20px;
-      color: #c62828;
-      font-size: 14px;
+    /* Вход */
+    .login-box {
+      background: white;
+      border-radius: 32px;
+      padding: 40px 28px;
       text-align: center;
+      margin-top: 60px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    
+    .login-box h3 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: #1e293b;
+    }
+    
+    .login-box select, .login-box input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: #1e293b;
+      color: white;
+      border: none;
+      border-radius: 44px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
     }
   </style>
 </head>
@@ -473,60 +527,71 @@
       </select>
       <input type="password" id="passwordInput" placeholder="Пароль">
       <button class="login-btn" id="loginBtn">Войти</button>
-      <div style="margin-top: 16px; font-size: 12px; color: #999;">
+      <div style="margin-top: 16px; font-size: 12px; color: #94a3b8;">
         Пароли: egor123, sergey123, ivan123
       </div>
     </div>
   </div>
   
-  <!-- Админ панель -->
+  <!-- Панель курьера -->
   <div id="adminSection" style="display: none;">
     <div class="header">
       <div class="logo">
         <span class="logo-text">Мусор</span>
         <div class="logo-box"><span>PRO</span></div>
       </div>
-      <div class="courier-panel">
+      <div class="courier-info">
         <span class="courier-name" id="courierName"></span>
-        <span class="courier-stats" id="courierCount">0 заказов</span>
-        <button class="refresh-btn" id="refreshBtn">🔄</button>
-        <button class="logout-btn" id="logoutBtn">Выход</button>
+        <span class="courier-stats" id="courierCount">0</span>
+        <button class="logout-btn" id="logoutBtn">🚪</button>
       </div>
     </div>
     
-    <div class="stats">
-      <div class="stat-card" data-filter="all">
-        <div class="stat-number" id="statAll">0</div>
-        <div class="stat-label">📋 Все</div>
+    <!-- Табы -->
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="available">
+        📦 Доступные <span class="tab-badge" id="newCount">0</span>
       </div>
-      <div class="stat-card" data-filter="waiting">
-        <div class="stat-number" id="statWaiting">0</div>
-        <div class="stat-label">💳 Ожидают оплаты</div>
+      <div class="tab" data-tab="my">
+        🚚 Мои заказы <span class="tab-badge" id="myCount">0</span>
       </div>
-      <div class="stat-card" data-filter="new">
-        <div class="stat-number" id="statNew">0</div>
-        <div class="stat-label">🟡 Новые</div>
+      <div class="tab" data-tab="completed">
+        ✅ Выполненные <span class="tab-badge" id="completedCount">0</span>
       </div>
-      <div class="stat-card" data-filter="my">
-        <div class="stat-number" id="statMy">0</div>
-        <div class="stat-label">👤 Мои</div>
+      <div class="tab" data-tab="cancelled">
+        ❌ Отменённые <span class="tab-badge" id="cancelledCount">0</span>
       </div>
     </div>
     
-    <div class="search-bar">
-      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по адресу, телефону или ID...">
+    <!-- Поиск -->
+    <div class="search-box">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по адресу, телефону или номеру заказа">
     </div>
     
+    <!-- Контейнер для заказов -->
     <div id="ordersContainer">
-      <div style="text-align: center; padding: 40px;">
-        <div class="loading" style="border-top-color: #1a2a3a;"></div> Загрузка...
+      <div class="loader">
+        <div class="spinner"></div>
+        <div>Загрузка заказов...</div>
       </div>
+    </div>
+  </div>
+  
+  <!-- Модальное окно с деталями -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Детали заказа</div>
+        <button class="close-modal" id="closeModalBtn">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions" id="modalActions"></div>
     </div>
   </div>
 </div>
 
 <script>
-  // ========== НАСТРОЙКИ FIREBASE ==========
+  // Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
     authDomain: "musor-go.firebaseapp.com",
@@ -536,36 +601,35 @@
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
   
-  // Инициализация Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   
-  // Пароли курьеров
+  // Пароли
   const COURIER_PASSWORDS = {
     "Егор": "egor123",
     "Сергей": "sergey123",
     "Иван": "ivan123"
   };
   
-  // Глобальные переменные
+  // Переменные
   let currentCourier = "";
   let currentCourierId = "";
   let allOrders = [];
-  let currentFilter = "all";
-  let searchText = "";
+  let currentTab = "available";
+  let searchQuery = "";
   let updateInterval = null;
   
-  // ========== УВЕДОМЛЕНИЯ ==========
+  // Уведомление
   function showNotification(message, isError = false) {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.innerHTML = message;
-    if (isError) notification.style.background = '#dc3545';
+    if (isError) notification.style.background = '#dc2626';
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    setTimeout(() => notification.remove(), 2500);
   }
   
-  // ========== ВХОД/ВЫХОД ==========
+  // Вход
   async function login() {
     const name = document.getElementById('courierSelect').value;
     const password = document.getElementById('passwordInput').value;
@@ -582,12 +646,11 @@
     }
     
     btn.disabled = true;
-    btn.innerHTML = '<span class="loading"></span> Вход...';
+    btn.innerHTML = '⏳';
     
     try {
       currentCourier = name;
       
-      // Поиск или создание курьера
       const query = await db.collection("couriers").where("name", "==", name).get();
       if (query.empty) {
         const doc = await db.collection("couriers").add({
@@ -600,16 +663,14 @@
         currentCourierId = query.docs[0].id;
       }
       
-      // Сохраняем в localStorage
       localStorage.setItem("courierAuth", "true");
       localStorage.setItem("courierName", name);
       localStorage.setItem("courierId", currentCourierId);
       
-      showNotification("Вход выполнен!");
+      showNotification("Добро пожаловать, " + name);
       showAdminPanel();
       
     } catch (error) {
-      console.error("Ошибка входа:", error);
       showNotification("Ошибка: " + error.message, true);
       btn.disabled = false;
       btn.innerHTML = 'Войти';
@@ -621,20 +682,9 @@
     localStorage.removeItem("courierAuth");
     localStorage.removeItem("courierName");
     localStorage.removeItem("courierId");
-    showLoginPanel();
-    showNotification("Вы вышли");
-  }
-  
-  function showLoginPanel() {
     document.getElementById('loginSection').style.display = 'block';
     document.getElementById('adminSection').style.display = 'none';
-    document.getElementById('passwordInput').value = "";
-    document.getElementById('courierSelect').value = "";
-    const btn = document.getElementById('loginBtn');
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = 'Войти';
-    }
+    showNotification("Вы вышли");
   }
   
   async function showAdminPanel() {
@@ -642,7 +692,8 @@
     currentCourierId = localStorage.getItem("courierId");
     
     if (!currentCourier || !currentCourierId) {
-      showLoginPanel();
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('adminSection').style.display = 'none';
       return;
     }
     
@@ -650,44 +701,13 @@
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('adminSection').style.display = 'block';
     
-    // Загружаем статистику курьера
-    await loadCourierStats();
-    
-    // Загружаем заказы
     await loadOrders();
     
-    // Автообновление каждые 10 секунд
     if (updateInterval) clearInterval(updateInterval);
-    updateInterval = setInterval(() => {
-      loadOrders();
-    }, 10000);
+    updateInterval = setInterval(loadOrders, 15000);
   }
   
-  async function loadCourierStats() {
-    try {
-      const doc = await db.collection("couriers").doc(currentCourierId).get();
-      if (doc.exists) {
-        const count = doc.data().orders_count || 0;
-        document.getElementById('courierCount').innerHTML = count + " заказов";
-      }
-    } catch(e) {
-      console.error("Ошибка статистики:", e);
-    }
-  }
-  
-  async function incrementCourierOrders() {
-    try {
-      const ref = db.collection("couriers").doc(currentCourierId);
-      const doc = await ref.get();
-      const currentCount = doc.exists ? (doc.data().orders_count || 0) : 0;
-      await ref.update({ orders_count: currentCount + 1 });
-      document.getElementById('courierCount').innerHTML = (currentCount + 1) + " заказов";
-    } catch(e) {
-      console.error("Ошибка обновления:", e);
-    }
-  }
-  
-  // ========== ЗАГРУЗКА ЗАКАЗОВ ==========
+  // Загрузка заказов
   async function loadOrders() {
     try {
       const snapshot = await db.collection("orders")
@@ -696,52 +716,51 @@
       
       allOrders = [];
       snapshot.forEach(doc => {
-        allOrders.push({
-          id: doc.id,
-          ...doc.data()
-        });
+        allOrders.push({ id: doc.id, ...doc.data() });
       });
       
-      updateStats();
+      await updateCourierStats();
       renderOrders();
       
     } catch (error) {
-      console.error("Ошибка загрузки:", error);
+      console.error("Ошибка:", error);
       document.getElementById('ordersContainer').innerHTML = `
-        <div class="error-message">
-          ❌ Ошибка загрузки заказов: ${error.message}<br>
-          <button onclick="loadOrders()" style="margin-top:10px; padding:8px 16px;">Повторить</button>
+        <div class="empty-state">
+          <div class="empty-state-icon">⚠️</div>
+          <div>Ошибка загрузки</div>
+          <button onclick="loadOrders()" style="margin-top:12px; padding:8px 20px; background:#1e293b; color:white; border:none; border-radius:40px;">Повторить</button>
         </div>
       `;
     }
   }
   
-  function updateStats() {
-    const waiting = allOrders.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты").length;
-    const newOrders = allOrders.filter(o => o.status === "новый").length;
-    const myOrders = allOrders.filter(o => o.courierId === currentCourierId && o.status !== "выполнен" && o.status !== "отменен").length;
-    
-    document.getElementById('statAll').innerText = allOrders.length;
-    document.getElementById('statWaiting').innerText = waiting;
-    document.getElementById('statNew').innerText = newOrders;
-    document.getElementById('statMy').innerText = myOrders;
+  async function updateCourierStats() {
+    try {
+      const doc = await db.collection("couriers").doc(currentCourierId).get();
+      if (doc.exists) {
+        const count = doc.data().orders_count || 0;
+        document.getElementById('courierCount').innerHTML = count;
+      }
+    } catch(e) {}
   }
   
-  function renderOrders() {
-    // Фильтрация
+  async function incrementCourierOrders() {
+    try {
+      const ref = db.collection("couriers").doc(currentCourierId);
+      const doc = await ref.get();
+      const currentCount = doc.exists ? (doc.data().orders_count || 0) : 0;
+      await ref.update({ orders_count: currentCount + 1 });
+      document.getElementById('courierCount').innerHTML = currentCount + 1;
+    } catch(e) {}
+  }
+  
+  // Фильтрация заказов по табу
+  function getFilteredOrders() {
     let filtered = [...allOrders];
     
-    if (currentFilter === "waiting") {
-      filtered = filtered.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты");
-    } else if (currentFilter === "new") {
-      filtered = filtered.filter(o => o.status === "новый");
-    } else if (currentFilter === "my") {
-      filtered = filtered.filter(o => o.courierId === currentCourierId);
-    }
-    
     // Поиск
-    if (searchText) {
-      const search = searchText.toLowerCase();
+    if (searchQuery) {
+      const search = searchQuery.toLowerCase();
       filtered = filtered.filter(o => 
         o.id.toLowerCase().includes(search) ||
         (o.phone && o.phone.includes(search)) ||
@@ -750,137 +769,214 @@
       );
     }
     
-    // Группировка
-    const waitingOrders = filtered.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты");
-    const myOrders = filtered.filter(o => o.courierId === currentCourierId && o.status !== "выполнен" && o.status !== "отменен");
-    const newOrders = filtered.filter(o => o.status === "новый" && o.courierId !== currentCourierId);
-    const workOrders = filtered.filter(o => o.status === "в работе" && o.courierId !== currentCourierId);
-    const doneOrders = filtered.filter(o => o.status === "выполнен");
-    
-    let html = "";
-    
-    if (waitingOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">💳 Ожидают оплаты <span class="section-count">${waitingOrders.length}</span></div>`;
-      waitingOrders.forEach(o => html += renderOrderCard(o, "waiting"));
-      html += `</div>`;
+    // Табы
+    if (currentTab === "available") {
+      filtered = filtered.filter(o => 
+        (o.status === "новый" || o.status === "pending_payment" || o.status === "ожидает оплаты") &&
+        o.courierId !== currentCourierId
+      );
+    } else if (currentTab === "my") {
+      filtered = filtered.filter(o => 
+        o.courierId === currentCourierId && 
+        o.status !== "выполнен" && 
+        o.status !== "отменен"
+      );
+    } else if (currentTab === "completed") {
+      filtered = filtered.filter(o => 
+        o.courierId === currentCourierId && 
+        o.status === "выполнен"
+      );
+    } else if (currentTab === "cancelled") {
+      filtered = filtered.filter(o => 
+        o.courierId === currentCourierId && 
+        o.status === "отменен"
+      );
     }
     
-    if (myOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">🔥 Мои заказы <span class="section-count">${myOrders.length}</span></div>`;
-      myOrders.forEach(o => html += renderOrderCard(o, "my"));
-      html += `</div>`;
-    }
+    return filtered;
+  }
+  
+  // Обновление счетчиков на табах
+  function updateTabCounters() {
+    const available = allOrders.filter(o => 
+      (o.status === "новый" || o.status === "pending_payment" || o.status === "ожидает оплаты") &&
+      o.courierId !== currentCourierId
+    ).length;
     
-    if (newOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">🟡 Новые заказы <span class="section-count">${newOrders.length}</span></div>`;
-      newOrders.forEach(o => html += renderOrderCard(o, "new"));
-      html += `</div>`;
-    }
+    const my = allOrders.filter(o => 
+      o.courierId === currentCourierId && 
+      o.status !== "выполнен" && 
+      o.status !== "отменен"
+    ).length;
     
-    if (workOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">🔵 В работе <span class="section-count">${workOrders.length}</span></div>`;
-      workOrders.forEach(o => html += renderOrderCard(o, "work"));
-      html += `</div>`;
-    }
+    const completed = allOrders.filter(o => 
+      o.courierId === currentCourierId && 
+      o.status === "выполнен"
+    ).length;
     
-    if (doneOrders.length > 0) {
-      html += `<div class="section"><div class="section-title">✅ Выполненные <span class="section-count">${doneOrders.length}</span></div>`;
-      doneOrders.forEach(o => html += renderOrderCard(o, "done"));
-      html += `</div>`;
-    }
+    const cancelled = allOrders.filter(o => 
+      o.courierId === currentCourierId && 
+      o.status === "отменен"
+    ).length;
+    
+    document.getElementById('newCount').innerHTML = available;
+    document.getElementById('myCount').innerHTML = my;
+    document.getElementById('completedCount').innerHTML = completed;
+    document.getElementById('cancelledCount').innerHTML = cancelled;
+  }
+  
+  // Рендер заказов
+  function renderOrders() {
+    updateTabCounters();
+    const filtered = getFilteredOrders();
+    const container = document.getElementById('ordersContainer');
     
     if (filtered.length === 0) {
-      html = `<div class="section" style="text-align: center; color: #999;">📭 Нет заказов</div>`;
-    }
-    
-    document.getElementById('ordersContainer').innerHTML = html;
-  }
-  
-  function renderOrderCard(order, type) {
-    const isMy = type === "my";
-    const isNew = type === "new";
-    const isWaiting = type === "waiting";
-    const isWork = type === "work";
-    const isDone = type === "done";
-    
-    const paymentMethod = order.paymentMethod || (order.status === "pending_payment" ? "online" : "unknown");
-    const paymentBadge = paymentMethod === "cash" 
-      ? '<span class="payment-badge payment-cash">💵 Наличные</span>' 
-      : '<span class="payment-badge payment-online">💳 Онлайн</span>';
-    
-    let statusText = "";
-    if (isWaiting) statusText = "Ожидает оплаты";
-    else if (isNew) statusText = "Новый";
-    else if (isMy || isWork) statusText = "В работе";
-    else if (isDone) statusText = "Выполнен";
-    
-    let statusClass = "";
-    if (isWaiting) statusClass = "status-waiting";
-    else if (isNew) statusClass = "status-new";
-    else if (isMy || isWork) statusClass = "status-work";
-    else if (isDone) statusClass = "status-done";
-    
-    let actions = "";
-    if (isMy) {
-      actions = `
-        <div class="order-actions">
-          <div class="time-input">
-            <input type="text" id="time_${order.id}" placeholder="Время">
-            <button class="btn btn-warning" onclick="setPickupTime('${order.id}')">⏰</button>
-          </div>
-          <button class="btn btn-success" onclick="completeOrder('${order.id}')">✅ Выполнен</button>
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <div>Нет заказов</div>
         </div>
       `;
-    } else if (isNew) {
-      actions = `<div class="order-actions"><button class="btn btn-primary" onclick="takeOrder('${order.id}', this)">✅ Взять в работу</button></div>`;
-    } else if (isWaiting) {
-      actions = `<div class="order-actions"><span style="background:#e0e0e0; padding:8px 16px; border-radius:40px;">⏳ Ожидает оплаты</span></div>`;
-    } else if (isWork) {
-      actions = `<div class="order-actions"><span style="background:#e0e0e0; padding:8px 16px; border-radius:40px;">👤 В работе у: ${order.courier || 'неизвестно'}</span></div>`;
+      return;
     }
     
-    let details = `
-      <div class="order-details">
-        <p>📞 ${order.phone || "не указан"}</p>
-    `;
-    if (order.comment) details += `<p>📝 ${order.comment}</p>`;
-    if (order.doorCode) details += `<p>🔑 Код: ${order.doorCode}</p>`;
-    if (order.pickupTime) details += `<p>⏰ Время: ${order.pickupTime}</p>`;
-    details += `</div>`;
-    
-    return `
-      <div class="order-card ${type}">
-        <div class="order-header">
-          <span class="order-id">#${order.id.slice(0,6)} ${paymentBadge}</span>
-          <span class="order-status ${statusClass}">${statusText}</span>
+    let html = '';
+    filtered.forEach(order => {
+      let cardType = '';
+      let statusText = '';
+      let statusClass = '';
+      
+      if (currentTab === "available") {
+        if (order.status === "новый") {
+          cardType = 'new';
+          statusText = '🟡 Новый';
+          statusClass = 'status-new';
+        } else {
+          cardType = 'waiting';
+          statusText = '⏳ Ожидает оплаты';
+          statusClass = 'status-waiting';
+        }
+      } else if (currentTab === "my") {
+        cardType = 'my';
+        statusText = '🚚 В работе';
+        statusClass = 'status-work';
+      } else if (currentTab === "completed") {
+        cardType = 'completed';
+        statusText = '✅ Выполнен';
+        statusClass = 'status-completed';
+      } else if (currentTab === "cancelled") {
+        cardType = 'cancelled';
+        statusText = '❌ Отменён';
+        statusClass = 'status-cancelled';
+      }
+      
+      const paymentBadge = order.paymentMethod === 'cash' 
+        ? '<span class="payment-badge payment-cash">💵 Наличные</span>'
+        : '<span class="payment-badge payment-online">💳 Онлайн</span>';
+      
+      html += `
+        <div class="order-card ${cardType}" onclick="showOrderDetails('${order.id}')">
+          <div class="order-header">
+            <span class="order-id">#${order.id.slice(0,6)} ${paymentBadge}</span>
+            <span class="order-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="address">📍 ${order.street || ''} ${order.house || ''}, кв.${order.flat || ''}</div>
+          <div class="order-details">
+            <span>📞 ${order.phone || '—'}</span>
+            <span>⏰ ${order.preferredDateTime || '—'}</span>
+          </div>
         </div>
-        <div class="address">📍 ${order.street || ''} ${order.house || ''}, кв.${order.flat || ''}</div>
-        ${details}
-        ${actions}
-      </div>
-    `;
+      `;
+    });
+    
+    container.innerHTML = html;
   }
   
-  // ========== ДЕЙСТВИЯ С ЗАКАЗАМИ ==========
-  async function takeOrder(orderId, button) {
-    if (button) {
-      button.disabled = true;
-      button.innerHTML = '<span class="loading"></span>';
+  // Показать детали заказа
+  async function showOrderDetails(orderId) {
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) return;
+    
+    const modal = document.getElementById('orderModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalActions = document.getElementById('modalActions');
+    
+    modalTitle.innerHTML = `Заказ #${order.id.slice(0,6)}`;
+    
+    let statusText = '';
+    if (order.status === 'новый') statusText = '🟡 Новый';
+    else if (order.status === 'pending_payment' || order.status === 'ожидает оплаты') statusText = '⏳ Ожидает оплаты';
+    else if (order.status === 'в работе') statusText = '🚚 В работе';
+    else if (order.status === 'выполнен') statusText = '✅ Выполнен';
+    else if (order.status === 'отменен') statusText = '❌ Отменён';
+    
+    modalBody.innerHTML = `
+      <div class="detail-row">
+        <span class="detail-label">Статус</span>
+        <span class="detail-value">${statusText}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Адрес</span>
+        <span class="detail-value">${order.street || ''} ${order.house || ''}, кв.${order.flat || ''}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Телефон</span>
+        <span class="detail-value">${order.phone || '—'}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Время</span>
+        <span class="detail-value">${order.preferredDateTime || '—'}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Оплата</span>
+        <span class="detail-value">${order.paymentMethod === 'cash' ? 'Наличными' : 'Онлайн'}</span>
+      </div>
+      ${order.doorCode ? `<div class="detail-row"><span class="detail-label">Код домофона</span><span class="detail-value">${order.doorCode}</span></div>` : ''}
+      ${order.comment ? `<div class="detail-row"><span class="detail-label">Комментарий</span><span class="detail-value">${order.comment}</span></div>` : ''}
+      ${order.pickupTime ? `<div class="detail-row"><span class="detail-label">Время вывоза</span><span class="detail-value">${order.pickupTime}</span></div>` : ''}
+    `;
+    
+    // Кнопки действий
+    let actionsHtml = '';
+    
+    if (order.status === 'новый' && order.courierId !== currentCourierId) {
+      actionsHtml = `
+        <button class="btn btn-primary" onclick="takeOrder('${order.id}')">✅ Взять в работу</button>
+        <button class="btn btn-outline" onclick="closeModal()">Закрыть</button>
+      `;
+    } else if (order.courierId === currentCourierId && order.status === 'в работе') {
+      actionsHtml = `
+        <div class="time-input">
+          <input type="text" id="pickupTimeInput" placeholder="Время (18:30)">
+          <button class="btn btn-warning" onclick="setPickupTimeFromModal('${order.id}')">⏰</button>
+        </div>
+        <button class="btn btn-success" onclick="completeOrder('${order.id}')">✅ Выполнен</button>
+        <button class="btn btn-outline" onclick="closeModal()">Закрыть</button>
+      `;
+    } else {
+      actionsHtml = `<button class="btn btn-outline" onclick="closeModal()">Закрыть</button>`;
     }
+    
+    modalActions.innerHTML = actionsHtml;
+    modal.style.display = 'flex';
+  }
+  
+  function closeModal() {
+    document.getElementById('orderModal').style.display = 'none';
+  }
+  
+  // Взять заказ
+  async function takeOrder(orderId) {
+    closeModal();
     
     try {
       const orderRef = db.collection("orders").doc(orderId);
       const orderDoc = await orderRef.get();
       
-      if (!orderDoc.exists) {
-        throw new Error("Заказ не найден");
-      }
-      
-      const order = orderDoc.data();
-      
-      if (order.status !== "новый") {
-        throw new Error("Заказ уже взят другим курьером");
-      }
+      if (!orderDoc.exists) throw new Error("Заказ не найден");
+      if (orderDoc.data().status !== "новый") throw new Error("Заказ уже взят");
       
       await orderRef.update({
         status: "в работе",
@@ -889,24 +985,21 @@
         takenAt: new Date().toISOString()
       });
       
-      showNotification("Заказ взят в работу!");
+      showNotification("✅ Заказ взят в работу!");
       await loadOrders();
       
     } catch (error) {
       showNotification(error.message, true);
-      if (button) {
-        button.disabled = false;
-        button.innerHTML = '✅ Взять в работу';
-      }
     }
   }
   
-  async function setPickupTime(orderId) {
-    const input = document.getElementById(`time_${orderId}`);
-    const time = input.value;
+  // Указать время вывоза
+  async function setPickupTimeFromModal(orderId) {
+    const input = document.getElementById('pickupTimeInput');
+    const time = input?.value;
     
     if (!time) {
-      showNotification("Введите время", true);
+      showNotification("Введите время (например, 18:30)", true);
       return;
     }
     
@@ -915,15 +1008,18 @@
         pickupTime: time,
         pickupTimeSetAt: new Date().toISOString()
       });
-      showNotification(`Время вывоза: ${time}`);
-      input.value = "";
+      showNotification(`⏰ Время вывоза: ${time}`);
+      closeModal();
       await loadOrders();
     } catch(error) {
       showNotification("Ошибка: " + error.message, true);
     }
   }
   
+  // Выполнить заказ
   async function completeOrder(orderId) {
+    closeModal();
+    
     try {
       await db.collection("orders").doc(orderId).update({
         status: "выполнен",
@@ -931,54 +1027,50 @@
         completedBy: currentCourierId
       });
       await incrementCourierOrders();
-      showNotification("Заказ выполнен! +1 к статистике");
+      showNotification("✅ Заказ выполнен! +1 к статистике");
       await loadOrders();
     } catch(error) {
       showNotification("Ошибка: " + error.message, true);
     }
   }
   
-  // ========== ФИЛЬТРЫ И ПОИСК ==========
-  function initFilters() {
-    const stats = document.querySelectorAll('.stat-card');
-    stats.forEach(stat => {
-      stat.addEventListener('click', () => {
-        stats.forEach(s => s.classList.remove('active'));
-        stat.classList.add('active');
-        currentFilter = stat.dataset.filter;
-        renderOrders();
-      });
-    });
-  }
-  
-  function initSearch() {
-    const searchInput = document.getElementById('searchInput');
-    let timeout;
-    searchInput.addEventListener('input', (e) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        searchText = e.target.value;
-        renderOrders();
-      }, 300);
-    });
-  }
-  
-  // ========== ИНИЦИАЛИЗАЦИЯ ==========
+  // Инициализация
   document.addEventListener('DOMContentLoaded', () => {
-    // Кнопки
     document.getElementById('loginBtn').onclick = login;
     document.getElementById('logoutBtn').onclick = logout;
-    document.getElementById('refreshBtn').onclick = () => loadOrders();
     
-    // Фильтры и поиск
-    initFilters();
-    initSearch();
+    // Табы
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentTab = tab.dataset.tab;
+        renderOrders();
+      };
+    });
+    
+    // Поиск
+    let searchTimeout;
+    document.getElementById('searchInput').oninput = (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        searchQuery = e.target.value;
+        renderOrders();
+      }, 300);
+    };
+    
+    // Модальное окно
+    document.getElementById('closeModalBtn').onclick = closeModal;
+    document.getElementById('orderModal').onclick = (e) => {
+      if (e.target === document.getElementById('orderModal')) closeModal();
+    };
     
     // Проверка авторизации
     if (localStorage.getItem("courierAuth") === "true" && localStorage.getItem("courierName")) {
       showAdminPanel();
     } else {
-      showLoginPanel();
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('adminSection').style.display = 'none';
     }
   });
 </script>
