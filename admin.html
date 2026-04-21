@@ -106,6 +106,7 @@
       cursor: pointer;
       margin-top: 12px;
     }
+    .login-btn:hover { background: #2a3a4a; }
     
     .stats {
       display: flex;
@@ -316,12 +317,24 @@
     }
     .payment-online { background: #e0e7ff; color: #1e40af; }
     .payment-cash { background: #e8f5e9; color: #2e7d32; }
+    
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div id="loginSection" style="display: none;">
+  <div id="loginSection">
     <div class="login-box">
       <div class="logo" style="justify-content: center; margin-bottom: 20px;">
         <span class="logo-text">Мусор</span>
@@ -335,7 +348,7 @@
         <option value="Иван">Иван</option>
       </select>
       <input type="password" id="passwordInput" placeholder="Пароль">
-      <button class="login-btn" onclick="login()">Войти</button>
+      <button class="login-btn" id="loginBtn">Войти</button>
       <div style="margin-top: 16px; font-size: 12px; color: #8b9eb0;">
         Тестовые пароли: egor123, sergey123, ivan123
       </div>
@@ -351,8 +364,8 @@
       <div class="courier-panel">
         <span class="courier-name" id="courierName"></span>
         <span class="courier-stats" id="courierCount">0 заказов</span>
-        <button class="refresh-btn" onclick="manualRefresh()">🔄 Обновить</button>
-        <button class="logout-btn" onclick="logout()">Выход</button>
+        <button class="refresh-btn" id="refreshBtn">🔄 Обновить</button>
+        <button class="logout-btn" id="logoutBtn">Выход</button>
       </div>
     </div>
     
@@ -397,7 +410,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   
-  // Пароли курьеров (в реальном проекте хранить в Firestore)
+  // Пароли курьеров
   const COURIER_PASSWORDS = {
     "Егор": "egor123",
     "Сергей": "sergey123",
@@ -411,18 +424,9 @@
   let activeFilter = "all";
   let searchQuery = "";
   let debounceTimer = null;
-  let lastNewCount = 0;
   let lastNewIds = new Set();
   
-  // Воспроизведение звука при новом заказе
-  function playNotificationSound() {
-    try {
-      const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-      audio.volume = 0.3;
-      audio.play().catch(e => console.log('Звук не воспроизведен:', e));
-    } catch(e) {}
-  }
-  
+  // Утилиты
   function showNotification(message, isError = false) {
     const notification = document.createElement('div');
     notification.className = 'notification';
@@ -432,33 +436,65 @@
     setTimeout(() => notification.remove(), 4000);
   }
   
+  function playNotificationSound() {
+    try {
+      const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+      audio.volume = 0.2;
+      audio.play().catch(e => console.log('Звук не воспроизведен:', e));
+    } catch(e) {}
+  }
+  
   // ========== ВХОД / ВЫХОД ==========
   async function login() {
     const name = document.getElementById('courierSelect').value;
     const password = document.getElementById('passwordInput').value;
-    if (!name) { alert("Выберите курьера"); return; }
-    if (COURIER_PASSWORDS[name] !== password) { alert("Неверный пароль"); return; }
+    const loginBtn = document.getElementById('loginBtn');
     
-    currentCourier = name;
-    
-    // Ищем или создаем запись курьера
-    const courierQuery = await db.collection("couriers").where("name", "==", name).get();
-    if (courierQuery.empty) {
-      const newDoc = await db.collection("couriers").add({
-        name: name,
-        password: password,
-        orders_count: 0,
-        createdAt: new Date().toISOString()
-      });
-      currentCourierId = newDoc.id;
-    } else {
-      currentCourierId = courierQuery.docs[0].id;
+    if (!name) {
+      showNotification("❌ Выберите курьера", true);
+      return;
     }
     
-    localStorage.setItem("courierAuth", "true");
-    localStorage.setItem("courierName", name);
-    localStorage.setItem("courierId", currentCourierId);
-    showAdminPanel();
+    if (!COURIER_PASSWORDS[name] || COURIER_PASSWORDS[name] !== password) {
+      showNotification("❌ Неверный пароль", true);
+      return;
+    }
+    
+    // Показываем загрузку
+    const originalText = loginBtn.innerText;
+    loginBtn.innerHTML = '<span class="loading"></span> Вход...';
+    loginBtn.disabled = true;
+    
+    try {
+      currentCourier = name;
+      
+      // Ищем или создаем запись курьера
+      const courierQuery = await db.collection("couriers").where("name", "==", name).get();
+      if (courierQuery.empty) {
+        const newDoc = await db.collection("couriers").add({
+          name: name,
+          password: password,
+          orders_count: 0,
+          createdAt: new Date().toISOString()
+        });
+        currentCourierId = newDoc.id;
+      } else {
+        currentCourierId = courierQuery.docs[0].id;
+      }
+      
+      localStorage.setItem("courierAuth", "true");
+      localStorage.setItem("courierName", name);
+      localStorage.setItem("courierId", currentCourierId);
+      
+      showNotification("✅ Вход выполнен успешно");
+      showAdminPanel();
+      
+    } catch (error) {
+      console.error("Ошибка входа:", error);
+      showNotification("❌ Ошибка при входе: " + error.message, true);
+      loginBtn.innerHTML = originalText;
+      loginBtn.disabled = false;
+    }
   }
   
   async function logout() {
@@ -475,14 +511,26 @@
     document.getElementById('adminSection').style.display = 'none';
     document.getElementById('passwordInput').value = "";
     document.getElementById('courierSelect').value = "";
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+      loginBtn.innerHTML = 'Войти';
+      loginBtn.disabled = false;
+    }
   }
   
   async function showAdminPanel() {
     currentCourier = localStorage.getItem("courierName");
     currentCourierId = localStorage.getItem("courierId");
+    
+    if (!currentCourier || !currentCourierId) {
+      showLoginPanel();
+      return;
+    }
+    
     document.getElementById('courierName').innerHTML = currentCourier;
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('adminSection').style.display = 'block';
+    
     await updateCourierStats();
     loadOrders();
     initStatsClick();
@@ -568,7 +616,6 @@
     
     filteredOrders = filterOrdersBySearch(filteredOrders);
     
-    // Разделение на группы
     const myOrders = filteredOrders.filter(o => o.courierId === currentCourierId && o.status !== "выполнен");
     const waitingOrders = filteredOrders.filter(o => (o.status === "pending_payment" || o.status === "ожидает оплаты"));
     const newOrders = filteredOrders.filter(o => o.status === "новый" && o.courierId !== currentCourierId);
@@ -601,7 +648,6 @@
           orders.push(order);
           allOrders = orders;
           
-          // Подсчет для статистики
           if (data.status === "pending_payment" || data.status === "ожидает оплаты") waitingCount++;
           else if (data.status === "новый") {
             newCount++;
@@ -615,10 +661,8 @@
           if (data.courierId === currentCourierId) myCount++;
         });
         
-        // Очищаем старые ID (если заказов стало меньше)
-        if (lastNewIds.size > 20) lastNewIds.clear();
+        if (lastNewIds.size > 50) lastNewIds.clear();
         
-        // Уведомление о новых заказах
         if (!initialLoad && newOrderIds.length > 0) {
           showNotification(`🆕 Новый заказ! Всего новых: ${newCount}`);
           playNotificationSound();
@@ -628,7 +672,6 @@
           }, 500);
         }
         
-        lastNewCount = newCount;
         initialLoad = false;
         
         document.getElementById('statWaiting').innerText = waitingCount;
@@ -690,7 +733,6 @@
     const isWorkOther = (type === "work");
     const isDone = (type === "done");
     
-    // Определяем способ оплаты
     const paymentMethod = order.paymentMethod || (order.status === "pending_payment" ? "online" : "unknown");
     const paymentBadge = paymentMethod === "cash" 
       ? '<span class="payment-badge payment-cash">💵 Наличные</span>' 
@@ -702,13 +744,13 @@
         <div class="order-actions">
           <div class="time-input">
             <input type="text" id="time_${order.id}" placeholder="Время (18:30)">
-            <button class="btn btn-warning" onclick="setPickupTime('${order.id}')">⏰ Указать время</button>
+            <button class="btn btn-warning" onclick="window.setPickupTime('${order.id}')">⏰ Указать время</button>
           </div>
-          <button class="btn btn-success" onclick="completeOrder('${order.id}')">✅ Выполнен</button>
+          <button class="btn btn-success" onclick="window.completeOrder('${order.id}')">✅ Выполнен</button>
         </div>
       `;
     } else if (isNew) {
-      actions = `<div class="order-actions"><button class="btn btn-primary" onclick="takeOrder('${order.id}', this)">✅ Взять в работу</button></div>`;
+      actions = `<div class="order-actions"><button class="btn btn-primary" onclick="window.takeOrder('${order.id}', this)">✅ Взять в работу</button></div>`;
     } else if (isWaiting) {
       actions = `<div class="order-actions"><span style="background:#eef2f5; padding:8px 16px; border-radius:30px;">⏳ Ожидает оплаты</span></div>`;
     } else if (isWorkOther) {
@@ -760,9 +802,13 @@
     `;
   }
   
-  // ========== ТРАНЗАКЦИЯ ДЛЯ ВЗЯТИЯ ЗАКАЗА ==========
+  // ========== ДЕЙСТВИЯ С ЗАКАЗАМИ ==========
   async function takeOrder(orderId, button) {
-    if (button) button.disabled = true;
+    if (button) {
+      button.disabled = true;
+      button.innerHTML = '<span class="loading"></span>';
+    }
+    
     const ref = db.collection("orders").doc(orderId);
     
     try {
@@ -788,7 +834,10 @@
       
     } catch (error) {
       showNotification("❌ " + error.message, true);
-      if (button) button.disabled = false;
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = '✅ Взять в работу';
+      }
     }
   }
   
@@ -800,7 +849,6 @@
       return; 
     }
     
-    // Простая валидация формата времени
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeRegex.test(pickupTime)) {
       showNotification("❌ Неверный формат времени. Используйте ЧЧ:ММ", true);
@@ -833,12 +881,33 @@
     }
   }
   
-  // Инициализация
-  if (localStorage.getItem("courierAuth") === "true" && localStorage.getItem("courierName")) {
-    showAdminPanel();
-  } else {
-    showLoginPanel();
-  }
+  // ========== ПРИВЯЗКА ФУНКЦИЙ К WINDOW ==========
+  window.login = login;
+  window.logout = logout;
+  window.takeOrder = takeOrder;
+  window.setPickupTime = setPickupTime;
+  window.completeOrder = completeOrder;
+  window.manualRefresh = manualRefresh;
+  
+  // ========== ИНИЦИАЛИЗАЦИЯ ==========
+  document.addEventListener('DOMContentLoaded', () => {
+    // Привязываем кнопки
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) loginBtn.onclick = () => login();
+    
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.onclick = () => logout();
+    
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) refreshBtn.onclick = () => manualRefresh();
+    
+    // Проверяем сохраненную сессию
+    if (localStorage.getItem("courierAuth") === "true" && localStorage.getItem("courierName")) {
+      showAdminPanel();
+    } else {
+      showLoginPanel();
+    }
+  });
 </script>
 </body>
 </html>
