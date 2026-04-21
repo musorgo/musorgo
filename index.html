@@ -21,7 +21,6 @@
     }
     .container { max-width: 560px; margin: 0 auto; }
     
-    /* Шапка */
     .hero {
       background: white;
       border-radius: 32px;
@@ -29,7 +28,6 @@
       margin-bottom: 24px;
       text-align: center;
       box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-      position: relative;
     }
     .logo {
       display: flex;
@@ -48,23 +46,6 @@
     .logo-box span { font-size: 32px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
     .tagline { color: #5a6e7c; font-size: 16px; font-weight: 400; margin-top: 6px; }
     
-    .offer-row {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin: 16px 0 20px;
-      flex-wrap: wrap;
-    }
-    .offer-chip {
-      background: #fef3c7;
-      color: #b45309;
-      padding: 6px 14px;
-      border-radius: 40px;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    
-    /* Кнопки шапки */
     .center-buttons {
       display: flex;
       flex-direction: column;
@@ -88,7 +69,6 @@
       background: #eef2f5;
     }
     
-    /* ДИНАМИЧЕСКИЙ СТАТУС */
     .status-island {
       background: #1a1a1a;
       color: white;
@@ -102,8 +82,6 @@
       font-size: 14px;
       font-weight: 500;
       animation: slideDown 0.3s ease;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(4px);
     }
     @keyframes slideDown {
       from { opacity: 0; transform: translateY(-20px); }
@@ -119,11 +97,9 @@
       border-radius: 40px;
       font-size: 12px;
       cursor: pointer;
-      transition: 0.2s;
     }
     .status-link:hover { background: rgba(255,255,255,0.3); }
     
-    /* Карточки */
     .form-card {
       background: white;
       border-radius: 28px;
@@ -164,7 +140,6 @@
       font-weight: 500;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s;
     }
     .help-mini-btn:hover {
       background: #eef2f5;
@@ -192,7 +167,6 @@
       display: none;
     }
     
-    /* Подсказка над кнопкой оплаты */
     .validation-hint {
       background: #fff3cd;
       border-radius: 12px;
@@ -204,7 +178,6 @@
     }
     .validation-hint.show { display: block; }
     
-    /* Выбор даты */
     .date-options {
       display: flex;
       gap: 12px;
@@ -220,7 +193,6 @@
       font-weight: 500;
       font-size: 15px;
       border: 1px solid #e2e8f0;
-      transition: all 0.2s ease;
     }
     .date-option.selected {
       background: #f5b042;
@@ -233,7 +205,6 @@
       pointer-events: none;
     }
     
-    /* Кнопка выбора времени */
     .time-select-btn {
       width: 100%;
       background: #f8fafc;
@@ -249,7 +220,6 @@
     .time-select-btn span { color: #8b9eb0; }
     .time-select-btn .selected-time { color: #2c5f2d; font-weight: 500; }
     
-    /* Способ передачи */
     .delivery-options {
       display: flex;
       gap: 12px;
@@ -271,8 +241,36 @@
       color: #1a2a3a;
       border-color: #f5b042;
     }
+    .delivery-option.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
     
-    /* Кнопка оплаты */
+    /* Кнопки оплаты */
+    .payment-options {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .payment-option {
+      flex: 1;
+      background: #f8fafc;
+      text-align: center;
+      padding: 14px;
+      border-radius: 44px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s;
+    }
+    .payment-option.selected {
+      background: #f5b042;
+      color: #1a2a3a;
+      border-color: #f5b042;
+    }
+    
     .pay-btn-main {
       width: 100%;
       padding: 18px;
@@ -292,9 +290,19 @@
       opacity: 0.7;
       cursor: not-allowed;
       transform: none;
-      background: #f5b042;
-      box-shadow: none;
     }
+    
+    .cash-hint {
+      background: #e8f5e9;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #2e7d32;
+      text-align: center;
+      display: none;
+    }
+    .cash-hint.show { display: block; }
     
     .telegram-btn {
       width: 100%;
@@ -315,7 +323,6 @@
       color: #8b9eb0;
     }
     .help-text a { color: #5a6e7c; text-decoration: none; }
-    .help-text a:hover { text-decoration: underline; }
     
     .loading {
       display: inline-block;
@@ -337,7 +344,6 @@
       flex-wrap: wrap;
       justify-content: space-between;
       gap: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
     }
     .trust-item {
       display: flex;
@@ -353,12 +359,8 @@
       font-size: 12px;
       color: #8b9eb0;
       margin-top: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     
-    /* Модальные окна */
     .modal {
       display: none;
       position: fixed;
@@ -370,11 +372,6 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
     .modal-content {
       background: white;
@@ -390,7 +387,6 @@
       max-width: 90%;
       width: 800px;
       padding: 0;
-      overflow: hidden;
     }
     .modal-title {
       font-size: 22px;
@@ -403,7 +399,6 @@
       margin-bottom: 20px;
       font-size: 14px;
       text-align: left;
-      line-height: 1.5;
     }
     .modal-buttons {
       display: flex;
@@ -420,6 +415,12 @@
       border-radius: 44px;
       font-weight: 500;
       cursor: pointer;
+    }
+    .modal-btn-danger {
+      background: #dc3545;
+    }
+    .modal-btn-danger:hover {
+      background: #c82333;
     }
     .info-banner {
       background: #f8fafc;
@@ -477,7 +478,6 @@
     .time-item.disabled {
       opacity: 0.4;
       pointer-events: none;
-      background: #f1f5f9;
     }
     .time-modal-buttons {
       display: flex;
@@ -501,7 +501,6 @@
       color: #1a2a3a;
     }
     
-    /* Карта */
     .map-modal-header {
       padding: 16px 20px;
       background: white;
@@ -509,10 +508,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    .map-modal-header .modal-title {
-      margin-bottom: 0;
-      font-size: 18px;
     }
     .close-map-btn {
       background: none;
@@ -532,7 +527,6 @@
       iframe { height: 400px; }
     }
     
-    /* Авторизация */
     .auth-input {
       margin-bottom: 16px;
       text-align: left;
@@ -565,7 +559,6 @@
       text-decoration: none;
     }
     
-    /* Личный кабинет */
     .profile-header {
       display: flex;
       justify-content: space-between;
@@ -663,6 +656,15 @@
       cursor: pointer;
       font-weight: 500;
     }
+    .profile-order-cancel {
+      background: none;
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 11px;
+      cursor: pointer;
+    }
     .profile-logout-btn {
       width: 100%;
       background: none;
@@ -694,7 +696,6 @@
       text-align: right;
     }
     
-    /* Модальное окно Robokassa */
     .robokassa-modal {
       display: none;
       position: fixed;
@@ -715,7 +716,6 @@
       max-height: 90vh;
       overflow-y: auto;
       padding: 20px;
-      position: relative;
     }
     .robokassa-header {
       display: flex;
@@ -740,13 +740,6 @@
       width: 100%;
       min-height: 450px;
       border: none;
-      background: white;
-    }
-    .robokassa-info {
-      font-size: 12px;
-      color: #8b9eb0;
-      text-align: center;
-      margin-top: 15px;
     }
     
     .footer {
@@ -787,10 +780,6 @@
       <div class="logo-box"><span>GO</span></div>
     </div>
     <div class="tagline">Вынесем мусор за вас — быстро и без лишних хлопот</div>
-    <div class="offer-row">
-      <div class="offer-chip">10 ₽ за вынос (до 4 пакетов)</div>
-      <div class="offer-chip">Приедем за 15–30 минут</div>
-    </div>
     <div class="center-buttons">
       <button id="mapButton" class="zone-btn-top">Зона обслуживания</button>
       <button id="authButton" class="user-link">Войти</button>
@@ -798,7 +787,6 @@
     <div id="statusIslandContainer"></div>
   </div>
 
-  <!-- Форма заказа -->
   <div class="form-card" id="orderForm">
     <div class="section-title">Куда приехать?</div>
     <div class="input-group">
@@ -867,11 +855,19 @@
       <div class="error-message" id="phoneError">Введите корректный номер телефона (11 цифр, +7)</div>
     </div>
     
-    <!-- Подсказка о незаполненных полях -->
-    <div class="validation-hint" id="validationHint"></div>
+    <!-- Способ оплаты -->
+    <div class="section-title">Способ оплаты</div>
+    <div class="payment-options" id="paymentOptions">
+      <div class="payment-option" data-type="online">💳 Онлайн</div>
+      <div class="payment-option" data-type="cash">💵 Наличные</div>
+    </div>
     
-    <!-- Кнопка оплаты -->
-    <button class="pay-btn-main" id="payBtn" disabled>Оплатить 10 ₽</button>
+    <div class="validation-hint" id="validationHint"></div>
+    <div class="cash-hint" id="cashHint">
+      💡 Пожалуйста, подготовьте 10 рублей наличными для передачи курьеру
+    </div>
+    
+    <button class="pay-btn-main" id="payBtn" disabled>Оформить заказ</button>
     
     <button type="button" class="telegram-btn" id="telegramBtn">Связаться с нами</button>
     <div class="help-text">
@@ -882,7 +878,6 @@
   <div class="trust-badge">
     <div class="trust-item"><span>⭐</span> 4.9 рейтинг среди клиентов</div>
     <div class="trust-item"><span>👥</span> Уже более 200 выполненных заказов</div>
-    <div class="trust-item"><span>🚀</span> В среднем приезжаем за 15–30 минут</div>
     <div class="trust-item"><span>🧹</span> Работаем ежедневно с 8:00 до 23:00</div>
   </div>
   
@@ -901,7 +896,6 @@
   </div>
 </div>
 
-<!-- Модальные окна -->
 <div id="robokassaModal" class="robokassa-modal">
   <div class="robokassa-content">
     <div class="robokassa-header">
@@ -909,7 +903,7 @@
       <button type="button" class="close-robokassa" id="closeRobokassaBtn">&times;</button>
     </div>
     <iframe id="robokassaFrame" src="about:blank"></iframe>
-    <div class="robokassa-info">
+    <div class="info-banner" style="margin-top: 12px;">
       Безопасная оплата через Robokassa
     </div>
   </div>
@@ -927,8 +921,7 @@
         <li>Готовый код обычно действует в течение суток.</li>
       </ol>
       <p><strong>Для остальных систем</strong></p>
-      <p>К сожалению, процедура может отличаться в зависимости от модели и производителя вашего домофона. Пожалуйста, обратитесь к инструкции по эксплуатации вашего устройства или свяжитесь с управляющей компанией.</p>
-      <p style="margin-top: 20px; color: #8b9eb0;">Если курьер не сможет попасть в подъезд, он свяжется с вами по указанному номеру телефона.</p>
+      <p>К сожалению, процедура может отличаться. Пожалуйста, обратитесь к инструкции по эксплуатации вашего устройства или свяжитесь с управляющей компанией.</p>
     </div>
     <div class="modal-buttons">
       <button type="button" class="modal-btn" id="closeDoorCodeHelpBtn">Понятно</button>
@@ -940,9 +933,10 @@
 <div id="profileModal" class="modal"><div class="modal-content" id="profileModalContent" style="max-width: 480px;"></div></div>
 <div id="trackModal" class="modal"><div class="modal-content" style="max-width: 480px;"><div class="profile-header"><div class="modal-title">Детали заказа</div><button type="button" class="close-profile" id="closeTrackBtn">✕</button></div><div id="trackDetails" class="track-details"></div></div></div>
 <div id="timeModal" class="time-modal"><div class="time-modal-content"><div class="time-modal-title">Выберите время</div><div class="time-picker-container"><div class="time-column"><label>Часы</label><div class="time-scroll" id="hoursScroll"></div></div><div class="time-column"><label>Минуты</label><div class="time-scroll" id="minutesScroll"></div></div></div><div class="time-modal-buttons"><button type="button" class="time-modal-btn time-modal-btn-cancel" id="cancelTimeBtn">Отмена</button><button type="button" class="time-modal-btn time-modal-btn-save" id="saveTimeBtn">Сохранить</button></div></div></div>
-<div id="offerModal" class="modal"><div class="modal-content"><div class="modal-title">Публичная оферта</div><div class="modal-text"><p><strong>1. Общие положения</strong></p><p>1.1. Настоящий документ является официальной публичной офертой самозанятого гражданина РФ Жумангулова Сергея Александровича (ИНН: 740107903031) (далее — «Исполнитель») и содержит все существенные условия оказания услуг по выносу мусора.</p><p>1.2. Акцептом оферты является оформление заказа на сайте.</p><p><strong>2. Предмет оферты</strong></p><p>2.1. Исполнитель обязуется оказать услуги по выносу бытового мусора, Заказчик — оплатить.</p><p>2.2. Стоимость услуги — 10 рублей за один вынос (до 4 пакетов).</p><p><strong>3. Порядок оказания услуг</strong></p><p>3.1. Заказчик оставляет заявку на сайте, указывая адрес, удобное время и способ передачи мусора.</p><p>3.2. В назначенное время курьер забирает мусор.</p><p><strong>4. Оплата</strong></p><p>4.1. Оплата производится онлайн через Robokassa.</p><p>4.2. Чек формируется автоматически.</p><p><strong>5. Возврат денежных средств</strong></p><p>5.1. Заказчик вправе отказаться от услуги до её оказания.</p><p>5.2. Для возврата необходимо направить заявление на email: musor-go@outlook.com с указанием номера заказа и причины возврата.</p><p>5.3. Возврат осуществляется в течение 10 рабочих дней после принятия решения.</p><p>5.4. Возврат производится в полном объеме, удержание комиссий не допускается.</p><p><strong>6. Реквизиты Исполнителя</strong></p><p>Самозанятый: Жумангулов Сергей Александрович<br>ИНН: 740107903031<br>Email: musor-go@outlook.com<br>Телефон: +7 993 548-50-20</p></div><button type="button" class="modal-btn" id="closeOfferBtn">Закрыть</button></div></div>
+<div id="offerModal" class="modal"><div class="modal-content"><div class="modal-title">Публичная оферта</div><div class="modal-text"><p><strong>1. Общие положения</strong></p><p>1.1. Настоящий документ является официальной публичной офертой самозанятого гражданина РФ Жумангулова Сергея Александровича (ИНН: 740107903031) (далее — «Исполнитель») и содержит все существенные условия оказания услуг по выносу мусора.</p><p>1.2. Акцептом оферты является оформление заказа на сайте.</p><p><strong>2. Предмет оферты</strong></p><p>2.1. Исполнитель обязуется оказать услуги по выносу бытового мусора, Заказчик — оплатить.</p><p>2.2. Стоимость услуги — 10 рублей за один вынос (до 4 пакетов).</p><p><strong>3. Порядок оказания услуг</strong></p><p>3.1. Заказчик оставляет заявку на сайте, указывая адрес, удобное время и способ передачи мусора.</p><p>3.2. В назначенное время курьер забирает мусор.</p><p><strong>4. Оплата</strong></p><p>4.1. Оплата производится онлайн через Robokassa или наличными курьеру.</p><p>4.2. При онлайн-оплате чек формируется автоматически.</p><p><strong>5. Возврат денежных средств</strong></p><p>5.1. Заказчик вправе отказаться от услуги до её оказания.</p><p>5.2. Для возврата необходимо направить заявление на email: musor-go@outlook.com с указанием номера заказа и причины возврата.</p><p>5.3. Возврат осуществляется в течение 10 рабочих дней после принятия решения.</p><p><strong>6. Реквизиты Исполнителя</strong></p><p>Самозанятый: Жумангулов Сергей Александрович<br>ИНН: 740107903031<br>Email: musor-go@outlook.com<br>Телефон: +7 993 548-50-20</p></div><button type="button" class="modal-btn" id="closeOfferBtn">Закрыть</button></div></div>
 <div id="mapModal" class="modal"><div class="modal-content map-modal"><div class="map-modal-header"><div class="modal-title">Наша зона обслуживания</div><button type="button" class="close-map-btn" id="closeMapBtn">✕</button></div><iframe src="https://makemap.2gis.ru/widget?data=eJy1VMFuEzEQ_RdzZFXZY3s8jtRDlEKJlJaUgiqocghZk27ZxtFmS0mj_DtO1nZEDyBFcNy34_Gb955nw3xTusaV584_uLap3Ir1bjesXS8d67G3bto-No4VbNn4pWva_f8NK91q1lTLtvKLUDV-13998fHTfHTdX18Mzq4WlwPFR_LD3J4PxgP7NJ6fnoYWq7bx393A174Jh16p8qsBnfGbqmzvWA_S9_vldFa1a9YTBftW1XU-V-LMSMs6NFfxE12w5-GidD_DkW3B5t1A6x3dOM3Y1-t5YFywmQ9jV4tpux_39hbFCRgUkgqtT4BbofSk6FArje1QI9FG1HKdao3klFEEFTugSA0MCLEHBVdKJvTFZZNJoFyVgbqValscY8B9f2fA8_83QFqkEv9oABxjQJDPmiSqUFlUI5LUWpkDaiDqpygaILkhEzuQ0jajSNEWFAQJVVzqDtWkRUKlSh2QMN9mrcTIAQwklDTKiCLlEBil0hRG5cCgociXIN0GVulIgeShVJpEwSDKQ7Z-EycHBhDMUYG5vO63w7M3T8PLwYyP7q9-lOdn_POQRrL_-t-FBXWJf3mt8qjXGl4jxGelucr2gRJRUZI5AFJG6XbaZk8VdO4JUIA5FYZHVKFWB0tEZxQAcUyokNESEMRzKoK9XYddYCNIVkBkayHvi8AQKKIqEyNhdRdXQUaltsR5onsADaW0Cszrxti4bsJUufCFWjk9UiJtJwV7mC7HflV18diwetqy3r5ckCQIi08A2oLVu997ncJIyLlRGNQLVnr_ELwPm4uFmPm6vrlzrv6yR9vm0W1_AfUbvFM" sandbox="allow-modals allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe></div></div>
-<div id="successModal" class="modal"><div class="modal-content"><div class="modal-icon" style="font-size: 48px; margin-bottom: 8px;">✅</div><div class="modal-title">Заказ создан</div><div class="modal-text" id="modalText" style="text-align: center;">Ожидает оплаты. Отследить его можно в личном кабинете.</div><div class="modal-buttons"><button type="button" class="modal-btn" id="trackFromSuccessBtn">Отследить</button><button type="button" class="modal-btn" id="closeSuccessBtn">Закрыть</button></div></div></div>
+<div id="successModal" class="modal"><div class="modal-content"><div class="modal-icon" style="font-size: 48px; margin-bottom: 8px;">✅</div><div class="modal-title">Заказ создан</div><div class="modal-text" id="modalText" style="text-align: center;"></div><div class="modal-buttons"><button type="button" class="modal-btn" id="trackFromSuccessBtn">Отследить</button><button type="button" class="modal-btn" id="closeSuccessBtn">Закрыть</button></div></div></div>
+<div id="cancelConfirmModal" class="modal"><div class="modal-content"><div class="modal-title">Отмена заказа</div><div class="modal-text" id="cancelModalText">Вы уверены, что хотите отменить этот заказ?</div><div class="modal-buttons"><button type="button" class="modal-btn modal-btn-danger" id="confirmCancelBtn">Да, отменить</button><button type="button" class="modal-btn" id="cancelCancelBtn">Нет, вернуться</button></div></div></div>
 
 <script>
   // ========== FIREBASE ==========
@@ -959,49 +953,30 @@
   const db = firebase.firestore();
   const auth = firebase.auth();
 
-  console.log("Firebase инициализирован");
-
-  // ========== НАСТРОЙКИ ROBOKASSA ==========
-  // ВАЖНО: Замени пароль на актуальный из личного кабинета Робокассы!
   const ROBOKASSA_CONFIG = {
     merchantLogin: "musorgo",
-    password1: "Qcsp3zNp8br0I6iPGKJ6",  // ЗАМЕНИ НА БОЕВОЙ ПАРОЛЬ
-    password2: "ou8qli86fcPIAeloku49",  // ЗАМЕНИ НА БОЕВОЙ ПАРОЛЬ (обычно такой же)
+    password1: "Qcsp3zNp8br0I6iPGKJ6",
+    password2: "ou8qli86fcPIAeloku49",
     algorithm: "MD5",
-    isTestMode: false  // БОЕВОЙ РЕЖИМ
+    isTestMode: false
   };
   
   function getRobokassaIframeUrl(orderId, invoiceId, amount, description) {
     const password = ROBOKASSA_CONFIG.password1;
     const signatureString = `${ROBOKASSA_CONFIG.merchantLogin}:${amount}:${invoiceId}:${password}`;
-    
-    let signature;
-    if (ROBOKASSA_CONFIG.algorithm.toUpperCase() === "MD5") {
-      signature = CryptoJS.MD5(signatureString).toString();
-    } else {
-      signature = CryptoJS.SHA256(signatureString).toString();
-    }
-    
+    let signature = CryptoJS.MD5(signatureString).toString();
     let url = `https://auth.robokassa.ru/Merchant/PaymentForm/FormMS.if?`;
     url += `MerchantLogin=${ROBOKASSA_CONFIG.merchantLogin}`;
     url += `&OutSum=${amount}`;
     url += `&InvoiceID=${invoiceId}`;
     url += `&Description=${encodeURIComponent(description)}`;
     url += `&SignatureValue=${signature}`;
-    
     const user = auth.currentUser;
-    if (user && user.email) {
-      url += `&Email=${encodeURIComponent(user.email)}`;
-    }
-    
-    if (ROBOKASSA_CONFIG.isTestMode) {
-      url += `&IsTest=1`;
-    }
-    
+    if (user && user.email) url += `&Email=${encodeURIComponent(user.email)}`;
+    if (ROBOKASSA_CONFIG.isTestMode) url += `&IsTest=1`;
     const successUrl = window.location.href;
     url += `&SuccessURL=${encodeURIComponent(successUrl)}`;
     url += `&FailURL=${encodeURIComponent(successUrl)}`;
-    
     return url;
   }
 
@@ -1020,19 +995,21 @@
   const robokassaFrame = document.getElementById('robokassaFrame');
   const doorCodeHelpModal = document.getElementById('doorCodeHelpModal');
   const validationHint = document.getElementById('validationHint');
+  const cashHint = document.getElementById('cashHint');
+  const cancelConfirmModal = document.getElementById('cancelConfirmModal');
   
   let lastOrderUnsubscribe = null;
   let hiddenCompletedOrders = new Set();
+  let selectedPaymentMethod = "online";
+  let pendingCancelOrderId = null;
 
-  // Вспомогательные функции
   function loadHiddenOrders() {
     const stored = localStorage.getItem('hiddenCompletedOrders');
     if (stored) hiddenCompletedOrders = new Set(JSON.parse(stored));
   }
   
   function saveHiddenOrder(orderId, userId) {
-    const key = `${userId}_${orderId}`;
-    hiddenCompletedOrders.add(key);
+    hiddenCompletedOrders.add(`${userId}_${orderId}`);
     localStorage.setItem('hiddenCompletedOrders', JSON.stringify([...hiddenCompletedOrders]));
   }
   
@@ -1080,6 +1057,28 @@
     }
   }
   
+  function updateDeliveryOptionsForPayment() {
+    const deliveryOptions = document.querySelectorAll('.delivery-option');
+    if (selectedPaymentMethod === 'cash') {
+      deliveryOptions.forEach(opt => {
+        if (opt.dataset.type === 'Оставлю у двери') {
+          opt.classList.add('disabled');
+          if (opt.classList.contains('selected')) {
+            opt.classList.remove('selected');
+            document.querySelector('.delivery-option[data-type="Из рук в руки"]').classList.add('selected');
+            selectedDeliveryType = "Из рук в руки";
+          }
+        } else {
+          opt.classList.remove('disabled');
+        }
+      });
+      cashHint.classList.add('show');
+    } else {
+      deliveryOptions.forEach(opt => opt.classList.remove('disabled'));
+      cashHint.classList.remove('show');
+    }
+  }
+  
   function isFormValid() {
     const street = document.getElementById('streetSelect').value;
     const house = document.getElementById('houseSelect').value;
@@ -1088,7 +1087,6 @@
     const phoneDigits = phone.replace(/\D/g, '');
     const isValidPhone = phoneDigits.length === 11 && phoneDigits.startsWith('7');
     const hasTime = selectedTime && selectedTime !== '';
-    
     return street && house && flat && isValidPhone && hasTime;
   }
   
@@ -1101,57 +1099,23 @@
     const phoneDigits = phone.replace(/\D/g, '');
     const isValidPhone = phoneDigits.length === 11 && phoneDigits.startsWith('7');
     const hasTime = selectedTime && selectedTime !== '';
-    
     if (!street) errors.push('• Выберите улицу');
     if (!house) errors.push('• Выберите дом');
     if (!flat) errors.push('• Укажите квартиру');
     if (!isValidPhone) errors.push('• Введите корректный телефон');
     if (!hasTime) errors.push('• Выберите время');
-    
     return errors;
   }
   
   function updatePayButtonState() {
     const isValid = isFormValid();
     payBtn.disabled = !isValid;
-    
     const errors = getValidationErrors();
     if (errors.length > 0 && !isValid) {
       validationHint.innerHTML = 'Заполните поля:<br>' + errors.join('<br>');
       validationHint.classList.add('show');
     } else {
       validationHint.classList.remove('show');
-    }
-    
-    const street = document.getElementById('streetSelect').value;
-    const house = document.getElementById('houseSelect').value;
-    const flat = document.getElementById('flatInput').value;
-    const phone = document.getElementById('phone').value;
-    const phoneDigits = phone.replace(/\D/g, '');
-    const isValidPhone = phoneDigits.length === 11 && phoneDigits.startsWith('7');
-    
-    if (!street && document.getElementById('streetSelect').value !== '') {
-      showError('streetSelect', 'streetError', 'Выберите улицу');
-    } else if (street) {
-      clearError('streetSelect', 'streetError');
-    }
-    
-    if (!house && document.getElementById('houseSelect').value !== '') {
-      showError('houseSelect', 'houseError', 'Выберите дом');
-    } else if (house) {
-      clearError('houseSelect', 'houseError');
-    }
-    
-    if (!flat && document.getElementById('flatInput').value !== '') {
-      showError('flatInput', 'flatError', 'Введите квартиру');
-    } else if (flat) {
-      clearError('flatInput', 'flatError');
-    }
-    
-    if (!isValidPhone && phone !== '+7') {
-      showError('phone', 'phoneError', 'Введите корректный номер телефона (11 цифр, +7)');
-    } else if (isValidPhone) {
-      clearError('phone', 'phoneError');
     }
   }
 
@@ -1173,29 +1137,21 @@
   let selectedMinute = "00";
   let selectedTime = "";
   
-  // Функция для получения текущего времени Челябинска (UTC+5)
   function getCurrentChelyabinskTime() {
     const now = new Date();
-    // Челябинск UTC+5
-    const chelyabinskTime = new Date(now.getTime() + (5 * 60 * 60 * 1000));
-    return chelyabinskTime;
+    return new Date(now.getTime() + (5 * 60 * 60 * 1000));
   }
   
-  // Функция для проверки, можно ли выбрать "Сегодня"
   function canSelectToday() {
     const now = getCurrentChelyabinskTime();
-    const currentHour = now.getUTCHours();
-    // Если позже 22:00, сегодня уже нельзя
-    return currentHour < 22;
+    return now.getUTCHours() < 22;
   }
   
-  // Функция обновления доступности опций даты
   function updateDateOptionsAvailability() {
     const todayOption = document.querySelector('.date-option[data-date="today"]');
     if (todayOption) {
       if (!canSelectToday()) {
         todayOption.classList.add('disabled');
-        // Если сегодня выбрано, но недоступно — переключаем на завтра
         if (selectedDate === 'today') {
           selectedDate = 'tomorrow';
           document.querySelectorAll('.date-option').forEach(o => o.classList.remove('selected'));
@@ -1227,22 +1183,16 @@
   function initDateOptions() {
     const options = document.querySelectorAll('.date-option');
     updateDateOptionsAvailability();
-    
     options.forEach(opt => {
       opt.addEventListener('click', () => {
         if (opt.classList.contains('disabled')) return;
-        
         options.forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         selectedDate = opt.dataset.date;
-        
-        // Перегенерируем пикер времени с учетом выбранной даты
         regenerateTimePicker();
         updatePayButtonState();
       });
     });
-    
-    // Если сегодня недоступно, выбираем завтра по умолчанию
     if (!canSelectToday()) {
       options.forEach(o => o.classList.remove('selected'));
       const tomorrowOption = document.querySelector('.date-option[data-date="tomorrow"]');
@@ -1250,32 +1200,22 @@
         tomorrowOption.classList.add('selected');
         selectedDate = 'tomorrow';
       }
-    } else {
-      if (options.length) options[0].classList.add('selected');
+    } else if (options.length) {
+      options[0].classList.add('selected');
     }
   }
   
   function regenerateTimePicker() {
     const hoursScroll = document.getElementById('hoursScroll');
     const minutesScroll = document.getElementById('minutesScroll');
-    
-    // Очищаем
     hoursScroll.innerHTML = '';
-    
     const now = getCurrentChelyabinskTime();
     const currentHour = now.getUTCHours();
-    const currentMinute = now.getUTCMinutes();
-    
-    // Определяем минимальный час
-    let minHour = 8; // Работаем с 8:00
+    let minHour = 8;
     if (selectedDate === 'today') {
-      // Для сегодня: минимум = max(8, текущий час + 1)
       minHour = Math.max(8, currentHour + 1);
-      // Но не позже 22:00
       if (minHour > 22) minHour = 22;
     }
-    
-    // Генерируем часы
     for (let i = minHour; i <= 22; i++) {
       const hour = i.toString().padStart(2, '0');
       const div = document.createElement('div');
@@ -1290,23 +1230,17 @@
       };
       hoursScroll.appendChild(div);
     }
-    
-    // Если часов нет (всё занято) — показываем заглушку
     if (hoursScroll.children.length === 0) {
       const div = document.createElement('div');
       div.className = 'time-item disabled';
       div.textContent = '—';
       hoursScroll.appendChild(div);
     }
-    
-    // Выбираем первый доступный час
     const firstHour = hoursScroll.querySelector('.time-item:not(.disabled)');
     if (firstHour) {
       firstHour.classList.add('selected');
       selectedHour = firstHour.dataset.value;
     }
-    
-    // Минуты (оставляем как есть)
     const minutes = ['00', '15', '30', '45'];
     minutesScroll.innerHTML = '';
     minutes.forEach(min => {
@@ -1322,18 +1256,12 @@
       };
       minutesScroll.appendChild(div);
     });
-    
     const defaultMinute = minutesScroll.querySelector('.time-item');
     if (defaultMinute) {
       defaultMinute.classList.add('selected');
       selectedMinute = defaultMinute.dataset.value;
     }
-    
     updateTimeDisplay();
-  }
-  
-  function initTimePicker() {
-    regenerateTimePicker();
   }
   
   function updateTimeDisplay() {
@@ -1353,10 +1281,7 @@
   function showTimeModal() {
     const modal = document.getElementById('timeModal');
     modal.style.display = 'flex';
-    
-    // Обновляем пикер перед показом
     regenerateTimePicker();
-    
     const hoursItems = document.querySelectorAll('#hoursScroll .time-item');
     hoursItems.forEach(item => {
       if (item.dataset.value === selectedHour) {
@@ -1373,26 +1298,36 @@
     });
   }
   
-  function hideTimeModal() { 
-    document.getElementById('timeModal').style.display = 'none'; 
-  }
-  
-  function saveTime() { 
-    updateTimeDisplay(); 
-    hideTimeModal(); 
-  }
+  function hideTimeModal() { document.getElementById('timeModal').style.display = 'none'; }
+  function saveTime() { updateTimeDisplay(); hideTimeModal(); }
 
   // Инициализация обработчиков
   document.querySelectorAll('.delivery-option').forEach(opt => {
     opt.addEventListener('click', () => {
+      if (opt.classList.contains('disabled')) return;
       document.querySelectorAll('.delivery-option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       selectedDeliveryType = opt.dataset.type;
     });
   });
+  
+  document.querySelectorAll('.payment-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selectedPaymentMethod = opt.dataset.type;
+      updateDeliveryOptionsForPayment();
+      updatePayButtonState();
+    });
+  });
+  
   if (document.querySelector('.delivery-option')) {
     document.querySelector('.delivery-option').classList.add('selected');
   }
+  if (document.querySelector('.payment-option')) {
+    document.querySelector('.payment-option').classList.add('selected');
+  }
+  updateDeliveryOptionsForPayment();
 
   const phoneInput = document.getElementById('phone');
   phoneInput.addEventListener('input', function(e) {
@@ -1409,30 +1344,31 @@
     updatePayButtonState();
   });
 
-  document.getElementById('streetSelect').addEventListener('change', updatePayButtonState);
+  document.getElementById('streetSelect').addEventListener('change', () => { updateHouses(); updatePayButtonState(); });
   document.getElementById('houseSelect').addEventListener('change', updatePayButtonState);
   document.getElementById('flatInput').addEventListener('input', updatePayButtonState);
 
-  // Кнопка "Как узнать код домофона"
-  document.getElementById('doorCodeHelpBtn').addEventListener('click', function() {
-    doorCodeHelpModal.style.display = 'flex';
-  });
-  
-  document.getElementById('closeDoorCodeHelpBtn').addEventListener('click', function() {
-    doorCodeHelpModal.style.display = 'none';
-  });
-  
-  doorCodeHelpModal.addEventListener('click', function(e) {
-    if (e.target === doorCodeHelpModal) {
-      doorCodeHelpModal.style.display = 'none';
-    }
-  });
+  document.getElementById('doorCodeHelpBtn').addEventListener('click', () => doorCodeHelpModal.style.display = 'flex');
+  document.getElementById('closeDoorCodeHelpBtn').addEventListener('click', () => doorCodeHelpModal.style.display = 'none');
+  doorCodeHelpModal.addEventListener('click', (e) => { if (e.target === doorCodeHelpModal) doorCodeHelpModal.style.display = 'none'; });
 
-  // ========== ФУНКЦИЯ ОПЛАТЫ ==========
+  // Функция отмены заказа
+  async function cancelOrder(orderId) {
+    try {
+      await db.collection("orders").doc(orderId).update({
+        status: "отменен",
+        cancelledAt: new Date().toISOString()
+      });
+      alert("Заказ успешно отменен");
+      if (lastOrderUnsubscribe) subscribeToLastOrder();
+    } catch (e) {
+      alert("Ошибка при отмене: " + e.message);
+    }
+  }
+
   async function openPaymentForOrder(orderId, amount) {
     const invoiceId = Date.now();
     const paymentUrl = getRobokassaIframeUrl(orderId, invoiceId, amount, `Заказ мусора #${orderId.slice(0,6)}`);
-    
     robokassaFrame.src = paymentUrl;
     robokassaModal.style.display = 'flex';
   }
@@ -1444,7 +1380,6 @@
       authModal.style.display = 'flex';
       return;
     }
-    
     if (!isFormValid()) {
       updatePayButtonState();
       return;
@@ -1468,22 +1403,28 @@
       deliveryType: selectedDeliveryType,
       preferredDateTime: fullDateTime,
       tariffPrice: 10,
-      status: "pending_payment",
+      status: selectedPaymentMethod === "online" ? "pending_payment" : "новый",
+      paymentMethod: selectedPaymentMethod,
       createdAt: new Date().toISOString(),
       userId: user.uid,
-      userEmail: user.email,
-      isTestPayment: ROBOKASSA_CONFIG.isTestMode
+      userEmail: user.email
     };
     
     try {
       const docRef = await db.collection("orders").add(orderData);
       saveUserData();
       
-      await openPaymentForOrder(docRef.id, 10);
+      let successMessage = `Заказ #${docRef.id.slice(0,6)} успешно создан!`;
       
-      const successModal = document.getElementById('successModal');
-      document.getElementById('modalText').innerHTML = `Заказ #${docRef.id.slice(0,6)} создан и ожидает оплаты.<br><br>После оплаты статус заказа изменится автоматически.`;
-      successModal.style.display = 'flex';
+      if (selectedPaymentMethod === "online") {
+        await openPaymentForOrder(docRef.id, 10);
+        successMessage += `\n\nПосле оплаты статус заказа изменится автоматически.`;
+      } else {
+        successMessage += `\n\nКурьер приедет в выбранное время. Пожалуйста, подготовьте 10 рублей наличными.`;
+      }
+      
+      document.getElementById('modalText').innerHTML = successMessage.replace(/\n/g, '<br>');
+      document.getElementById('successModal').style.display = 'flex';
       
       document.getElementById('streetSelect').value = "";
       document.getElementById('houseSelect').innerHTML = '<option value="">Сначала выберите улицу</option>';
@@ -1499,26 +1440,26 @@
       alert("Ошибка: " + e.message); 
     } finally {
       btn.disabled = false;
-      btn.innerHTML = 'Оплатить 10 ₽';
+      btn.innerHTML = selectedPaymentMethod === "online" ? 'Оплатить 10 ₽' : 'Оформить заказ';
       updatePayButtonState();
     }
   }
   
   payBtn.addEventListener('click', createOrderAndPay);
   
-  document.getElementById('closeRobokassaBtn').addEventListener('click', function() {
+  document.getElementById('closeRobokassaBtn').addEventListener('click', () => {
     robokassaModal.style.display = 'none';
     robokassaFrame.src = 'about:blank';
   });
   
-  robokassaModal.addEventListener('click', function(e) {
+  robokassaModal.addEventListener('click', (e) => {
     if (e.target === robokassaModal) {
       robokassaModal.style.display = 'none';
       robokassaFrame.src = 'about:blank';
     }
   });
 
-  // ========== АВТОРИЗАЦИЯ ==========
+  // АВТОРИЗАЦИЯ
   async function updateAuthButton() {
     const user = auth.currentUser;
     if (user && user.emailVerified) {
@@ -1554,15 +1495,10 @@
         authModal.style.display = 'none';
         updateAuthButton();
         subscribeToLastOrder();
-      } catch (err) { 
-        errorDiv.innerText = err.message; 
-      }
+      } catch (err) { errorDiv.innerText = err.message; }
     };
     
-    document.getElementById('showRegisterLink').onclick = (e) => { 
-      e.preventDefault(); 
-      showRegisterForm(); 
-    };
+    document.getElementById('showRegisterLink').onclick = (e) => { e.preventDefault(); showRegisterForm(); };
   }
 
   function showRegisterForm() {
@@ -1589,50 +1525,34 @@
       try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         await db.collection("users").doc(userCredential.user.uid).set({
-          name: name,
-          email: email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          name: name, email: email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         await userCredential.user.sendEmailVerification();
         await auth.signOut();
         authModal.style.display = 'none';
         alert('На вашу почту отправлено письмо для подтверждения. После подтверждения войдите снова.');
-      } catch (err) { 
-        errorDiv.innerText = err.message; 
-      }
+      } catch (err) { errorDiv.innerText = err.message; }
     };
     
-    document.getElementById('showLoginLink').onclick = (e) => { 
-      e.preventDefault(); 
-      showLoginForm(); 
-    };
+    document.getElementById('showLoginLink').onclick = (e) => { e.preventDefault(); showLoginForm(); };
   }
 
   async function showProfileModal() {
     const user = auth.currentUser;
-    if (!user || !user.emailVerified) {
-      console.log("Пользователь не авторизован или email не подтвержден");
-      return;
-    }
-    
-    console.log("Открываем личный кабинет для:", user.email);
+    if (!user || !user.emailVerified) return;
     
     let displayName = "Пользователь";
     try {
       const userDoc = await db.collection("users").doc(user.uid).get();
-      if (userDoc.exists && userDoc.data().name) {
-        displayName = userDoc.data().name;
-      }
-    } catch (e) {
-      console.warn("Не удалось загрузить имя:", e);
-    }
+      if (userDoc.exists && userDoc.data().name) displayName = userDoc.data().name;
+    } catch (e) {}
     
     const snapshot = await db.collection('orders').where('userEmail', '==', user.email).orderBy('createdAt', 'desc').get();
     let active = [], completed = [];
     snapshot.forEach(doc => {
       const order = { id: doc.id, ...doc.data() };
       if (order.status === 'выполнен') completed.push(order);
-      else active.push(order);
+      else if (order.status !== 'отменен') active.push(order);
     });
     
     let activeHtml = '<div class="profile-section-title">Активные заказы</div>';
@@ -1643,13 +1563,12 @@
       if (order.status === 'pending_payment') {
         statusText = 'Ожидает оплаты';
         statusClass = 'status-pending';
-      } else if (order.status === 'новый') {
-        statusText = 'Новый (оплачен)';
-      }
+      } else if (order.status === 'новый') statusText = 'Новый (оплачен)';
       
-      const payButton = order.status === 'pending_payment' 
-        ? `<button type="button" class="profile-order-pay" data-id="${order.id}">Оплатить</button>` 
-        : '';
+      const payButton = order.status === 'pending_payment' && order.paymentMethod !== 'cash'
+        ? `<button type="button" class="profile-order-pay" data-id="${order.id}">Оплатить</button>` : '';
+      const cancelButton = order.status === 'pending_payment' || order.status === 'новый'
+        ? `<button type="button" class="profile-order-cancel" data-id="${order.id}">Отменить</button>` : '';
       
       activeHtml += `
         <div class="profile-order-item">
@@ -1657,10 +1576,11 @@
             <span class="profile-order-id">Заказ #${order.id.slice(0,6)}</span>
             <span class="profile-order-status ${statusClass}">${statusText}</span>
           </div>
-          <div class="profile-order-details">${order.street}, ${order.house}, кв.${order.flat}<br>${order.preferredDateTime || ''}</div>
+          <div class="profile-order-details">${order.street}, ${order.house}, кв.${order.flat}<br>${order.preferredDateTime || ''}<br>${order.paymentMethod === 'cash' ? 'Оплата наличными' : 'Оплата онлайн'}</div>
           <div class="profile-order-buttons">
             <button type="button" class="profile-order-track" data-id="${order.id}">Отследить</button>
             ${payButton}
+            ${cancelButton}
           </div>
         </div>
       `;
@@ -1710,6 +1630,13 @@
         await openPaymentForOrder(orderId, 10);
       });
     });
+    
+    document.querySelectorAll('.profile-order-cancel').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pendingCancelOrderId = btn.dataset.id;
+        cancelConfirmModal.style.display = 'flex';
+      });
+    });
   }
 
   async function showTrackModal(orderId) {
@@ -1721,10 +1648,10 @@
     else if (statusText === 'новый') statusText = 'Оплачен, ищем курьера';
     else if (statusText === 'в работе') statusText = 'Курьер в пути';
     else if (statusText === 'выполнен') statusText = 'Выполнен';
+    else if (statusText === 'отменен') statusText = 'Отменен';
     
-    const payButton = order.status === 'pending_payment' 
-      ? `<button type="button" class="modal-btn" id="payFromTrackBtn" style="margin-top: 20px; width: 100%;">Оплатить заказ</button>` 
-      : '';
+    const payButton = order.status === 'pending_payment' && order.paymentMethod !== 'cash'
+      ? `<button type="button" class="modal-btn" id="payFromTrackBtn" style="margin-top: 20px; width: 100%;">Оплатить заказ</button>` : '';
     
     const html = `
       <div class="track-row"><span class="track-label">Номер</span><span class="track-value">#${orderId.slice(0,6)}</span></div>
@@ -1732,12 +1659,13 @@
       <div class="track-row"><span class="track-label">Адрес</span><span class="track-value">${order.street}, ${order.house}, кв.${order.flat}</span></div>
       <div class="track-row"><span class="track-label">Время</span><span class="track-value">${order.preferredDateTime || ''}</span></div>
       <div class="track-row"><span class="track-label">Телефон</span><span class="track-value">${order.phone}</span></div>
+      <div class="track-row"><span class="track-label">Оплата</span><span class="track-value">${order.paymentMethod === 'cash' ? 'Наличными курьеру' : 'Онлайн'}</span></div>
       ${payButton}
     `;
     document.getElementById('trackDetails').innerHTML = html;
     trackModal.style.display = 'flex';
     
-    if (order.status === 'pending_payment') {
+    if (order.status === 'pending_payment' && order.paymentMethod !== 'cash') {
       document.getElementById('payFromTrackBtn')?.addEventListener('click', async () => {
         trackModal.style.display = 'none';
         await openPaymentForOrder(orderId, order.tariffPrice || 10);
@@ -1745,36 +1673,35 @@
     }
   }
 
-  // Обработчик кнопки "Войти/Личный кабинет"
   authButton.onclick = function() {
-    console.log("Кнопка нажата, пользователь:", auth.currentUser);
-    if (auth.currentUser && auth.currentUser.emailVerified) {
-      showProfileModal();
-    } else { 
-      showLoginForm(); 
-      authModal.style.display = 'flex'; 
-    }
+    if (auth.currentUser && auth.currentUser.emailVerified) showProfileModal();
+    else { showLoginForm(); authModal.style.display = 'flex'; }
   };
   
   authModal.onclick = (e) => { if (e.target === authModal) authModal.style.display = 'none'; };
   profileModal.onclick = (e) => { if (e.target === profileModal) profileModal.style.display = 'none'; };
   document.getElementById('closeTrackBtn').onclick = () => trackModal.style.display = 'none';
   trackModal.onclick = (e) => { if (e.target === trackModal) trackModal.style.display = 'none'; };
+  
+  document.getElementById('confirmCancelBtn').onclick = async () => {
+    if (pendingCancelOrderId) {
+      await cancelOrder(pendingCancelOrderId);
+      cancelConfirmModal.style.display = 'none';
+      pendingCancelOrderId = null;
+      if (profileModal.style.display === 'flex') showProfileModal();
+    }
+  };
+  document.getElementById('cancelCancelBtn').onclick = () => {
+    cancelConfirmModal.style.display = 'none';
+    pendingCancelOrderId = null;
+  };
+  cancelConfirmModal.onclick = (e) => { if (e.target === cancelConfirmModal) cancelConfirmModal.style.display = 'none'; };
 
-  // ========== ДИНАМИЧЕСКИЙ СТАТУС ==========
   function renderStatusIsland(order, userId) {
-    if (!order) {
-      statusIslandContainer.innerHTML = '';
-      return;
-    }
-    if (order.status === 'pending_payment') {
-      statusIslandContainer.innerHTML = '';
-      return;
-    }
-    if (order.status === 'выполнен' && isOrderHidden(order.id, userId)) {
-      statusIslandContainer.innerHTML = '';
-      return;
-    }
+    if (!order) { statusIslandContainer.innerHTML = ''; return; }
+    if (order.status === 'pending_payment') { statusIslandContainer.innerHTML = ''; return; }
+    if (order.status === 'выполнен' && isOrderHidden(order.id, userId)) { statusIslandContainer.innerHTML = ''; return; }
+    if (order.status === 'отменен') { statusIslandContainer.innerHTML = ''; return; }
     
     let icon = '', text = '', actionBtn = '';
     const status = order.status;
@@ -1792,18 +1719,9 @@
       icon = '✅';
       text = 'Заказ выполнен';
       actionBtn = '<button class="status-link" id="closeStatusBtn">Закрыть</button>';
-    } else {
-      return;
-    }
+    } else return;
     
-    const islandHtml = `
-      <div class="status-island">
-        <div class="status-icon">${icon}</div>
-        <div class="status-text">${text}</div>
-        ${actionBtn}
-      </div>
-    `;
-    statusIslandContainer.innerHTML = islandHtml;
+    statusIslandContainer.innerHTML = `<div class="status-island"><div class="status-icon">${icon}</div><div class="status-text">${text}</div>${actionBtn}</div>`;
     
     if (status !== 'выполнен') {
       document.getElementById('statusToCabinet')?.addEventListener('click', () => {
@@ -1822,10 +1740,7 @@
   function subscribeToLastOrder() {
     if (lastOrderUnsubscribe) lastOrderUnsubscribe();
     const user = auth.currentUser;
-    if (!user || !user.emailVerified) {
-      statusIslandContainer.innerHTML = '';
-      return;
-    }
+    if (!user || !user.emailVerified) { statusIslandContainer.innerHTML = ''; return; }
     lastOrderUnsubscribe = db.collection('orders')
       .where('userEmail', '==', user.email)
       .where('status', 'in', ['новый', 'в работе', 'выполнен'])
@@ -1833,64 +1748,31 @@
       .limit(1)
       .onSnapshot({
         next: (snapshot) => {
-          if (snapshot.empty) {
-            renderStatusIsland(null, user.uid);
-            return;
-          }
+          if (snapshot.empty) { renderStatusIsland(null, user.uid); return; }
           const doc = snapshot.docs[0];
-          const order = { id: doc.id, ...doc.data() };
-          renderStatusIsland(order, user.uid);
+          renderStatusIsland({ id: doc.id, ...doc.data() }, user.uid);
         },
-        error: (err) => {
-          console.warn("Ошибка подписки на заказы:", err);
-          setTimeout(() => subscribeToLastOrder(), 5000);
-        }
+        error: (err) => setTimeout(() => subscribeToLastOrder(), 5000)
       });
   }
 
-  // Обработчики модалки успеха
   document.getElementById('trackFromSuccessBtn').onclick = () => {
     document.getElementById('successModal').style.display = 'none';
     if (auth.currentUser) showProfileModal();
     else { showLoginForm(); authModal.style.display = 'flex'; }
   };
-  
-  document.getElementById('closeSuccessBtn').onclick = () => {
-    document.getElementById('successModal').style.display = 'none';
-  };
-  
-  window.onclick = (e) => {
-    if (e.target === document.getElementById('successModal')) {
-      document.getElementById('successModal').style.display = 'none';
-    }
-  };
+  document.getElementById('closeSuccessBtn').onclick = () => document.getElementById('successModal').style.display = 'none';
+  window.onclick = (e) => { if (e.target === document.getElementById('successModal')) document.getElementById('successModal').style.display = 'none'; };
 
-  // ========== ОФЕРТА И КАРТА ==========
-  offerLink.onclick = (e) => {
-    e.preventDefault();
-    offerModal.style.display = 'flex';
-  };
-  
-  mapButton.onclick = () => {
-    mapModal.style.display = 'flex';
-  };
-  
+  offerLink.onclick = (e) => { e.preventDefault(); offerModal.style.display = 'flex'; };
+  mapButton.onclick = () => mapModal.style.display = 'flex';
   document.getElementById('closeOfferBtn').onclick = () => offerModal.style.display = 'none';
   document.getElementById('closeMapBtn').onclick = () => mapModal.style.display = 'none';
   offerModal.onclick = (e) => { if (e.target === offerModal) offerModal.style.display = 'none'; };
   mapModal.onclick = (e) => { if (e.target === mapModal) mapModal.style.display = 'none'; };
+  document.getElementById('telegramBtn').onclick = () => window.open('https://t.me/musor_go', '_blank');
+  document.getElementById('helpLink').onclick = (e) => { e.preventDefault(); window.open('https://t.me/musor_go', '_blank'); };
 
-  // Telegram кнопки
-  document.getElementById('telegramBtn').onclick = () => {
-    window.open('https://t.me/musor_go', '_blank');
-  };
-  
-  document.getElementById('helpLink').onclick = (e) => {
-    e.preventDefault();
-    window.open('https://t.me/musor_go', '_blank');
-  };
-
-  // Инициализация
   document.getElementById('streetSelect').addEventListener('change', updateHouses);
   initDateOptions();
   initTimePicker();
@@ -1901,17 +1783,10 @@
   loadHiddenOrders();
   
   auth.onAuthStateChanged((user) => {
-    console.log("Состояние авторизации изменилось:", user ? user.email : "не авторизован");
     updateAuthButton();
-    if (user && user.emailVerified) {
-      subscribeToLastOrder();
-    } else {
-      if (lastOrderUnsubscribe) lastOrderUnsubscribe();
-      statusIslandContainer.innerHTML = '';
-    }
+    if (user && user.emailVerified) subscribeToLastOrder();
+    else { if (lastOrderUnsubscribe) lastOrderUnsubscribe(); statusIslandContainer.innerHTML = ''; }
   });
-  
-  console.log("Скрипт загружен полностью");
 </script>
 </body>
 </html>
