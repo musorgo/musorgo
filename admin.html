@@ -107,6 +107,7 @@
       margin-top: 12px;
     }
     .login-btn:hover { background: #2a3a4a; }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
     
     .stats {
       display: flex;
@@ -192,15 +193,7 @@
       border: 2px solid #1a2a3a;
       background: #ffffff;
     }
-    .order-card.new { 
-      border-left-color: #f59e0b;
-      animation: pulse 1s ease-in-out 2;
-    }
-    @keyframes pulse {
-      0% { border-left-color: #f59e0b; }
-      50% { border-left-color: #ffb347; }
-      100% { border-left-color: #f59e0b; }
-    }
+    .order-card.new { border-left-color: #f59e0b; }
     .order-card.work { border-left-color: #3b82f6; }
     .order-card.done { border-left-color: #10b981; }
     .order-card.waiting { border-left-color: #f5b042; }
@@ -229,7 +222,6 @@
     .status-new { background: #fed7aa; color: #9b4a00; }
     .status-work { background: #e0e7ff; color: #1e40af; }
     .status-done { background: #dcfce7; color: #166534; }
-    .status-cash { background: #e8f5e9; color: #2e7d32; }
     
     .address {
       font-size: 18px;
@@ -329,6 +321,18 @@
       margin-right: 8px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .error-banner {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      color: #dc2626;
+      font-size: 13px;
+      display: none;
+    }
+    .error-banner.show { display: block; }
   </style>
 </head>
 <body>
@@ -369,6 +373,10 @@
       </div>
     </div>
     
+    <div class="error-banner" id="errorBanner">
+      ⚠️ Ошибка подключения к серверу. Проверьте интернет-соединение.
+    </div>
+    
     <div class="stats" id="statsContainer">
       <div class="stat-card" data-filter="waiting">
         <div class="stat-number" id="statWaiting">0</div>
@@ -392,7 +400,11 @@
       <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ID, телефону, адресу или комментарию">
     </div>
     
-    <div id="ordersContainer"></div>
+    <div id="ordersContainer">
+      <div class="section" style="text-align: center; padding: 40px;">
+        <div class="loading" style="border-top-color: #1a2a3a;"></div> Загрузка заказов...
+      </div>
+    </div>
   </div>
 </div>
 
@@ -407,8 +419,31 @@
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
   
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  // Инициализируем Firebase с обработкой ошибок
+  let db;
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    
+    // Настройки Firestore для лучшей работы в России
+    const settings = {
+      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+    };
+    db.settings(settings);
+    
+    // Включаем оффлайн persistence
+    db.enablePersistence()
+      .catch((err) => {
+        if (err.code == 'failed-precondition') {
+          console.log('Множественные вкладки, persistence не включен');
+        } else if (err.code == 'unimplemented') {
+          console.log('Браузер не поддерживает persistence');
+        }
+      });
+      
+  } catch (e) {
+    console.error("Ошибка инициализации Firebase:", e);
+  }
   
   // Пароли курьеров
   const COURIER_PASSWORDS = {
@@ -424,7 +459,8 @@
   let activeFilter = "all";
   let searchQuery = "";
   let debounceTimer = null;
-  let lastNewIds = new Set();
+  let reconnectAttempts = 0;
+  let isConnected = true;
   
   // Утилиты
   function showNotification(message, isError = false) {
@@ -436,12 +472,17 @@
     setTimeout(() => notification.remove(), 4000);
   }
   
-  function playNotificationSound() {
-    try {
-      const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-      audio.volume = 0.2;
-      audio.play().catch(e => console.log('Звук не воспроизведен:', e));
-    } catch(e) {}
+  function showErrorBanner(show) {
+    const banner = document.getElementById('errorBanner');
+    if (banner) {
+      if (show) {
+        banner.classList.add('show');
+        isConnected = false;
+      } else {
+        banner.classList.remove('show');
+        isConnected = true;
+      }
+    }
   }
   
   // ========== ВХОД / ВЫХОД ==========
@@ -460,7 +501,6 @@
       return;
     }
     
-    // Показываем загрузку
     const originalText = loginBtn.innerText;
     loginBtn.innerHTML = '<span class="loading"></span> Вход...';
     loginBtn.disabled = true;
@@ -468,7 +508,6 @@
     try {
       currentCourier = name;
       
-      // Ищем или создаем запись курьера
       const courierQuery = await db.collection("couriers").where("name", "==", name).get();
       if (courierQuery.empty) {
         const newDoc = await db.collection("couriers").add({
@@ -498,7 +537,10 @@
   }
   
   async function logout() {
-    if (ordersUnsubscribe) ordersUnsubscribe();
+    if (ordersUnsubscribe) {
+      ordersUnsubscribe();
+      ordersUnsubscribe = null;
+    }
     localStorage.removeItem("courierAuth");
     localStorage.removeItem("courierName");
     localStorage.removeItem("courierId");
@@ -545,7 +587,9 @@
         const count = courierDoc.data().orders_count || 0;
         document.getElementById('courierCount').innerHTML = count + " заказов";
       }
-    } catch(e) { console.error("Ошибка статистики:", e); }
+    } catch(e) { 
+      console.error("Ошибка статистики:", e);
+    }
   }
   
   async function incrementCourierOrders() {
@@ -556,7 +600,9 @@
       const currentCount = courierDoc.exists ? (courierDoc.data().orders_count || 0) : 0;
       await courierRef.update({ orders_count: currentCount + 1 });
       document.getElementById('courierCount').innerHTML = (currentCount + 1) + " заказов";
-    } catch(e) { console.error("Ошибка обновления:", e); }
+    } catch(e) { 
+      console.error("Ошибка обновления:", e);
+    }
   }
   
   function manualRefresh() {
@@ -632,58 +678,86 @@
   }
   
   function loadOrders() {
-    if (ordersUnsubscribe) ordersUnsubscribe();
-    let initialLoad = true;
+    if (ordersUnsubscribe) {
+      ordersUnsubscribe();
+      ordersUnsubscribe = null;
+    }
     
-    ordersUnsubscribe = db.collection("orders")
-      .orderBy("createdAt", "desc")
-      .onSnapshot((snapshot) => {
-        const orders = [];
-        let waitingCount = 0, newCount = 0, workCount = 0, myCount = 0;
-        let newOrderIds = [];
-        
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const order = { id: doc.id, ...data };
-          orders.push(order);
-          allOrders = orders;
-          
-          if (data.status === "pending_payment" || data.status === "ожидает оплаты") waitingCount++;
-          else if (data.status === "новый") {
-            newCount++;
-            if (!initialLoad && !lastNewIds.has(doc.id)) {
-              newOrderIds.push(doc.id);
-              lastNewIds.add(doc.id);
+    if (!db) {
+      console.error("Firestore не инициализирован");
+      document.getElementById('ordersContainer').innerHTML = '<div class="section" style="text-align: center; color: #dc2626;">❌ Ошибка подключения к базе данных</div>';
+      showErrorBanner(true);
+      return;
+    }
+    
+    let initialLoad = true;
+    let loadTimeout = setTimeout(() => {
+      if (initialLoad) {
+        document.getElementById('ordersContainer').innerHTML = '<div class="section" style="text-align: center; color: #f59e0b;">⏳ Долгая загрузка, проверьте соединение...</div>';
+      }
+    }, 5000);
+    
+    try {
+      ordersUnsubscribe = db.collection("orders")
+        .orderBy("createdAt", "desc")
+        .onSnapshot({
+          next: (snapshot) => {
+            clearTimeout(loadTimeout);
+            showErrorBanner(false);
+            reconnectAttempts = 0;
+            
+            const orders = [];
+            let waitingCount = 0, newCount = 0, workCount = 0, myCount = 0;
+            
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              const order = { id: doc.id, ...data };
+              orders.push(order);
+              allOrders = orders;
+              
+              if (data.status === "pending_payment" || data.status === "ожидает оплаты") waitingCount++;
+              else if (data.status === "новый") newCount++;
+              else if (data.status === "в работе") workCount++;
+              
+              if (data.courierId === currentCourierId) myCount++;
+            });
+            
+            initialLoad = false;
+            
+            document.getElementById('statWaiting').innerText = waitingCount;
+            document.getElementById('statNew').innerText = newCount;
+            document.getElementById('statWork').innerText = workCount;
+            document.getElementById('statMy').innerText = myCount;
+            
+            renderFilteredOrders();
+          },
+          error: (error) => {
+            console.error("Ошибка загрузки заказов:", error);
+            clearTimeout(loadTimeout);
+            showErrorBanner(true);
+            
+            if (reconnectAttempts < 3) {
+              reconnectAttempts++;
+              setTimeout(() => {
+                console.log(`Попытка переподключения ${reconnectAttempts}...`);
+                loadOrders();
+              }, 3000);
+            } else {
+              document.getElementById('ordersContainer').innerHTML = `
+                <div class="section" style="text-align: center;">
+                  <div style="color: #dc2626; margin-bottom: 12px;">❌ Ошибка подключения к серверу</div>
+                  <button class="btn btn-primary" onclick="window.manualRefresh()">🔄 Попробовать снова</button>
+                </div>
+              `;
             }
           }
-          else if (data.status === "в работе") workCount++;
-          
-          if (data.courierId === currentCourierId) myCount++;
         });
-        
-        if (lastNewIds.size > 50) lastNewIds.clear();
-        
-        if (!initialLoad && newOrderIds.length > 0) {
-          showNotification(`🆕 Новый заказ! Всего новых: ${newCount}`);
-          playNotificationSound();
-          setTimeout(() => {
-            const firstNewElement = document.querySelector(`.order-card.new`);
-            if (firstNewElement) firstNewElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 500);
-        }
-        
-        initialLoad = false;
-        
-        document.getElementById('statWaiting').innerText = waitingCount;
-        document.getElementById('statNew').innerText = newCount;
-        document.getElementById('statWork').innerText = workCount;
-        document.getElementById('statMy').innerText = myCount;
-        
-        renderFilteredOrders();
-      }, (error) => {
-        console.error("Ошибка загрузки:", error);
-        showNotification("❌ Ошибка соединения с сервером", true);
-      });
+    } catch (e) {
+      console.error("Критическая ошибка:", e);
+      clearTimeout(loadTimeout);
+      document.getElementById('ordersContainer').innerHTML = '<div class="section" style="text-align: center; color: #dc2626;">❌ Ошибка инициализации</div>';
+      showErrorBanner(true);
+    }
   }
   
   function renderOrdersByGroup(groups) {
@@ -891,7 +965,6 @@
   
   // ========== ИНИЦИАЛИЗАЦИЯ ==========
   document.addEventListener('DOMContentLoaded', () => {
-    // Привязываем кнопки
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) loginBtn.onclick = () => login();
     
@@ -901,7 +974,6 @@
     const refreshBtn = document.getElementById('refreshBtn');
     if (refreshBtn) refreshBtn.onclick = () => manualRefresh();
     
-    // Проверяем сохраненную сессию
     if (localStorage.getItem("courierAuth") === "true" && localStorage.getItem("courierName")) {
       showAdminPanel();
     } else {
