@@ -2,283 +2,403 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>МусорPRO — Админка курьеров</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>МусорPRO — Админка курьеров</title>
   
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
-      background: #f5f7fa;
+      background: #f0f2f5;
       padding: 20px;
-      color: #1a2a3a;
+      color: #1a1a1a;
     }
-    .container { max-width: 800px; margin: 0 auto; }
     
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Шапка */
     .header {
       background: white;
-      border-radius: 20px;
-      padding: 12px 20px;
+      border-radius: 16px;
+      padding: 15px 20px;
       margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      gap: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+    
     .logo {
       display: flex;
       align-items: baseline;
       gap: 6px;
     }
-    .logo-text { font-size: 22px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
+    
+    .logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a2a3a;
+    }
+    
     .logo-box {
       background: #1a2a3a;
       border-radius: 10px;
       padding: 3px 10px;
-      display: inline-block;
     }
-    .logo-box span { font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.2px; }
+    
+    .logo-box span {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+    }
     
     .courier-panel {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #f8fafc;
+      background: #f5f5f5;
       padding: 6px 16px;
       border-radius: 40px;
-      flex-wrap: wrap;
     }
-    .courier-name { font-weight: 600; font-size: 14px; color: #1a2a3a; }
+    
+    .courier-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
     .courier-stats {
-      background: #eef2f5;
+      background: #e0e0e0;
       padding: 4px 12px;
       border-radius: 30px;
       font-size: 13px;
       font-weight: 500;
-      color: #2c5f2d;
     }
+    
     .logout-btn, .refresh-btn {
-      background: #eef2f5;
-      color: #4a5b6b;
+      background: #e0e0e0;
       border: none;
       padding: 6px 16px;
       border-radius: 40px;
       cursor: pointer;
       font-weight: 500;
       font-size: 13px;
+      transition: background 0.2s;
     }
-    .logout-btn:hover, .refresh-btn:hover { background: #e2e8f0; }
     
+    .logout-btn:hover, .refresh-btn:hover {
+      background: #d0d0d0;
+    }
+    
+    /* Вход */
     .login-box {
       background: white;
-      border-radius: 28px;
+      border-radius: 24px;
       padding: 40px 32px;
       text-align: center;
       max-width: 400px;
       margin: 80px auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .login-box h3 { font-size: 22px; font-weight: 600; margin-bottom: 24px; color: #1a2a3a; }
+    
+    .login-box h3 {
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+    
     .login-box select, .login-box input {
       width: 100%;
       padding: 14px 16px;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      margin: 12px 0;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      margin: 10px 0;
       font-size: 16px;
-      background: white;
-      font-family: inherit;
     }
+    
     .login-btn {
       width: 100%;
       padding: 14px;
       background: #1a2a3a;
       color: white;
       border: none;
-      border-radius: 44px;
+      border-radius: 40px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 12px;
+      margin-top: 10px;
     }
-    .login-btn:hover { background: #2a3a4a; }
-    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
     
+    .login-btn:hover {
+      background: #2a3a4a;
+    }
+    
+    /* Статистика */
     .stats {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
+    
     .stat-card {
       background: white;
       border-radius: 16px;
-      padding: 12px 16px;
+      padding: 15px 20px;
       flex: 1;
-      min-width: 90px;
+      min-width: 100px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border: 1px solid transparent;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 2px solid transparent;
     }
+    
     .stat-card.active {
       border-color: #1a2a3a;
-      background: #f8fafc;
+      background: #f8f9fa;
     }
-    .stat-card:hover { background: #f8fafc; transform: translateY(-2px); }
-    .stat-number { font-size: 24px; font-weight: 700; color: #1a2a3a; }
-    .stat-label { font-size: 11px; color: #8b9eb0; margin-top: 4px; }
     
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a2a3a;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    /* Поиск */
     .search-bar {
       margin-bottom: 20px;
     }
+    
     .search-input {
       width: 100%;
       padding: 12px 20px;
-      border: 1px solid #e2e8f0;
-      border-radius: 44px;
+      border: 1px solid #ddd;
+      border-radius: 40px;
       font-size: 14px;
       background: white;
-      outline: none;
-      transition: all 0.2s;
-    }
-    .search-input:focus {
-      border-color: #1a2a3a;
-      box-shadow: 0 0 0 2px rgba(26,42,58,0.1);
     }
     
+    .search-input:focus {
+      outline: none;
+      border-color: #1a2a3a;
+    }
+    
+    /* Секции заказов */
     .section {
       background: white;
-      border-radius: 20px;
+      border-radius: 16px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+    
     .section-title {
       font-size: 18px;
       font-weight: 600;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #eef2f5;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .section-count {
-      background: #eef2f5;
-      padding: 3px 10px;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #4a5b6b;
     }
     
+    .section-count {
+      background: #f0f0f0;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    
+    /* Карточка заказа */
     .order-card {
-      background: #f8fafc;
-      border-radius: 16px;
-      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 15px;
       margin-bottom: 12px;
-      transition: all 0.2s;
       border-left: 4px solid;
+      transition: all 0.2s;
     }
+    
     .order-card.my-order {
-      border: 2px solid #1a2a3a;
-      background: #ffffff;
+      background: #fff8e7;
+      border: 1px solid #f5b042;
+      border-left: 4px solid #f5b042;
     }
-    .order-card.new { border-left-color: #f59e0b; }
-    .order-card.work { border-left-color: #3b82f6; }
-    .order-card.done { border-left-color: #10b981; }
-    .order-card.waiting { border-left-color: #f5b042; }
+    
+    .order-card.new {
+      border-left-color: #ff9800;
+    }
+    
+    .order-card.work {
+      border-left-color: #2196f3;
+    }
+    
+    .order-card.done {
+      border-left-color: #4caf50;
+    }
+    
+    .order-card.waiting {
+      border-left-color: #9e9e9e;
+    }
     
     .order-card:hover {
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     .order-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       flex-wrap: wrap;
       gap: 8px;
     }
-    .order-id { font-weight: 600; font-size: 12px; color: #6b7280; }
+    
+    .order-id {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+    }
+    
     .order-status {
       padding: 4px 12px;
-      border-radius: 30px;
+      border-radius: 20px;
       font-size: 11px;
       font-weight: 500;
     }
-    .status-waiting { background: #fef3c7; color: #b45309; }
-    .status-new { background: #fed7aa; color: #9b4a00; }
-    .status-work { background: #e0e7ff; color: #1e40af; }
-    .status-done { background: #dcfce7; color: #166534; }
+    
+    .status-waiting {
+      background: #e0e0e0;
+      color: #666;
+    }
+    
+    .status-new {
+      background: #ffe0b2;
+      color: #e65100;
+    }
+    
+    .status-work {
+      background: #bbdefb;
+      color: #1565c0;
+    }
+    
+    .status-done {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
     
     .address {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a2a3a;
+      font-size: 16px;
+      font-weight: 600;
       margin: 8px 0;
     }
+    
     .order-details {
-      font-size: 14px;
-      color: #1a2a3a;
+      font-size: 13px;
+      color: #555;
       margin-bottom: 12px;
     }
+    
     .order-details p {
-      margin: 6px 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .order-details strong {
-      font-weight: 600;
-      min-width: 70px;
-      color: #4a5b6b;
+      margin: 5px 0;
     }
     
     .order-actions {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       margin-top: 12px;
     }
+    
     .btn {
-      padding: 12px 20px;
+      padding: 8px 16px;
       border: none;
-      border-radius: 44px;
+      border-radius: 40px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 15px;
+      font-size: 13px;
       transition: all 0.2s;
     }
-    .btn-primary { background: #1a2a3a; color: white; }
-    .btn-success { background: #10b981; color: white; }
-    .btn-warning { background: #f5b042; color: #1a2a3a; }
-    .btn:active { transform: scale(0.96); }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    
+    .btn-primary {
+      background: #1a2a3a;
+      color: white;
+    }
+    
+    .btn-success {
+      background: #4caf50;
+      color: white;
+    }
+    
+    .btn-warning {
+      background: #ff9800;
+      color: white;
+    }
+    
+    .btn:active {
+      transform: scale(0.95);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
     
     .time-input {
       display: flex;
       gap: 8px;
       align-items: center;
-      flex-wrap: wrap;
     }
+    
     .time-input input {
-      padding: 10px 12px;
-      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
       border-radius: 40px;
-      font-size: 14px;
-      width: 110px;
+      font-size: 13px;
+      width: 100px;
+    }
+    
+    .payment-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    
+    .payment-online {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    
+    .payment-cash {
+      background: #e8f5e9;
+      color: #2e7d32;
     }
     
     .notification {
@@ -292,23 +412,19 @@
       z-index: 1000;
       font-size: 14px;
       animation: slideIn 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     
-    .payment-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 600;
-      margin-left: 8px;
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
     }
-    .payment-online { background: #e0e7ff; color: #1e40af; }
-    .payment-cash { background: #e8f5e9; color: #2e7d32; }
     
     .loading {
       display: inline-block;
@@ -319,25 +435,29 @@
       border-top-color: white;
       animation: spin 0.6s linear infinite;
       margin-right: 8px;
+      vertical-align: middle;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
     
-    .error-banner {
-      background: #fee2e2;
-      border: 1px solid #fecaca;
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      color: #dc2626;
-      font-size: 13px;
-      display: none;
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
-    .error-banner.show { display: block; }
+    
+    .error-message {
+      background: #ffebee;
+      border: 1px solid #ffcdd2;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 20px;
+      color: #c62828;
+      font-size: 14px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-
 <div class="container">
+  
+  <!-- Форма входа -->
   <div id="loginSection">
     <div class="login-box">
       <div class="logo" style="justify-content: center; margin-bottom: 20px;">
@@ -353,12 +473,13 @@
       </select>
       <input type="password" id="passwordInput" placeholder="Пароль">
       <button class="login-btn" id="loginBtn">Войти</button>
-      <div style="margin-top: 16px; font-size: 12px; color: #8b9eb0;">
-        Тестовые пароли: egor123, sergey123, ivan123
+      <div style="margin-top: 16px; font-size: 12px; color: #999;">
+        Пароли: egor123, sergey123, ivan123
       </div>
     </div>
   </div>
   
+  <!-- Админ панель -->
   <div id="adminSection" style="display: none;">
     <div class="header">
       <div class="logo">
@@ -368,16 +489,16 @@
       <div class="courier-panel">
         <span class="courier-name" id="courierName"></span>
         <span class="courier-stats" id="courierCount">0 заказов</span>
-        <button class="refresh-btn" id="refreshBtn">🔄 Обновить</button>
+        <button class="refresh-btn" id="refreshBtn">🔄</button>
         <button class="logout-btn" id="logoutBtn">Выход</button>
       </div>
     </div>
     
-    <div class="error-banner" id="errorBanner">
-      ⚠️ Ошибка подключения к серверу. Проверьте интернет-соединение.
-    </div>
-    
-    <div class="stats" id="statsContainer">
+    <div class="stats">
+      <div class="stat-card" data-filter="all">
+        <div class="stat-number" id="statAll">0</div>
+        <div class="stat-label">📋 Все</div>
+      </div>
       <div class="stat-card" data-filter="waiting">
         <div class="stat-number" id="statWaiting">0</div>
         <div class="stat-label">💳 Ожидают оплаты</div>
@@ -386,30 +507,26 @@
         <div class="stat-number" id="statNew">0</div>
         <div class="stat-label">🟡 Новые</div>
       </div>
-      <div class="stat-card" data-filter="work">
-        <div class="stat-number" id="statWork">0</div>
-        <div class="stat-label">🔵 В работе</div>
-      </div>
       <div class="stat-card" data-filter="my">
         <div class="stat-number" id="statMy">0</div>
-        <div class="stat-label">👤 Мои заказы</div>
+        <div class="stat-label">👤 Мои</div>
       </div>
     </div>
     
     <div class="search-bar">
-      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ID, телефону, адресу или комментарию">
+      <input type="text" id="searchInput" class="search-input" placeholder="Поиск по адресу, телефону или ID...">
     </div>
     
     <div id="ordersContainer">
-      <div class="section" style="text-align: center; padding: 40px;">
-        <div class="loading" style="border-top-color: #1a2a3a;"></div> Загрузка заказов...
+      <div style="text-align: center; padding: 40px;">
+        <div class="loading" style="border-top-color: #1a2a3a;"></div> Загрузка...
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // ========== FIREBASE ==========
+  // ========== НАСТРОЙКИ FIREBASE ==========
   const firebaseConfig = {
     apiKey: "AIzaSyAfNIlVyq0mdYylfR__zp1bg2uO7xapvoQ",
     authDomain: "musor-go.firebaseapp.com",
@@ -419,31 +536,9 @@
     appId: "1:249921799089:web:1a740b067f4869a0a83390"
   };
   
-  // Инициализируем Firebase с обработкой ошибок
-  let db;
-  try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    
-    // Настройки Firestore для лучшей работы в России
-    const settings = {
-      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-    };
-    db.settings(settings);
-    
-    // Включаем оффлайн persistence
-    db.enablePersistence()
-      .catch((err) => {
-        if (err.code == 'failed-precondition') {
-          console.log('Множественные вкладки, persistence не включен');
-        } else if (err.code == 'unimplemented') {
-          console.log('Браузер не поддерживает persistence');
-        }
-      });
-      
-  } catch (e) {
-    console.error("Ошибка инициализации Firebase:", e);
-  }
+  // Инициализация Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
   
   // Пароли курьеров
   const COURIER_PASSWORDS = {
@@ -452,100 +547,82 @@
     "Иван": "ivan123"
   };
   
+  // Глобальные переменные
   let currentCourier = "";
   let currentCourierId = "";
-  let ordersUnsubscribe = null;
   let allOrders = [];
-  let activeFilter = "all";
-  let searchQuery = "";
-  let debounceTimer = null;
-  let reconnectAttempts = 0;
-  let isConnected = true;
+  let currentFilter = "all";
+  let searchText = "";
+  let updateInterval = null;
   
-  // Утилиты
+  // ========== УВЕДОМЛЕНИЯ ==========
   function showNotification(message, isError = false) {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.innerHTML = message;
     if (isError) notification.style.background = '#dc3545';
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 4000);
+    setTimeout(() => notification.remove(), 3000);
   }
   
-  function showErrorBanner(show) {
-    const banner = document.getElementById('errorBanner');
-    if (banner) {
-      if (show) {
-        banner.classList.add('show');
-        isConnected = false;
-      } else {
-        banner.classList.remove('show');
-        isConnected = true;
-      }
-    }
-  }
-  
-  // ========== ВХОД / ВЫХОД ==========
+  // ========== ВХОД/ВЫХОД ==========
   async function login() {
     const name = document.getElementById('courierSelect').value;
     const password = document.getElementById('passwordInput').value;
-    const loginBtn = document.getElementById('loginBtn');
+    const btn = document.getElementById('loginBtn');
     
     if (!name) {
-      showNotification("❌ Выберите курьера", true);
+      showNotification("Выберите курьера", true);
       return;
     }
     
     if (!COURIER_PASSWORDS[name] || COURIER_PASSWORDS[name] !== password) {
-      showNotification("❌ Неверный пароль", true);
+      showNotification("Неверный пароль", true);
       return;
     }
     
-    const originalText = loginBtn.innerText;
-    loginBtn.innerHTML = '<span class="loading"></span> Вход...';
-    loginBtn.disabled = true;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> Вход...';
     
     try {
       currentCourier = name;
       
-      const courierQuery = await db.collection("couriers").where("name", "==", name).get();
-      if (courierQuery.empty) {
-        const newDoc = await db.collection("couriers").add({
+      // Поиск или создание курьера
+      const query = await db.collection("couriers").where("name", "==", name).get();
+      if (query.empty) {
+        const doc = await db.collection("couriers").add({
           name: name,
-          password: password,
           orders_count: 0,
           createdAt: new Date().toISOString()
         });
-        currentCourierId = newDoc.id;
+        currentCourierId = doc.id;
       } else {
-        currentCourierId = courierQuery.docs[0].id;
+        currentCourierId = query.docs[0].id;
       }
       
+      // Сохраняем в localStorage
       localStorage.setItem("courierAuth", "true");
       localStorage.setItem("courierName", name);
       localStorage.setItem("courierId", currentCourierId);
       
-      showNotification("✅ Вход выполнен успешно");
+      showNotification("Вход выполнен!");
       showAdminPanel();
       
     } catch (error) {
       console.error("Ошибка входа:", error);
-      showNotification("❌ Ошибка при входе: " + error.message, true);
-      loginBtn.innerHTML = originalText;
-      loginBtn.disabled = false;
+      showNotification("Ошибка: " + error.message, true);
+      btn.disabled = false;
+      btn.innerHTML = 'Войти';
     }
   }
   
-  async function logout() {
-    if (ordersUnsubscribe) {
-      ordersUnsubscribe();
-      ordersUnsubscribe = null;
-    }
+  function logout() {
+    if (updateInterval) clearInterval(updateInterval);
     localStorage.removeItem("courierAuth");
     localStorage.removeItem("courierName");
     localStorage.removeItem("courierId");
     showLoginPanel();
-    showNotification("👋 Вы вышли из системы");
+    showNotification("Вы вышли");
   }
   
   function showLoginPanel() {
@@ -553,10 +630,10 @@
     document.getElementById('adminSection').style.display = 'none';
     document.getElementById('passwordInput').value = "";
     document.getElementById('courierSelect').value = "";
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) {
-      loginBtn.innerHTML = 'Войти';
-      loginBtn.disabled = false;
+    const btn = document.getElementById('loginBtn');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Войти';
     }
   }
   
@@ -573,304 +650,212 @@
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('adminSection').style.display = 'block';
     
-    await updateCourierStats();
-    loadOrders();
-    initStatsClick();
-    initSearch();
+    // Загружаем статистику курьера
+    await loadCourierStats();
+    
+    // Загружаем заказы
+    await loadOrders();
+    
+    // Автообновление каждые 10 секунд
+    if (updateInterval) clearInterval(updateInterval);
+    updateInterval = setInterval(() => {
+      loadOrders();
+    }, 10000);
   }
   
-  async function updateCourierStats() {
-    if (!currentCourierId) return;
+  async function loadCourierStats() {
     try {
-      const courierDoc = await db.collection("couriers").doc(currentCourierId).get();
-      if (courierDoc.exists) {
-        const count = courierDoc.data().orders_count || 0;
+      const doc = await db.collection("couriers").doc(currentCourierId).get();
+      if (doc.exists) {
+        const count = doc.data().orders_count || 0;
         document.getElementById('courierCount').innerHTML = count + " заказов";
       }
-    } catch(e) { 
+    } catch(e) {
       console.error("Ошибка статистики:", e);
     }
   }
   
   async function incrementCourierOrders() {
-    if (!currentCourierId) return;
     try {
-      const courierRef = db.collection("couriers").doc(currentCourierId);
-      const courierDoc = await courierRef.get();
-      const currentCount = courierDoc.exists ? (courierDoc.data().orders_count || 0) : 0;
-      await courierRef.update({ orders_count: currentCount + 1 });
+      const ref = db.collection("couriers").doc(currentCourierId);
+      const doc = await ref.get();
+      const currentCount = doc.exists ? (doc.data().orders_count || 0) : 0;
+      await ref.update({ orders_count: currentCount + 1 });
       document.getElementById('courierCount').innerHTML = (currentCount + 1) + " заказов";
-    } catch(e) { 
+    } catch(e) {
       console.error("Ошибка обновления:", e);
     }
   }
   
-  function manualRefresh() {
-    showNotification("🔄 Обновление...");
-    renderFilteredOrders();
-  }
-  
-  // ========== ФИЛЬТРЫ И ПОИСК ==========
-  function initStatsClick() {
-    const stats = document.querySelectorAll('.stat-card');
-    stats.forEach(stat => {
-      stat.addEventListener('click', () => {
-        stats.forEach(s => s.classList.remove('active'));
-        stat.classList.add('active');
-        activeFilter = stat.dataset.filter;
-        renderFilteredOrders();
-      });
-    });
-  }
-  
-  function initSearch() {
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', (e) => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        searchQuery = e.target.value.trim().toLowerCase();
-        renderFilteredOrders();
-      }, 300);
-    });
-  }
-  
-  function filterOrdersBySearch(orders) {
-    if (!searchQuery) return orders;
-    return orders.filter(order => {
-      const idMatch = order.id.toLowerCase().includes(searchQuery);
-      const phoneMatch = order.phone && order.phone.includes(searchQuery);
-      const streetMatch = order.street && order.street.toLowerCase().includes(searchQuery);
-      const houseMatch = order.house && order.house.toLowerCase().includes(searchQuery);
-      const flatMatch = order.flat && order.flat.toString().includes(searchQuery);
-      const commentMatch = order.comment && order.comment.toLowerCase().includes(searchQuery);
-      return idMatch || phoneMatch || streetMatch || houseMatch || flatMatch || commentMatch;
-    });
-  }
-  
-  function renderFilteredOrders() {
-    let filteredOrders = [...allOrders];
-    
-    if (activeFilter === "waiting") {
-      filteredOrders = filteredOrders.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты");
-    } else if (activeFilter === "new") {
-      filteredOrders = filteredOrders.filter(o => o.status === "новый");
-    } else if (activeFilter === "work") {
-      filteredOrders = filteredOrders.filter(o => o.status === "в работе");
-    } else if (activeFilter === "my") {
-      filteredOrders = filteredOrders.filter(o => o.courierId === currentCourierId);
-    }
-    
-    filteredOrders = filterOrdersBySearch(filteredOrders);
-    
-    const myOrders = filteredOrders.filter(o => o.courierId === currentCourierId && o.status !== "выполнен");
-    const waitingOrders = filteredOrders.filter(o => (o.status === "pending_payment" || o.status === "ожидает оплаты"));
-    const newOrders = filteredOrders.filter(o => o.status === "новый" && o.courierId !== currentCourierId);
-    const workOthers = filteredOrders.filter(o => o.status === "в работе" && o.courierId !== currentCourierId);
-    const doneOrders = filteredOrders.filter(o => o.status === "выполнен");
-    
-    renderOrdersByGroup({
-      waiting: waitingOrders,
-      my: myOrders,
-      new: newOrders,
-      workOthers: workOthers,
-      done: doneOrders
-    });
-  }
-  
-  function loadOrders() {
-    if (ordersUnsubscribe) {
-      ordersUnsubscribe();
-      ordersUnsubscribe = null;
-    }
-    
-    if (!db) {
-      console.error("Firestore не инициализирован");
-      document.getElementById('ordersContainer').innerHTML = '<div class="section" style="text-align: center; color: #dc2626;">❌ Ошибка подключения к базе данных</div>';
-      showErrorBanner(true);
-      return;
-    }
-    
-    let initialLoad = true;
-    let loadTimeout = setTimeout(() => {
-      if (initialLoad) {
-        document.getElementById('ordersContainer').innerHTML = '<div class="section" style="text-align: center; color: #f59e0b;">⏳ Долгая загрузка, проверьте соединение...</div>';
-      }
-    }, 5000);
-    
+  // ========== ЗАГРУЗКА ЗАКАЗОВ ==========
+  async function loadOrders() {
     try {
-      ordersUnsubscribe = db.collection("orders")
+      const snapshot = await db.collection("orders")
         .orderBy("createdAt", "desc")
-        .onSnapshot({
-          next: (snapshot) => {
-            clearTimeout(loadTimeout);
-            showErrorBanner(false);
-            reconnectAttempts = 0;
-            
-            const orders = [];
-            let waitingCount = 0, newCount = 0, workCount = 0, myCount = 0;
-            
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              const order = { id: doc.id, ...data };
-              orders.push(order);
-              allOrders = orders;
-              
-              if (data.status === "pending_payment" || data.status === "ожидает оплаты") waitingCount++;
-              else if (data.status === "новый") newCount++;
-              else if (data.status === "в работе") workCount++;
-              
-              if (data.courierId === currentCourierId) myCount++;
-            });
-            
-            initialLoad = false;
-            
-            document.getElementById('statWaiting').innerText = waitingCount;
-            document.getElementById('statNew').innerText = newCount;
-            document.getElementById('statWork').innerText = workCount;
-            document.getElementById('statMy').innerText = myCount;
-            
-            renderFilteredOrders();
-          },
-          error: (error) => {
-            console.error("Ошибка загрузки заказов:", error);
-            clearTimeout(loadTimeout);
-            showErrorBanner(true);
-            
-            if (reconnectAttempts < 3) {
-              reconnectAttempts++;
-              setTimeout(() => {
-                console.log(`Попытка переподключения ${reconnectAttempts}...`);
-                loadOrders();
-              }, 3000);
-            } else {
-              document.getElementById('ordersContainer').innerHTML = `
-                <div class="section" style="text-align: center;">
-                  <div style="color: #dc2626; margin-bottom: 12px;">❌ Ошибка подключения к серверу</div>
-                  <button class="btn btn-primary" onclick="window.manualRefresh()">🔄 Попробовать снова</button>
-                </div>
-              `;
-            }
-          }
+        .get();
+      
+      allOrders = [];
+      snapshot.forEach(doc => {
+        allOrders.push({
+          id: doc.id,
+          ...doc.data()
         });
-    } catch (e) {
-      console.error("Критическая ошибка:", e);
-      clearTimeout(loadTimeout);
-      document.getElementById('ordersContainer').innerHTML = '<div class="section" style="text-align: center; color: #dc2626;">❌ Ошибка инициализации</div>';
-      showErrorBanner(true);
+      });
+      
+      updateStats();
+      renderOrders();
+      
+    } catch (error) {
+      console.error("Ошибка загрузки:", error);
+      document.getElementById('ordersContainer').innerHTML = `
+        <div class="error-message">
+          ❌ Ошибка загрузки заказов: ${error.message}<br>
+          <button onclick="loadOrders()" style="margin-top:10px; padding:8px 16px;">Повторить</button>
+        </div>
+      `;
     }
   }
   
-  function renderOrdersByGroup(groups) {
-    const container = document.getElementById('ordersContainer');
+  function updateStats() {
+    const waiting = allOrders.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты").length;
+    const newOrders = allOrders.filter(o => o.status === "новый").length;
+    const myOrders = allOrders.filter(o => o.courierId === currentCourierId && o.status !== "выполнен" && o.status !== "отменен").length;
+    
+    document.getElementById('statAll').innerText = allOrders.length;
+    document.getElementById('statWaiting').innerText = waiting;
+    document.getElementById('statNew').innerText = newOrders;
+    document.getElementById('statMy').innerText = myOrders;
+  }
+  
+  function renderOrders() {
+    // Фильтрация
+    let filtered = [...allOrders];
+    
+    if (currentFilter === "waiting") {
+      filtered = filtered.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты");
+    } else if (currentFilter === "new") {
+      filtered = filtered.filter(o => o.status === "новый");
+    } else if (currentFilter === "my") {
+      filtered = filtered.filter(o => o.courierId === currentCourierId);
+    }
+    
+    // Поиск
+    if (searchText) {
+      const search = searchText.toLowerCase();
+      filtered = filtered.filter(o => 
+        o.id.toLowerCase().includes(search) ||
+        (o.phone && o.phone.includes(search)) ||
+        (o.street && o.street.toLowerCase().includes(search)) ||
+        (o.house && o.house.toLowerCase().includes(search))
+      );
+    }
+    
+    // Группировка
+    const waitingOrders = filtered.filter(o => o.status === "pending_payment" || o.status === "ожидает оплаты");
+    const myOrders = filtered.filter(o => o.courierId === currentCourierId && o.status !== "выполнен" && o.status !== "отменен");
+    const newOrders = filtered.filter(o => o.status === "новый" && o.courierId !== currentCourierId);
+    const workOrders = filtered.filter(o => o.status === "в работе" && o.courierId !== currentCourierId);
+    const doneOrders = filtered.filter(o => o.status === "выполнен");
+    
     let html = "";
     
-    if (groups.waiting.length > 0) {
-      html += `<div class="section"><div class="section-title">💳 ОЖИДАЮТ ОПЛАТЫ <span class="section-count">${groups.waiting.length}</span></div>`;
-      groups.waiting.forEach(order => { html += renderOrderCard(order, "waiting"); });
+    if (waitingOrders.length > 0) {
+      html += `<div class="section"><div class="section-title">💳 Ожидают оплаты <span class="section-count">${waitingOrders.length}</span></div>`;
+      waitingOrders.forEach(o => html += renderOrderCard(o, "waiting"));
       html += `</div>`;
     }
     
-    if (groups.my.length > 0) {
-      html += `<div class="section"><div class="section-title">🔥 МОИ ЗАКАЗЫ <span class="section-count">${groups.my.length}</span></div>`;
-      groups.my.forEach(order => { html += renderOrderCard(order, "my"); });
+    if (myOrders.length > 0) {
+      html += `<div class="section"><div class="section-title">🔥 Мои заказы <span class="section-count">${myOrders.length}</span></div>`;
+      myOrders.forEach(o => html += renderOrderCard(o, "my"));
       html += `</div>`;
     }
     
-    if (groups.new.length > 0) {
-      html += `<div class="section"><div class="section-title">🟡 НОВЫЕ (оплачены) <span class="section-count">${groups.new.length}</span></div>`;
-      groups.new.forEach(order => { html += renderOrderCard(order, "new"); });
+    if (newOrders.length > 0) {
+      html += `<div class="section"><div class="section-title">🟡 Новые заказы <span class="section-count">${newOrders.length}</span></div>`;
+      newOrders.forEach(o => html += renderOrderCard(o, "new"));
       html += `</div>`;
     }
     
-    if (groups.workOthers.length > 0) {
-      html += `<div class="section"><div class="section-title">🔵 В РАБОТЕ У ДРУГИХ <span class="section-count">${groups.workOthers.length}</span></div>`;
-      groups.workOthers.forEach(order => { html += renderOrderCard(order, "work"); });
+    if (workOrders.length > 0) {
+      html += `<div class="section"><div class="section-title">🔵 В работе <span class="section-count">${workOrders.length}</span></div>`;
+      workOrders.forEach(o => html += renderOrderCard(o, "work"));
       html += `</div>`;
     }
     
-    if (groups.done.length > 0) {
-      html += `<div class="section"><div class="section-title">✅ ВЫПОЛНЕНЫ <span class="section-count">${groups.done.length}</span></div>`;
-      groups.done.forEach(order => { html += renderOrderCard(order, "done"); });
+    if (doneOrders.length > 0) {
+      html += `<div class="section"><div class="section-title">✅ Выполненные <span class="section-count">${doneOrders.length}</span></div>`;
+      doneOrders.forEach(o => html += renderOrderCard(o, "done"));
       html += `</div>`;
     }
     
-    if (groups.waiting.length + groups.my.length + groups.new.length + groups.workOthers.length + groups.done.length === 0) {
-      html = `<div class="section" style="text-align: center; color: #8b9eb0;">📭 Нет заказов</div>`;
+    if (filtered.length === 0) {
+      html = `<div class="section" style="text-align: center; color: #999;">📭 Нет заказов</div>`;
     }
-    container.innerHTML = html;
+    
+    document.getElementById('ordersContainer').innerHTML = html;
   }
   
   function renderOrderCard(order, type) {
-    const isMyOrder = (type === "my");
-    const isNew = (type === "new");
-    const isWaiting = (type === "waiting");
-    const isWorkOther = (type === "work");
-    const isDone = (type === "done");
+    const isMy = type === "my";
+    const isNew = type === "new";
+    const isWaiting = type === "waiting";
+    const isWork = type === "work";
+    const isDone = type === "done";
     
     const paymentMethod = order.paymentMethod || (order.status === "pending_payment" ? "online" : "unknown");
     const paymentBadge = paymentMethod === "cash" 
       ? '<span class="payment-badge payment-cash">💵 Наличные</span>' 
       : '<span class="payment-badge payment-online">💳 Онлайн</span>';
     
-    let actions = "";
-    if (isMyOrder) {
-      actions = `
-        <div class="order-actions">
-          <div class="time-input">
-            <input type="text" id="time_${order.id}" placeholder="Время (18:30)">
-            <button class="btn btn-warning" onclick="window.setPickupTime('${order.id}')">⏰ Указать время</button>
-          </div>
-          <button class="btn btn-success" onclick="window.completeOrder('${order.id}')">✅ Выполнен</button>
-        </div>
-      `;
-    } else if (isNew) {
-      actions = `<div class="order-actions"><button class="btn btn-primary" onclick="window.takeOrder('${order.id}', this)">✅ Взять в работу</button></div>`;
-    } else if (isWaiting) {
-      actions = `<div class="order-actions"><span style="background:#eef2f5; padding:8px 16px; border-radius:30px;">⏳ Ожидает оплаты</span></div>`;
-    } else if (isWorkOther) {
-      const courierName = order.courier || "неизвестный";
-      actions = `<div class="order-actions"><span style="background:#eef2f5; padding:8px 16px; border-radius:30px;">👤 В работе у: ${courierName}</span></div>`;
-    }
-    
     let statusText = "";
     if (isWaiting) statusText = "Ожидает оплаты";
-    else if (isNew) statusText = "Новый (оплачен)";
-    else if (isMyOrder) statusText = order.status === "в работе" ? "В работе" : order.status;
-    else if (isWorkOther) statusText = "В работе";
+    else if (isNew) statusText = "Новый";
+    else if (isMy || isWork) statusText = "В работе";
     else if (isDone) statusText = "Выполнен";
     
     let statusClass = "";
     if (isWaiting) statusClass = "status-waiting";
     else if (isNew) statusClass = "status-new";
-    else if (isMyOrder || isWorkOther) statusClass = "status-work";
+    else if (isMy || isWork) statusClass = "status-work";
     else if (isDone) statusClass = "status-done";
     
-    let cardClass = `order-card ${type}`;
-    if (isMyOrder) cardClass += " my-order";
+    let actions = "";
+    if (isMy) {
+      actions = `
+        <div class="order-actions">
+          <div class="time-input">
+            <input type="text" id="time_${order.id}" placeholder="Время">
+            <button class="btn btn-warning" onclick="setPickupTime('${order.id}')">⏰</button>
+          </div>
+          <button class="btn btn-success" onclick="completeOrder('${order.id}')">✅ Выполнен</button>
+        </div>
+      `;
+    } else if (isNew) {
+      actions = `<div class="order-actions"><button class="btn btn-primary" onclick="takeOrder('${order.id}', this)">✅ Взять в работу</button></div>`;
+    } else if (isWaiting) {
+      actions = `<div class="order-actions"><span style="background:#e0e0e0; padding:8px 16px; border-radius:40px;">⏳ Ожидает оплаты</span></div>`;
+    } else if (isWork) {
+      actions = `<div class="order-actions"><span style="background:#e0e0e0; padding:8px 16px; border-radius:40px;">👤 В работе у: ${order.courier || 'неизвестно'}</span></div>`;
+    }
     
-    let detailsHtml = `
+    let details = `
       <div class="order-details">
-        <p><strong>📞 Телефон:</strong> ${order.phone || "не указан"}</p>
+        <p>📞 ${order.phone || "не указан"}</p>
     `;
-    if (order.comment) {
-      detailsHtml += `<p><strong>📝 Комментарий:</strong> ${order.comment}</p>`;
-    }
-    if (order.doorCode) {
-      detailsHtml += `<p><strong>🔑 Код домофона:</strong> ${order.doorCode}</p>`;
-    }
-    if (order.pickupTime) {
-      detailsHtml += `<p><strong>⏰ Время вывоза:</strong> ${order.pickupTime}</p>`;
-    }
-    detailsHtml += `</div>`;
+    if (order.comment) details += `<p>📝 ${order.comment}</p>`;
+    if (order.doorCode) details += `<p>🔑 Код: ${order.doorCode}</p>`;
+    if (order.pickupTime) details += `<p>⏰ Время: ${order.pickupTime}</p>`;
+    details += `</div>`;
     
     return `
-      <div class="${cardClass}" data-id="${order.id}">
+      <div class="order-card ${type}">
         <div class="order-header">
           <span class="order-id">#${order.id.slice(0,6)} ${paymentBadge}</span>
           <span class="order-status ${statusClass}">${statusText}</span>
         </div>
-        <div class="address">📍 ${order.street}, ${order.house}, кв.${order.flat}</div>
-        ${detailsHtml}
+        <div class="address">📍 ${order.street || ''} ${order.house || ''}, кв.${order.flat || ''}</div>
+        ${details}
         ${actions}
       </div>
     `;
@@ -883,31 +868,32 @@
       button.innerHTML = '<span class="loading"></span>';
     }
     
-    const ref = db.collection("orders").doc(orderId);
-    
     try {
-      await db.runTransaction(async (transaction) => {
-        const doc = await transaction.get(ref);
-        if (!doc.exists) throw new Error("Заказ не найден");
-        const data = doc.data();
-        
-        if (data.status !== "новый") {
-          throw new Error("Заказ уже взят другим курьером");
-        }
-        
-        transaction.update(ref, {
-          status: "в работе",
-          courier: currentCourier,
-          courierId: currentCourierId,
-          takenAt: new Date().toISOString()
-        });
+      const orderRef = db.collection("orders").doc(orderId);
+      const orderDoc = await orderRef.get();
+      
+      if (!orderDoc.exists) {
+        throw new Error("Заказ не найден");
+      }
+      
+      const order = orderDoc.data();
+      
+      if (order.status !== "новый") {
+        throw new Error("Заказ уже взят другим курьером");
+      }
+      
+      await orderRef.update({
+        status: "в работе",
+        courier: currentCourier,
+        courierId: currentCourierId,
+        takenAt: new Date().toISOString()
       });
       
-      showNotification("✅ Заказ взят в работу");
-      await updateCourierStats();
+      showNotification("Заказ взят в работу!");
+      await loadOrders();
       
     } catch (error) {
-      showNotification("❌ " + error.message, true);
+      showNotification(error.message, true);
       if (button) {
         button.disabled = false;
         button.innerHTML = '✅ Взять в работу';
@@ -916,28 +902,24 @@
   }
   
   async function setPickupTime(orderId) {
-    const timeInput = document.getElementById(`time_${orderId}`);
-    const pickupTime = timeInput.value;
-    if (!pickupTime) { 
-      showNotification("⏰ Введите время вывоза (например, 18:30)", true);
-      return; 
-    }
+    const input = document.getElementById(`time_${orderId}`);
+    const time = input.value;
     
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (!timeRegex.test(pickupTime)) {
-      showNotification("❌ Неверный формат времени. Используйте ЧЧ:ММ", true);
+    if (!time) {
+      showNotification("Введите время", true);
       return;
     }
     
     try {
-      await db.collection("orders").doc(orderId).update({ 
-        pickupTime: pickupTime,
+      await db.collection("orders").doc(orderId).update({
+        pickupTime: time,
         pickupTimeSetAt: new Date().toISOString()
       });
-      showNotification(`⏰ Время вывоза: ${pickupTime}`);
-      timeInput.value = "";
-    } catch(e) { 
-      showNotification("❌ Ошибка: " + e.message, true);
+      showNotification(`Время вывоза: ${time}`);
+      input.value = "";
+      await loadOrders();
+    } catch(error) {
+      showNotification("Ошибка: " + error.message, true);
     }
   }
   
@@ -949,31 +931,50 @@
         completedBy: currentCourierId
       });
       await incrementCourierOrders();
-      showNotification(`✅ Заказ #${orderId.slice(0,6)} выполнен! +1 к статистике`);
-    } catch(e) { 
-      showNotification("❌ Ошибка: " + e.message, true);
+      showNotification("Заказ выполнен! +1 к статистике");
+      await loadOrders();
+    } catch(error) {
+      showNotification("Ошибка: " + error.message, true);
     }
   }
   
-  // ========== ПРИВЯЗКА ФУНКЦИЙ К WINDOW ==========
-  window.login = login;
-  window.logout = logout;
-  window.takeOrder = takeOrder;
-  window.setPickupTime = setPickupTime;
-  window.completeOrder = completeOrder;
-  window.manualRefresh = manualRefresh;
+  // ========== ФИЛЬТРЫ И ПОИСК ==========
+  function initFilters() {
+    const stats = document.querySelectorAll('.stat-card');
+    stats.forEach(stat => {
+      stat.addEventListener('click', () => {
+        stats.forEach(s => s.classList.remove('active'));
+        stat.classList.add('active');
+        currentFilter = stat.dataset.filter;
+        renderOrders();
+      });
+    });
+  }
+  
+  function initSearch() {
+    const searchInput = document.getElementById('searchInput');
+    let timeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        searchText = e.target.value;
+        renderOrders();
+      }, 300);
+    });
+  }
   
   // ========== ИНИЦИАЛИЗАЦИЯ ==========
   document.addEventListener('DOMContentLoaded', () => {
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn) loginBtn.onclick = () => login();
+    // Кнопки
+    document.getElementById('loginBtn').onclick = login;
+    document.getElementById('logoutBtn').onclick = logout;
+    document.getElementById('refreshBtn').onclick = () => loadOrders();
     
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) logoutBtn.onclick = () => logout();
+    // Фильтры и поиск
+    initFilters();
+    initSearch();
     
-    const refreshBtn = document.getElementById('refreshBtn');
-    if (refreshBtn) refreshBtn.onclick = () => manualRefresh();
-    
+    // Проверка авторизации
     if (localStorage.getItem("courierAuth") === "true" && localStorage.getItem("courierName")) {
       showAdminPanel();
     } else {
