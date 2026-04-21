@@ -694,6 +694,20 @@
       color: #1a2a3a;
       text-align: right;
     }
+    .track-value a {
+      color: #007aff;
+      text-decoration: none;
+    }
+    .call-btn {
+      background: #34c759;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
     
     .robokassa-modal {
       display: none;
@@ -856,13 +870,13 @@
     
     <div class="section-title">Способ оплаты</div>
     <div class="payment-options" id="paymentOptions">
-      <div class="payment-option" data-type="online">💳 Онлайн</div>
-      <div class="payment-option" data-type="cash">💵 Наличные</div>
+      <div class="payment-option" data-type="online">Онлайн</div>
+      <div class="payment-option" data-type="cash">Наличные</div>
     </div>
     
     <div class="validation-hint" id="validationHint"></div>
     <div class="cash-hint" id="cashHint">
-      💡 Пожалуйста, подготовьте 10 рублей наличными для передачи курьеру
+      Пожалуйста, подготовьте 10 рублей наличными для передачи курьеру
     </div>
     
     <button class="pay-btn-main" id="payBtn" disabled>Оформить заказ</button>
@@ -1561,6 +1575,20 @@
     document.getElementById('showLoginLink').onclick = (e) => { e.preventDefault(); showLoginForm(); };
   }
 
+  // Функция получения данных курьера по ID
+  async function getCourierInfo(courierId) {
+    if (!courierId) return null;
+    try {
+      const doc = await db.collection("couriers").doc(courierId).get();
+      if (doc.exists) {
+        return doc.data();
+      }
+    } catch(e) {
+      console.error("Ошибка получения курьера:", e);
+    }
+    return null;
+  }
+
   async function showProfileModal() {
     const user = auth.currentUser;
     if (!user || !user.emailVerified) return;
@@ -1573,42 +1601,78 @@
     
     const snapshot = await db.collection('orders').where('userEmail', '==', user.email).orderBy('createdAt', 'desc').get();
     let active = [], completed = [];
-    snapshot.forEach(doc => {
+    let activeOrdersWithCourier = [];
+    
+    for (const doc of snapshot.docs) {
       const order = { id: doc.id, ...doc.data() };
-      if (order.status === 'выполнен') completed.push(order);
-      else if (order.status !== 'отменен') active.push(order);
-    });
+      if (order.status === 'выполнен') {
+        completed.push(order);
+      } else if (order.status !== 'отменен') {
+        // Получаем данные курьера для активных заказов
+        let courierInfo = null;
+        if (order.courierId) {
+          courierInfo = await getCourierInfo(order.courierId);
+        }
+        activeOrdersWithCourier.push({ ...order, courierInfo });
+      }
+    }
     
     let activeHtml = '<div class="profile-section-title">Активные заказы</div>';
-    if (active.length === 0) activeHtml += '<p style="color:#8b9eb0;">Нет активных заказов</p>';
-    else active.forEach(order => {
-      let statusText = order.status;
-      let statusClass = 'status-active';
-      if (order.status === 'pending_payment') {
-        statusText = 'Ожидает оплаты';
-        statusClass = 'status-pending';
-      } else if (order.status === 'новый') statusText = 'Новый (оплачен)';
-      
-      const payButton = order.status === 'pending_payment' && order.paymentMethod !== 'cash'
-        ? `<button type="button" class="profile-order-pay" data-id="${order.id}">Оплатить</button>` : '';
-      const cancelButton = order.status === 'pending_payment' || order.status === 'новый'
-        ? `<button type="button" class="profile-order-cancel" data-id="${order.id}">Отменить</button>` : '';
-      
-      activeHtml += `
-        <div class="profile-order-item">
-          <div class="profile-order-header">
-            <span class="profile-order-id">Заказ #${order.id.slice(0,6)}</span>
-            <span class="profile-order-status ${statusClass}">${statusText}</span>
+    if (activeOrdersWithCourier.length === 0) {
+      activeHtml += '<p style="color:#8b9eb0;">Нет активных заказов</p>';
+    } else {
+      activeOrdersWithCourier.forEach(order => {
+        let statusText = order.status;
+        let statusClass = 'status-active';
+        if (order.status === 'pending_payment') {
+          statusText = 'Ожидает оплаты';
+          statusClass = 'status-pending';
+        } else if (order.status === 'новый') {
+          statusText = 'Новый (оплачен)';
+        } else if (order.status === 'в работе') {
+          statusText = 'Курьер в пути';
+        }
+        
+        const payButton = order.status === 'pending_payment' && order.paymentMethod !== 'cash'
+          ? `<button type="button" class="profile-order-pay" data-id="${order.id}">Оплатить</button>` : '';
+        const cancelButton = order.status === 'pending_payment' || order.status === 'новый'
+          ? `<button type="button" class="profile-order-cancel" data-id="${order.id}">Отменить</button>` : '';
+        
+        // Блок с информацией о курьере
+        let courierBlock = '';
+        if (order.courierId && order.status === 'в работе' && order.courierInfo) {
+          const courierPhone = order.courierInfo.phone || '';
+          const phoneLink = courierPhone ? `tel:${courierPhone}` : '#';
+          courierBlock = `
+            <div style="background:#e8f5e9; border-radius:12px; padding:10px; margin-top:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:13px; font-weight:600;">Курьер: ${order.courierInfo.name || '—'}</div>
+                  ${courierPhone ? `<div style="font-size:12px; color:#2e7d32;">Телефон: ${courierPhone}</div>` : ''}
+                </div>
+                ${courierPhone ? `<a href="${phoneLink}" class="call-btn" style="text-decoration:none;">📞 Позвонить</a>` : ''}
+              </div>
+            </div>
+          `;
+        }
+        
+        activeHtml += `
+          <div class="profile-order-item">
+            <div class="profile-order-header">
+              <span class="profile-order-id">Заказ #${order.id.slice(0,6)}</span>
+              <span class="profile-order-status ${statusClass}">${statusText}</span>
+            </div>
+            <div class="profile-order-details">${order.street}, ${order.house}, кв.${order.flat}<br>${order.preferredDateTime || ''}<br>${order.paymentMethod === 'cash' ? 'Оплата наличными' : 'Оплата онлайн'}</div>
+            ${courierBlock}
+            <div class="profile-order-buttons">
+              <button type="button" class="profile-order-track" data-id="${order.id}">Отследить</button>
+              ${payButton}
+              ${cancelButton}
+            </div>
           </div>
-          <div class="profile-order-details">${order.street}, ${order.house}, кв.${order.flat}<br>${order.preferredDateTime || ''}<br>${order.paymentMethod === 'cash' ? 'Оплата наличными' : 'Оплата онлайн'}</div>
-          <div class="profile-order-buttons">
-            <button type="button" class="profile-order-track" data-id="${order.id}">Отследить</button>
-            ${payButton}
-            ${cancelButton}
-          </div>
-        </div>
-      `;
-    });
+        `;
+      });
+    }
     
     let completedHtml = '<div class="profile-section-title">Завершённые</div>';
     if (completed.length === 0) completedHtml += '<p style="color:#8b9eb0;">Нет завершённых заказов</p>';
@@ -1667,6 +1731,7 @@
     const doc = await db.collection('orders').doc(orderId).get();
     if (!doc.exists) return;
     const order = doc.data();
+    
     let statusText = order.status;
     if (statusText === 'pending_payment') statusText = 'Ожидает оплаты';
     else if (statusText === 'новый') statusText = 'Оплачен, ищем курьера';
@@ -1677,6 +1742,25 @@
     const payButton = order.status === 'pending_payment' && order.paymentMethod !== 'cash'
       ? `<button type="button" class="modal-btn" id="payFromTrackBtn" style="margin-top: 20px; width: 100%;">Оплатить заказ</button>` : '';
     
+    // Получаем данные курьера если есть
+    let courierHtml = '';
+    if (order.courierId && order.status === 'в работе') {
+      const courierInfo = await getCourierInfo(order.courierId);
+      if (courierInfo) {
+        const courierPhone = courierInfo.phone || '';
+        const phoneLink = courierPhone ? `tel:${courierPhone}` : '#';
+        courierHtml = `
+          <div class="track-row">
+            <span class="track-label">Курьер</span>
+            <span class="track-value">
+              ${courierInfo.name || '—'}
+              ${courierPhone ? `<a href="${phoneLink}" style="margin-left:8px; background:#34c759; color:white; padding:4px 10px; border-radius:20px; text-decoration:none; font-size:12px;">Позвонить</a>` : ''}
+            </span>
+          </div>
+        `;
+      }
+    }
+    
     const html = `
       <div class="track-row"><span class="track-label">Номер</span><span class="track-value">#${orderId.slice(0,6)}</span></div>
       <div class="track-row"><span class="track-label">Статус</span><span class="track-value">${statusText}</span></div>
@@ -1684,6 +1768,7 @@
       <div class="track-row"><span class="track-label">Время</span><span class="track-value">${order.preferredDateTime || ''}</span></div>
       <div class="track-row"><span class="track-label">Телефон</span><span class="track-value">${order.phone}</span></div>
       <div class="track-row"><span class="track-label">Оплата</span><span class="track-value">${order.paymentMethod === 'cash' ? 'Наличными курьеру' : 'Онлайн'}</span></div>
+      ${courierHtml}
       ${payButton}
     `;
     document.getElementById('trackDetails').innerHTML = html;
@@ -1812,7 +1897,6 @@
     else { if (lastOrderUnsubscribe) lastOrderUnsubscribe(); statusIslandContainer.innerHTML = ''; }
   });
   
-  // Инициализация пикера времени
   function initTimePicker() {
     regenerateTimePicker();
   }
