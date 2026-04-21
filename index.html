@@ -247,7 +247,6 @@
       pointer-events: none;
     }
     
-    /* Кнопки оплаты */
     .payment-options {
       display: flex;
       gap: 12px;
@@ -855,7 +854,6 @@
       <div class="error-message" id="phoneError">Введите корректный номер телефона (11 цифр, +7)</div>
     </div>
     
-    <!-- Способ оплаты -->
     <div class="section-title">Способ оплаты</div>
     <div class="payment-options" id="paymentOptions">
       <div class="payment-option" data-type="online">💳 Онлайн</div>
@@ -1208,6 +1206,8 @@
   function regenerateTimePicker() {
     const hoursScroll = document.getElementById('hoursScroll');
     const minutesScroll = document.getElementById('minutesScroll');
+    if (!hoursScroll || !minutesScroll) return;
+    
     hoursScroll.innerHTML = '';
     const now = getCurrentChelyabinskTime();
     const currentHour = now.getUTCHours();
@@ -1265,10 +1265,14 @@
   }
   
   function updateTimeDisplay() {
-    selectedTime = `${selectedHour}:${selectedMinute}`;
+    if (selectedHour && selectedMinute) {
+      selectedTime = `${selectedHour}:${selectedMinute}`;
+    } else {
+      selectedTime = "";
+    }
     const displaySpan = document.getElementById('selectedTimeDisplay');
     const timeBtn = document.getElementById('timeSelectBtn');
-    if (selectedTime && selectedHour) {
+    if (selectedTime) {
       displaySpan.textContent = ` ${selectedTime}`;
       timeBtn.querySelector('span:first-child').textContent = 'Выбрано:';
     } else {
@@ -1280,6 +1284,7 @@
   
   function showTimeModal() {
     const modal = document.getElementById('timeModal');
+    if (!modal) return;
     modal.style.display = 'flex';
     regenerateTimePicker();
     const hoursItems = document.querySelectorAll('#hoursScroll .time-item');
@@ -1298,8 +1303,15 @@
     });
   }
   
-  function hideTimeModal() { document.getElementById('timeModal').style.display = 'none'; }
-  function saveTime() { updateTimeDisplay(); hideTimeModal(); }
+  function hideTimeModal() { 
+    const modal = document.getElementById('timeModal');
+    if (modal) modal.style.display = 'none'; 
+  }
+  
+  function saveTime() { 
+    updateTimeDisplay(); 
+    hideTimeModal(); 
+  }
 
   // Инициализация обработчиков
   document.querySelectorAll('.delivery-option').forEach(opt => {
@@ -1359,11 +1371,23 @@
         status: "отменен",
         cancelledAt: new Date().toISOString()
       });
-      alert("Заказ успешно отменен");
+      showNotification("✅ Заказ успешно отменен");
       if (lastOrderUnsubscribe) subscribeToLastOrder();
+      return true;
     } catch (e) {
-      alert("Ошибка при отмене: " + e.message);
+      console.error("Ошибка отмены:", e);
+      showNotification("❌ Ошибка при отмене: " + e.message, true);
+      return false;
     }
+  }
+  
+  function showNotification(message, isError = false) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerHTML = message;
+    if (isError) notification.style.background = '#dc3545';
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 4000);
   }
 
   async function openPaymentForOrder(orderId, amount) {
@@ -1418,12 +1442,12 @@
       
       if (selectedPaymentMethod === "online") {
         await openPaymentForOrder(docRef.id, 10);
-        successMessage += `\n\nПосле оплаты статус заказа изменится автоматически.`;
+        successMessage += `<br><br>После оплаты статус заказа изменится автоматически.`;
       } else {
-        successMessage += `\n\nКурьер приедет в выбранное время. Пожалуйста, подготовьте 10 рублей наличными.`;
+        successMessage += `<br><br>Курьер приедет в выбранное время. Пожалуйста, подготовьте 10 рублей наличными.`;
       }
       
-      document.getElementById('modalText').innerHTML = successMessage.replace(/\n/g, '<br>');
+      document.getElementById('modalText').innerHTML = successMessage;
       document.getElementById('successModal').style.display = 'flex';
       
       document.getElementById('streetSelect').value = "";
@@ -1787,6 +1811,11 @@
     if (user && user.emailVerified) subscribeToLastOrder();
     else { if (lastOrderUnsubscribe) lastOrderUnsubscribe(); statusIslandContainer.innerHTML = ''; }
   });
+  
+  // Инициализация пикера времени
+  function initTimePicker() {
+    regenerateTimePicker();
+  }
 </script>
 </body>
 </html>
