@@ -46,6 +46,13 @@
     .logo-box span { font-size: 32px; font-weight: 700; color: #1a2a3a; letter-spacing: -0.3px; }
     .tagline { color: #5a6e7c; font-size: 16px; font-weight: 400; margin-top: 6px; }
     
+    .user-greeting {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #f5b042;
+      font-weight: 500;
+    }
+    
     .center-buttons {
       display: flex;
       flex-direction: column;
@@ -337,22 +344,15 @@
     .trust-badge {
       background: white;
       border-radius: 28px;
-      padding: 20px 28px;
+      padding: 16px 20px;
       margin-bottom: 24px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 16px;
+      text-align: center;
     }
-    .trust-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .work-hours {
       font-size: 14px;
       font-weight: 500;
       color: #1a2a3a;
     }
-    .trust-item span:first-child { font-size: 22px; }
     
     .comment-helper {
       font-size: 12px;
@@ -401,7 +401,7 @@
     }
     .modal-buttons {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
       margin-top: 20px;
       flex-wrap: wrap;
@@ -410,10 +410,12 @@
       background: #1a2a3a;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 12px 24px;
       border-radius: 44px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
+      font-size: 14px;
+      min-width: 120px;
     }
     .modal-btn-danger {
       background: #dc3545;
@@ -633,36 +635,31 @@
     }
     .profile-order-buttons {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .profile-order-track, .profile-order-pay, .profile-order-cancel {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 44px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      border: none;
     }
     .profile-order-track {
-      background: none;
-      border: 1px solid #f5b042;
-      color: #f5b042;
-      padding: 4px 12px;
-      border-radius: 30px;
-      font-size: 11px;
-      cursor: pointer;
+      background: #f5b042;
+      color: #1a2a3a;
     }
     .profile-order-pay {
-      background: #f5b042;
-      border: none;
-      color: #1a2a3a;
-      padding: 4px 12px;
-      border-radius: 30px;
-      font-size: 11px;
-      cursor: pointer;
-      font-weight: 500;
+      background: #1a2a3a;
+      color: white;
     }
     .profile-order-cancel {
-      background: none;
-      border: 1px solid #dc3545;
-      color: #dc3545;
-      padding: 4px 12px;
-      border-radius: 30px;
-      font-size: 11px;
-      cursor: pointer;
+      background: #dc3545;
+      color: white;
     }
     .profile-logout-btn {
       width: 100%;
@@ -797,6 +794,7 @@
       <button id="mapButton" class="zone-btn-top">Зона обслуживания</button>
       <button id="authButton" class="user-link">Войти</button>
     </div>
+    <div id="userGreeting" class="user-greeting"></div>
     <div id="statusIslandContainer"></div>
   </div>
 
@@ -852,7 +850,7 @@
       <span>Выбрать время</span>
       <span id="selectedTimeDisplay" class="selected-time"></span>
     </button>
-    <div class="info-banner">Выберите удобное время. Мы приедем в этот интервал.</div>
+    <div class="info-banner">Работаем ежедневно с 7:00 до 23:00</div>
   </div>
 
   <div class="form-card">
@@ -876,7 +874,7 @@
     
     <div class="validation-hint" id="validationHint"></div>
     <div class="cash-hint" id="cashHint">
-      Пожалуйста, подготовьте 10 рублей наличными для передачи курьеру
+      💡 При оплате наличными мусор нужно будет передать курьеру лично в руки
     </div>
     
     <button class="pay-btn-main" id="payBtn" disabled>Оформить заказ</button>
@@ -888,9 +886,7 @@
   </div>
   
   <div class="trust-badge">
-    <div class="trust-item"><span>⭐</span> 4.9 рейтинг среди клиентов</div>
-    <div class="trust-item"><span>👥</span> Уже более 200 выполненных заказов</div>
-    <div class="trust-item"><span>🧹</span> Работаем ежедневно с 8:00 до 23:00</div>
+    <div class="work-hours">🕐 Работаем ежедневно с 7:00 до 23:00</div>
   </div>
   
   <div class="footer">
@@ -1009,6 +1005,7 @@
   const validationHint = document.getElementById('validationHint');
   const cashHint = document.getElementById('cashHint');
   const cancelConfirmModal = document.getElementById('cancelConfirmModal');
+  const userGreeting = document.getElementById('userGreeting');
   
   let lastOrderUnsubscribe = null;
   let hiddenCompletedOrders = new Set();
@@ -1085,6 +1082,7 @@
         }
       });
       cashHint.classList.add('show');
+      cashHint.innerHTML = '💡 При оплате наличными мусор нужно будет передать курьеру лично в руки';
     } else {
       deliveryOptions.forEach(opt => opt.classList.remove('disabled'));
       cashHint.classList.remove('show');
@@ -1156,7 +1154,8 @@
   
   function canSelectToday() {
     const now = getCurrentChelyabinskTime();
-    return now.getUTCHours() < 22;
+    const currentHour = now.getUTCHours();
+    return currentHour < 23;
   }
   
   function updateDateOptionsAvailability() {
@@ -1225,12 +1224,15 @@
     hoursScroll.innerHTML = '';
     const now = getCurrentChelyabinskTime();
     const currentHour = now.getUTCHours();
-    let minHour = 8;
+    let minHour = 7;
+    let maxHour = 22;
+    
     if (selectedDate === 'today') {
-      minHour = Math.max(8, currentHour + 1);
+      minHour = Math.max(7, currentHour + 1);
       if (minHour > 22) minHour = 22;
     }
-    for (let i = minHour; i <= 22; i++) {
+    
+    for (let i = minHour; i <= maxHour; i++) {
       const hour = i.toString().padStart(2, '0');
       const div = document.createElement('div');
       div.className = 'time-item';
@@ -1385,12 +1387,12 @@
         status: "отменен",
         cancelledAt: new Date().toISOString()
       });
-      showNotification("✅ Заказ успешно отменен");
+      showNotification("Заказ успешно отменен");
       if (lastOrderUnsubscribe) subscribeToLastOrder();
       return true;
     } catch (e) {
       console.error("Ошибка отмены:", e);
-      showNotification("❌ Ошибка при отмене: " + e.message, true);
+      showNotification("Ошибка при отмене: " + e.message, true);
       return false;
     }
   }
@@ -1502,8 +1504,17 @@
     const user = auth.currentUser;
     if (user && user.emailVerified) {
       authButton.textContent = 'Личный кабинет';
+      let userName = "Пользователь";
+      try {
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        if (userDoc.exists && userDoc.data().name) {
+          userName = userDoc.data().name;
+        }
+      } catch(e) {}
+      userGreeting.innerHTML = `Привет, ${userName}!`;
     } else {
       authButton.textContent = 'Войти';
+      userGreeting.innerHTML = '';
     }
   }
 
@@ -1608,7 +1619,6 @@
       if (order.status === 'выполнен') {
         completed.push(order);
       } else if (order.status !== 'отменен') {
-        // Получаем данные курьера для активных заказов
         let courierInfo = null;
         if (order.courierId) {
           courierInfo = await getCourierInfo(order.courierId);
@@ -1619,7 +1629,7 @@
     
     let activeHtml = '<div class="profile-section-title">Активные заказы</div>';
     if (activeOrdersWithCourier.length === 0) {
-      activeHtml += '<p style="color:#8b9eb0;">Нет активных заказов</p>';
+      activeHtml += '<p style="color:#8b9eb0; text-align:center;">Нет активных заказов</p>';
     } else {
       activeOrdersWithCourier.forEach(order => {
         let statusText = order.status;
@@ -1635,10 +1645,9 @@
         
         const payButton = order.status === 'pending_payment' && order.paymentMethod !== 'cash'
           ? `<button type="button" class="profile-order-pay" data-id="${order.id}">Оплатить</button>` : '';
-        const cancelButton = order.status === 'pending_payment' || order.status === 'новый'
+        const cancelButton = order.status === 'pending_payment' || order.status === 'новый' || order.status === 'в работе'
           ? `<button type="button" class="profile-order-cancel" data-id="${order.id}">Отменить</button>` : '';
         
-        // Блок с информацией о курьере
         let courierBlock = '';
         if (order.courierId && order.status === 'в работе' && order.courierInfo) {
           const courierPhone = order.courierInfo.phone || '';
@@ -1650,7 +1659,7 @@
                   <div style="font-size:13px; font-weight:600;">Курьер: ${order.courierInfo.name || '—'}</div>
                   ${courierPhone ? `<div style="font-size:12px; color:#2e7d32;">Телефон: ${courierPhone}</div>` : ''}
                 </div>
-                ${courierPhone ? `<a href="${phoneLink}" class="call-btn" style="text-decoration:none;">📞 Позвонить</a>` : ''}
+                ${courierPhone ? `<a href="${phoneLink}" class="call-btn" style="text-decoration:none;">Позвонить</a>` : ''}
               </div>
             </div>
           `;
@@ -1665,7 +1674,7 @@
             <div class="profile-order-details">${order.street}, ${order.house}, кв.${order.flat}<br>${order.preferredDateTime || ''}<br>${order.paymentMethod === 'cash' ? 'Оплата наличными' : 'Оплата онлайн'}</div>
             ${courierBlock}
             <div class="profile-order-buttons">
-              <button type="button" class="profile-order-track" data-id="${order.id}">Отследить</button>
+              <button type="button" class="profile-order-track" data-id="${order.id}">Детали</button>
               ${payButton}
               ${cancelButton}
             </div>
@@ -1675,7 +1684,7 @@
     }
     
     let completedHtml = '<div class="profile-section-title">Завершённые</div>';
-    if (completed.length === 0) completedHtml += '<p style="color:#8b9eb0;">Нет завершённых заказов</p>';
+    if (completed.length === 0) completedHtml += '<p style="color:#8b9eb0; text-align:center;">Нет завершённых заказов</p>';
     else completed.forEach(order => {
       completedHtml += `
         <div class="profile-order-item">
@@ -1742,7 +1751,6 @@
     const payButton = order.status === 'pending_payment' && order.paymentMethod !== 'cash'
       ? `<button type="button" class="modal-btn" id="payFromTrackBtn" style="margin-top: 20px; width: 100%;">Оплатить заказ</button>` : '';
     
-    // Получаем данные курьера если есть
     let courierHtml = '';
     if (order.courierId && order.status === 'в работе') {
       const courierInfo = await getCourierInfo(order.courierId);
