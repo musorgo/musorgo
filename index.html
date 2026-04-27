@@ -1010,12 +1010,14 @@
     isTestMode: false
   };
   
+  // Хранилище для отслеживания оплат: invoiceId -> {orderId, checkInterval}
+  const activePayments = new Map();
+  
   function getRobokassaIframeUrl(orderId, invoiceId, amount, description) {
     const password = ROBOKASSA_CONFIG.password1;
     
-    // 1. Добавляем Shp_order — это ключевой параметр, который вернется обратно
+    // Добавляем Shp_order с ID заказа
     const shpOrder = `Shp_order=${orderId}`;
-    // Базовая строка подписи: MerchantLogin:OutSum:InvId:Пароль#1:Shp_order=value
     const signatureString = `${ROBOKASSA_CONFIG.merchantLogin}:${amount}:${invoiceId}:${password}:${shpOrder}`;
     let signature = CryptoJS.MD5(signatureString).toString();
     
@@ -1025,15 +1027,14 @@
     url += `&InvoiceID=${invoiceId}`;
     url += `&Description=${encodeURIComponent(description)}`;
     url += `&SignatureValue=${signature}`;
-    // 2. Передаем Shp_order в URL
     url += `&${shpOrder}`;
     
     const user = auth.currentUser;
     if (user && user.email) url += `&Email=${encodeURIComponent(user.email)}`;
     if (ROBOKASSA_CONFIG.isTestMode) url += `&IsTest=1`;
     
-    // 3. В SuccessURL тоже добавляем Shp_order, чтобы он вернулся на сайт
-    const successUrl = window.location.href.split('?')[0] + `?paid=1&orderId=${orderId}&InvId=${invoiceId}`;
+    // Success URL с параметрами для определения успешной оплаты
+    const successUrl = window.location.href.split('?')[0] + '?robokassa=success&orderId=' + orderId;
     url += `&SuccessURL=${encodeURIComponent(successUrl)}`;
     url += `&FailURL=${encodeURIComponent(successUrl)}`;
     
@@ -1041,7 +1042,7 @@
   }
   
   // Функция обновления статуса заказа после успешной оплаты
-  async function markOrderAsPaid(orderId, invoiceId) {
+  async function markOrderAsPaid(orderId) {
     try {
       const orderRef = db.collection("orders").doc(orderId);
       const orderDoc = await orderRef.get();
@@ -1055,18 +1056,88 @@
       if (orderData.status === 'pending_payment') {
         await orderRef.update({
           status: "новый",
-          paidAt: firebase.firestore.FieldValue.serverTimestamp(),
-          invoiceId: invoiceId
+          paidAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log("Заказ оплачен:", orderId);
+        console.log("✅ Заказ оплачен:", orderId);
+        showNotification('Оплата подтверждена! Заказ передан в работу.');
+        
+        // Обновляем интерфейс
+        if (lastOrderUnsubscribe) subscribeToLastOrder();
+        
+        // Закрываем модалку с оплатой
+        robokassaModal.style.display = 'none';
+        robokassaFrame.src = 'about:blank';
+        
         return true;
       } else {
         console.log("Заказ уже в статусе:", orderData.status);
+        if (orderData.status === 'новый' || orderData.status === 'в работе') {
+          showNotification('Заказ уже оплачен и находится в работе.');
+          robokassaModal.style.display = 'none';
+          robokassaFrame.src = 'about:blank';
+        }
         return true;
       }
     } catch (e) {
       console.error("Ошибка обновления заказа:", e);
       return false;
+    }
+  }
+  
+  // Отслеживание изменений URL в iframe Робокассы
+  let robokassaCheckInterval = null;
+  
+  function startRobokassaUrlMonitoring(orderId) {
+    // Очищаем предыдущий интервал
+    if (robokassaCheckInterval) clearInterval(robokassaCheckInterval);
+    
+    let lastUrl = '';
+    
+    robokassaCheckInterval = setInterval(() => {
+      try {
+        const iframe = document.getElementById('robokassaFrame');
+        if (!iframe || !iframe.contentWindow) return;
+        
+        // Пытаемся получить URL из iframe
+        const currentUrl = iframe.contentWindow.location.href;
+        
+        if (currentUrl !== lastUrl && currentUrl !== 'about:blank') {
+          lastUrl = currentUrl;
+          console.log('Изменение URL в iframe:', currentUrl);
+          
+          // Проверяем, содержит ли URL признаки успешной оплаты
+          if (currentUrl.includes('robokassa=success') || 
+              currentUrl.includes('Success') || 
+              currentUrl.includes('success')) {
+            console.log('Обнаружена успешная оплата для заказа:', orderId);
+            markOrderAsPaid(orderId);
+            clearInterval(robokassaCheckInterval);
+            robokassaCheckInterval = null;
+          }
+        }
+      } catch (e) {
+        // Игнорируем CORS ошибки
+      }
+    }, 1000); // Проверяем каждую секунду
+  }
+  
+  // Проверка параметров в URL основной страницы (на случай перезагрузки)
+  function checkUrlForPaymentReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const robokassaStatus = urlParams.get('robokassa');
+    const orderId = urlParams.get('orderId');
+    
+    if (robokassaStatus === 'success' && orderId) {
+      console.log('Найден возврат с оплаты:', orderId);
+      
+      // Очищаем URL
+      if (window.history && window.history.replaceState) {
+        const cleanUrl = window.location.href.split('?')[0];
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+      
+      // Обновляем заказ
+      markOrderAsPaid(orderId);
     }
   }
 
@@ -1514,6 +1585,9 @@
     const paymentUrl = getRobokassaIframeUrl(orderId, invoiceId, amount, `Заказ мусора #${orderId.slice(0,6)}`);
     robokassaFrame.src = paymentUrl;
     robokassaModal.style.display = 'flex';
+    
+    // Запускаем мониторинг URL в iframe
+    startRobokassaUrlMonitoring(orderId);
   }
   
   async function createOrderAndPay() {
@@ -1561,7 +1635,7 @@
       
       if (selectedPaymentMethod === "online") {
         await openPaymentForOrder(docRef.id, 10);
-        successMessage += `<br><br>После оплаты вы будете возвращены на сайт, и статус заказа обновится автоматически.`;
+        successMessage += `<br><br>После оплаты статус заказа обновится автоматически.`;
       } else {
         successMessage += `<br><br>Курьер приедет в выбранное время. Пожалуйста, подготовьте 10 рублей наличными.`;
       }
@@ -1593,12 +1667,21 @@
   document.getElementById('closeRobokassaBtn').addEventListener('click', () => {
     robokassaModal.style.display = 'none';
     robokassaFrame.src = 'about:blank';
+    // Останавливаем мониторинг
+    if (robokassaCheckInterval) {
+      clearInterval(robokassaCheckInterval);
+      robokassaCheckInterval = null;
+    }
   });
   
   robokassaModal.addEventListener('click', (e) => {
     if (e.target === robokassaModal) {
       robokassaModal.style.display = 'none';
       robokassaFrame.src = 'about:blank';
+      if (robokassaCheckInterval) {
+        clearInterval(robokassaCheckInterval);
+        robokassaCheckInterval = null;
+      }
     }
   });
 
@@ -1693,12 +1776,8 @@
     if (!courierId) return null;
     try {
       const doc = await db.collection("couriers").doc(courierId).get();
-      if (doc.exists) {
-        return doc.data();
-      }
-    } catch(e) {
-      console.error("Ошибка получения курьера:", e);
-    }
+      if (doc.exists) return doc.data();
+    } catch(e) {}
     return null;
   }
 
@@ -1722,9 +1801,7 @@
         completed.push(order);
       } else if (order.status !== 'отменен') {
         let courierInfo = null;
-        if (order.courierId) {
-          courierInfo = await getCourierInfo(order.courierId);
-        }
+        if (order.courierId) courierInfo = await getCourierInfo(order.courierId);
         activeOrdersWithCourier.push({ ...order, courierInfo });
       }
     }
@@ -1741,7 +1818,6 @@
           statusClass = 'status-pending';
         } else if (order.status === 'новый') {
           statusText = 'Новый (оплачен)';
-          statusClass = 'status-active';
         } else if (order.status === 'в работе') {
           statusText = 'Курьер в пути';
         }
@@ -1754,15 +1830,14 @@
         let courierBlock = '';
         if (order.courierId && order.status === 'в работе' && order.courierInfo) {
           const courierPhone = order.courierInfo.phone || '';
-          const phoneLink = courierPhone ? `tel:${courierPhone}` : '#';
           courierBlock = `
             <div style="background:#e8f5e9; border-radius:12px; padding:10px; margin-top:8px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                   <div style="font-size:13px; font-weight:600;">Курьер: ${order.courierInfo.name || '—'}</div>
-                  ${courierPhone ? `<div style="font-size:12px; color:#2e7d32;">Телефон: ${courierPhone}</div>` : ''}
+                  ${courierPhone ? `<div style="font-size:12px; color:#2e7d32;">📞 ${courierPhone}</div>` : ''}
                 </div>
-                ${courierPhone ? `<a href="${phoneLink}" class="call-btn" style="text-decoration:none;">Позвонить</a>` : ''}
+                ${courierPhone ? `<a href="tel:${courierPhone}" class="call-btn" style="text-decoration:none;">Позвонить</a>` : ''}
               </div>
             </div>
           `;
@@ -1822,7 +1897,6 @@
     document.querySelectorAll('.profile-order-track').forEach(btn => {
       btn.addEventListener('click', () => showTrackModal(btn.dataset.id));
     });
-    
     document.querySelectorAll('.profile-order-pay').forEach(btn => {
       btn.addEventListener('click', async () => {
         const orderId = btn.dataset.id;
@@ -1830,7 +1904,6 @@
         await openPaymentForOrder(orderId, 10);
       });
     });
-    
     document.querySelectorAll('.profile-order-cancel').forEach(btn => {
       btn.addEventListener('click', () => {
         pendingCancelOrderId = btn.dataset.id;
@@ -1859,20 +1932,19 @@
       const courierInfo = await getCourierInfo(order.courierId);
       if (courierInfo) {
         const courierPhone = courierInfo.phone || '';
-        const phoneLink = courierPhone ? `tel:${courierPhone}` : '#';
         courierHtml = `
           <div class="track-row">
             <span class="track-label">Курьер</span>
             <span class="track-value">
               ${courierInfo.name || '—'}
-              ${courierPhone ? `<a href="${phoneLink}" style="margin-left:8px; background:#34c759; color:white; padding:4px 10px; border-radius:20px; text-decoration:none; font-size:12px;">Позвонить</a>` : ''}
+              ${courierPhone ? `<a href="tel:${courierPhone}" style="margin-left:8px; background:#34c759; color:white; padding:4px 10px; border-radius:20px; text-decoration:none; font-size:12px;">Позвонить</a>` : ''}
             </span>
           </div>
         `;
       }
     }
     
-    const html = `
+    document.getElementById('trackDetails').innerHTML = `
       <div class="track-row"><span class="track-label">Номер</span><span class="track-value">#${orderId.slice(0,6)}</span></div>
       <div class="track-row"><span class="track-label">Статус</span><span class="track-value">${statusText}</span></div>
       <div class="track-row"><span class="track-label">Адрес</span><span class="track-value">${order.street}, ${order.house}, кв.${order.flat}</span></div>
@@ -1882,7 +1954,6 @@
       ${courierHtml}
       ${payButton}
     `;
-    document.getElementById('trackDetails').innerHTML = html;
     trackModal.style.display = 'flex';
     
     if (order.status === 'pending_payment' && order.paymentMethod !== 'cash') {
@@ -1976,46 +2047,6 @@
       });
   }
 
-  // ========== ОБРАБОТЧИК ВОЗВРАТА С ОПЛАТЫ ==========
-  async function handlePaymentReturn() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paidFlag = urlParams.get('paid');
-    const orderId = urlParams.get('orderId');
-    const invId = urlParams.get('InvId');
-    
-    if (paidFlag === '1' && orderId) {
-      console.log('Обнаружен возврат с оплаты, заказ:', orderId);
-      
-      // Убираем параметры из URL, чтобы не срабатывало повторно
-      if (window.history && window.history.replaceState) {
-        const cleanUrl = window.location.href.split('?')[0];
-        window.history.replaceState({}, document.title, cleanUrl);
-      }
-      
-      // Проверяем, авторизован ли пользователь
-      const user = auth.currentUser;
-      if (!user || !user.emailVerified) {
-        // Если не авторизован, просто показываем уведомление
-        showNotification('Оплата прошла! Войдите в аккаунт для отслеживания заказа.');
-        return;
-      }
-      
-      // Обновляем статус заказа
-      const success = await markOrderAsPaid(orderId, invId);
-      
-      if (success) {
-        showNotification('Оплата подтверждена! Заказ передан в работу.');
-        // Обновляем island и подписку
-        if (lastOrderUnsubscribe) subscribeToLastOrder();
-      } else {
-        showNotification('Не удалось обновить статус заказа. Свяжитесь с нами.', true);
-      }
-    }
-  }
-  
-  // Запускаем проверку при загрузке страницы
-  handlePaymentReturn();
-
   document.getElementById('trackFromSuccessBtn').onclick = () => {
     document.getElementById('successModal').style.display = 'none';
     if (auth.currentUser) showProfileModal();
@@ -2041,6 +2072,9 @@
   document.getElementById('saveTimeBtn').addEventListener('click', saveTime);
   loadUserData();
   loadHiddenOrders();
+  
+  // Проверяем возврат с оплаты при загрузке страницы
+  checkUrlForPaymentReturn();
   
   auth.onAuthStateChanged((user) => {
     updateAuthButton();
